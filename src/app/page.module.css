@@ -1,0 +1,17 @@
+.main {
+  display: grid;
+  min-height: 100vh;
+  place-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.main h1,
+.main p {
+  margin: 0;
+}
+
+.main h1 {
+  color: #2f6b4f;
+}
