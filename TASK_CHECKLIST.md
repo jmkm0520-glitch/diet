@@ -38,15 +38,15 @@
 - [x] 013. 프론트엔드 의존성과 실행 스크립트를 `package.json`에 정리한다.
 - [x] 014. Supabase Python Client, Pydantic 및 테스트 도구를 `requirements.txt`에 정의한다.
 - [x] 015. ESLint와 Prettier를 설정하고 충돌하지 않는 포맷 규칙을 적용한다.
-- [ ] 016. Python 린트 및 포맷 도구를 정하고 설정한다.
-- [ ] 017. `.gitignore`에 `.env`, `.env.local`, 빌드 결과물 및 Python 캐시를 추가한다.
-- [ ] 018. `.env.example`에 필요한 변수 이름과 용도를 작성한다.
-  - [ ] 019. `SUPABASE_URL`
-  - [ ] 020. `SUPABASE_SERVICE_ROLE_KEY`
-- [ ] 021. MVP 프론트엔드는 Python API만 호출하므로 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_ANON_KEY`를 번들에 넣지 않는다.
-- [ ] 022. 향후 Supabase Auth 또는 Storage를 브라우저에서 직접 사용할 때만 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_ANON_KEY`를 추가한다.
-- [ ] 023. 프론트엔드와 Python API를 함께 배포하도록 `vercel.json`을 작성한다.
-- [ ] 024. `/api/health` 상태 확인 API를 만들고 로컬 및 Vercel 환경에서 호출되는지 확인한다.
+- [x] 016. Python 린트 및 포맷 도구를 정하고 설정한다.
+- [x] 017. `.gitignore`에 `.env`, `.env.local`, 빌드 결과물 및 Python 캐시를 추가한다.
+- [x] 018. `.env.example`에 필요한 변수 이름과 용도를 작성한다.
+  - [x] 019. `SUPABASE_URL`
+  - [x] 020. `SUPABASE_SERVICE_ROLE_KEY`
+- [x] 021. MVP 프론트엔드는 Python API만 호출하므로 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_ANON_KEY`를 번들에 넣지 않는다.
+- [x] 022. 향후 Supabase Auth 또는 Storage를 브라우저에서 직접 사용할 때만 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_ANON_KEY`를 추가한다.
+- [x] 023. 프론트엔드와 Python API를 함께 배포하도록 `vercel.json`을 작성한다.
+- [x] 024. `/api/health` 상태 확인 API를 만들고 로컬 및 Vercel 환경에서 호출되는지 확인한다.
 
 ## 2. Notion 목업 및 이미지 자산 준비
 

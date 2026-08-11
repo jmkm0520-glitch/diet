@@ -48,7 +48,7 @@ Supabase
 - 클라이언트 측 입력값 사전 검증
 - 로그인 상태 및 화면 상태 관리
 - 백엔드 API 호출과 로딩·오류 상태 표시
-- 공개 가능한 Supabase 기능 사용
+- MVP에서는 Supabase를 직접 호출하지 않고 Python API만 사용
 
 민감한 비즈니스 로직이나 관리자 권한이 필요한 데이터 처리는 프론트엔드에 구현하지 않는다.
 
@@ -86,7 +86,7 @@ Supabase
 
 - 모든 주요 테이블에 Row Level Security(RLS)를 활성화한다.
 - 사용자는 본인에게 허용된 데이터만 조회하거나 변경할 수 있도록 정책을 작성한다.
-- 브라우저에는 공개용 Supabase URL과 anon key만 제공한다.
+- MVP 브라우저 번들에는 Supabase URL이나 키를 포함하지 않는다.
 - Supabase service role key는 백엔드 환경 변수에만 저장하며 프론트엔드 번들에 포함하지 않는다.
 - 스키마 변경은 SQL 마이그레이션으로 관리한다.
 
@@ -122,12 +122,12 @@ Supabase
 
 ## 7. 환경 변수
 
-| 변수                            | 사용 위치  | 공개 여부   | 설명                            |
-| ------------------------------- | ---------- | ----------- | ------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | 프론트엔드 | 공개 가능   | Supabase 프로젝트 URL           |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 프론트엔드 | 공개 가능   | RLS 정책이 적용되는 공개 키     |
-| `SUPABASE_URL`                  | 백엔드     | 비공개      | Supabase 프로젝트 URL           |
-| `SUPABASE_SERVICE_ROLE_KEY`     | 백엔드     | 절대 비공개 | 관리자 권한이 있는 서버 전용 키 |
+| 변수                        | 사용 위치 | 공개 여부   | 설명                            |
+| --------------------------- | --------- | ----------- | ------------------------------- |
+| `SUPABASE_URL`              | 백엔드    | 비공개      | Supabase 프로젝트 URL           |
+| `SUPABASE_SERVICE_ROLE_KEY` | 백엔드    | 절대 비공개 | 관리자 권한이 있는 서버 전용 키 |
+
+MVP 프론트엔드는 Python API만 호출하므로 `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_ANON_KEY`를 사용하지 않는다. 향후 Supabase Auth 또는 Storage를 브라우저에서 직접 사용할 때만 공개용 URL과 anon key 추가를 검토한다.
 
 로컬 환경 변수 파일은 Git에 커밋하지 않는다. 개발·미리보기·운영 환경의 값은 Vercel에서 각각 분리하여 관리한다.
 

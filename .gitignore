@@ -20,6 +20,9 @@ lerna-debug.log*
 
 # testing
 /coverage
+.coverage
+.pytest_cache/
+htmlcov/
 
 # next.js
 /.next/
@@ -27,9 +30,20 @@ lerna-debug.log*
 
 # production
 /build
+/dist/
 
 # environment variables
 .env*
+!.env.example
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.ruff_cache/
+.mypy_cache/
 
 # vercel
 .vercel
