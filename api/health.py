@@ -1,13 +1,11 @@
-import json
 from http.server import BaseHTTPRequestHandler
+
+from api.lib.response import json_bytes, success_response
 
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
-        body = json.dumps(
-            {"data": {"status": "ok"}, "error": None},
-            separators=(",", ":"),
-        ).encode("utf-8")
+        body = json_bytes(success_response({"status": "ok"}))
 
         self.send_response(200)
         self.send_header("Content-Type", "application/json; charset=utf-8")

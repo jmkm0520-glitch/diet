@@ -3,6 +3,6 @@ supabase==2.31.0
 pydantic==2.13.4
 
 # Development and test dependencies
-pytest==9.1.1
+pytest==8.4.2
 pytest-asyncio==1.4.0
 ruff==0.15.22

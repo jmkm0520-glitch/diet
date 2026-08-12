@@ -65,3 +65,11 @@ next-env.d.ts
 
 # local scratch files
 /test.py
+/tmp/
+
+# database backups must stay outside this public repository
+/backups/
+*.dump
+roles.sql
+schema.sql
+data.sql
