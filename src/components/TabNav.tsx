@@ -15,7 +15,7 @@ export function TabNav() {
   const router = useRouter();
   const activeTab = pathname === "/calendar" ? "calendar" : pathname === "/" ? "today" : null;
 
-  function preserveSelectedDateWhenOpeningRecord(event: MouseEvent<HTMLAnchorElement>, href: string) {
+  function preserveSelectedDate(event: MouseEvent<HTMLAnchorElement>, href: string) {
     if (typeof window === "undefined" || event.metaKey || event.ctrlKey || event.shiftKey) return;
     const date = new URLSearchParams(window.location.search).get("date");
     if (!date) return;
@@ -47,11 +47,7 @@ export function TabNav() {
           href={tab.href}
           id={`tab-${tab.id}`}
           key={tab.id}
-          onClick={
-            tab.id === "today"
-              ? (event) => preserveSelectedDateWhenOpeningRecord(event, tab.href)
-              : undefined
-          }
+          onClick={(event) => preserveSelectedDate(event, tab.href)}
           onKeyDown={(event) => handleKeyDown(event, index)}
           role="tab"
           aria-selected={activeTab === tab.id}
