@@ -1,4 +1,4 @@
-"""Server-side Supabase Auth session and single-member helpers."""
+"""Server-side Supabase Auth session and application-member helpers."""
 
 from __future__ import annotations
 

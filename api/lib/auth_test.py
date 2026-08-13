@@ -11,6 +11,7 @@ from api.lib.auth import (
     member_payload,
     session_from_auth_response,
 )
+from api.models.auth import EmailVerificationRequest
 
 
 def test_member_payload_exposes_only_safe_profile_fields() -> None:
@@ -42,3 +43,11 @@ def test_access_cookie_name_is_server_specific() -> None:
             member_from_row({"id": "1", "email": "a@example.com", "display_name": "A"})
         ).values()
     )
+
+
+def test_email_verification_code_requires_exactly_six_digits() -> None:
+    request = EmailVerificationRequest(email="user@example.com", token="123456")
+    assert request.token == "123456"
+
+    with pytest.raises(ValueError):
+        EmailVerificationRequest(email="user@example.com", token="12345a")

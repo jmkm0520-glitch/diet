@@ -1,4 +1,4 @@
-"""Authenticate the single member and issue HttpOnly session cookies."""
+"""Authenticate a member and issue HttpOnly session cookies."""
 
 import json
 from http.server import BaseHTTPRequestHandler
@@ -64,12 +64,20 @@ class handler(BaseHTTPRequestHandler):
             )
             row = (member_result.data or [None])[0]
             if not row:
-                _send(
-                    self,
-                    401,
-                    error_response("INVALID_CREDENTIALS", "이메일 또는 비밀번호를 확인해 주세요."),
+                completed = (
+                    get_supabase_client()
+                    .rpc(
+                        "complete_verified_member_signup",
+                        {
+                            "requested_user_id": str(response.user.id),
+                            "requested_email": str(response.user.email),
+                        },
+                    )
+                    .execute()
                 )
-                return
+                row = completed.data
+                if isinstance(row, list):
+                    row = (row or [None])[0]
             _send(self, 200, success_response(member_payload(member_from_row(row))), session)
         except Exception as error:
             # Supabase intentionally does not reveal whether the email exists.

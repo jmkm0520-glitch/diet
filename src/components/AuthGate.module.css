@@ -10,6 +10,7 @@
 .form button { border: 0; border-radius: 12px; padding: 13px; background: #4f7d3f; color: white; font: inherit; font-weight: 800; cursor: pointer; }
 .form button:disabled { opacity: .6; cursor: wait; }
 .error { margin: 0; color: #b33131; font-size: 14px; }
+.status { margin: 0; color: #3f6833; font-size: 14px; line-height: 1.5; }
 .switch { width: 100%; margin-top: 16px; border: 0; background: transparent; color: #4f7d3f; font: inherit; font-weight: 700; cursor: pointer; }
 .memberBar { position: fixed; z-index: 20; right: 18px; bottom: 18px; display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 14px; border: 1px solid #dce7d6; border-radius: 999px; background: rgba(255,255,255,.94); box-shadow: 0 8px 30px rgba(44,74,35,.12); color: #405039; font-size: 13px; }
 .memberBar button { border: 0; border-radius: 999px; padding: 7px 10px; background: #edf4e9; color: #3f6833; cursor: pointer; }

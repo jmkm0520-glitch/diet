@@ -1,4 +1,4 @@
-"""Validated requests for the single-member authentication flow."""
+"""Validated requests for email-verified member authentication."""
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
@@ -20,3 +20,16 @@ class SignupRequest(CredentialsRequest):
         if not value:
             raise ValueError("display_name must not be blank")
         return value
+
+
+class EmailVerificationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    email: EmailStr
+    token: str = Field(pattern=r"^\d{6}$")
+
+
+class ResendVerificationRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    email: EmailStr
