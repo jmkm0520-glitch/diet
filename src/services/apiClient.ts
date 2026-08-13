@@ -21,6 +21,7 @@ function isApiEnvelope<T>(value: unknown): value is ApiEnvelope<T> {
 export async function fetchApi<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     ...init,
+    credentials: "same-origin",
     headers: {
       Accept: "application/json",
       ...init?.headers,

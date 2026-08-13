@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -16,8 +16,8 @@ class CalendarDay(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     date: date
-    weight: Optional[float] = Field(default=None, gt=0, le=9999.99)
-    status: Optional[CalendarStatus] = None
+    weight: float | None = Field(default=None, gt=0, le=9999.99)
+    status: CalendarStatus | None = None
 
 
 class CalendarMonthResponse(BaseModel):

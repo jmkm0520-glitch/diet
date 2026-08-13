@@ -7,10 +7,12 @@ from http.server import BaseHTTPRequestHandler
 
 from pydantic import ValidationError
 
+from api.lib.auth import AuthenticationRequiredError, require_member
 from api.lib.http import status_for_error_code
 from api.lib.logging import log_internal_error
 from api.lib.request import RequestBodyTooLargeError, UnsupportedMediaTypeError, read_json_body
 from api.lib.response import (
+    auth_required_response,
     internal_error_response,
     json_bytes,
     success_response,
@@ -30,12 +32,18 @@ def _send_json(handler: BaseHTTPRequestHandler, status: int, payload: dict) -> N
     handler.wfile.write(body)
 
 
-def upsert_weight(client, request: WeightUpsertRequest):
+def upsert_weight(client, request: WeightUpsertRequest, member_id: str | None = None):
     """Insert or update the single weight row identified by its date."""
 
+    payload = request.model_dump(mode="json")
+    if member_id is not None:
+        payload["member_id"] = member_id
     return (
         client.table("weights")
-        .upsert(request.model_dump(mode="json"), on_conflict="date")
+        .upsert(
+            payload,
+            on_conflict="member_id,date" if member_id is not None else "date",
+        )
         .execute()
     )
 
@@ -69,9 +77,12 @@ class handler(BaseHTTPRequestHandler):
             return
 
         try:
-            result = upsert_weight(get_supabase_client(), request)
+            member = require_member(self)
+            result = upsert_weight(get_supabase_client(), request, member.id)
             saved = final_weight_record(result)
             _send_json(self, 200, success_response(saved))
+        except AuthenticationRequiredError:
+            _send_json(self, 401, auth_required_response())
         except SupabaseConfigurationError as error:
             log_internal_error("weight.put", error)
             _send_json(self, 500, internal_error_response())

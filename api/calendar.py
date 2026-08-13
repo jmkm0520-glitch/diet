@@ -9,9 +9,11 @@ from urllib.parse import parse_qs, urlparse
 
 from pydantic import ValidationError
 
+from api.lib.auth import AuthenticationRequiredError, require_member
 from api.lib.http import status_for_error_code
 from api.lib.logging import log_internal_error
 from api.lib.response import (
+    auth_required_response,
     internal_error_response,
     json_bytes,
     success_response,
@@ -72,7 +74,9 @@ def meal_status(types: list[str]) -> str | None:
     return None
 
 
-def build_calendar_month(year: int, month: int, weight_rows: list[dict], meal_rows: list[dict]) -> dict:
+def build_calendar_month(
+    year: int, month: int, weight_rows: list[dict], meal_rows: list[dict]
+) -> dict:
     """Build all calendar cells from the month's weight and meal records in one response."""
 
     weights_by_date = {str(row["date"]): row["weight"] for row in weight_rows}
@@ -108,11 +112,12 @@ class handler(BaseHTTPRequestHandler):
 
         try:
             start_date, end_date = month_bounds(year, month)
+            member = require_member(self)
             client = get_supabase_client()
             weights = (
-                client
-                .table("weights")
+                client.table("weights")
                 .select("date,weight")
+                .eq("member_id", member.id)
                 .gte("date", start_date)
                 .lte("date", end_date)
                 .execute()
@@ -120,6 +125,7 @@ class handler(BaseHTTPRequestHandler):
             meals = (
                 client.table("meals")
                 .select("date,type")
+                .eq("member_id", member.id)
                 .gte("date", start_date)
                 .lte("date", end_date)
                 .execute()
@@ -127,8 +133,12 @@ class handler(BaseHTTPRequestHandler):
             _send_json(
                 self,
                 200,
-                success_response(build_calendar_month(year, month, weights.data or [], meals.data or [])),
+                success_response(
+                    build_calendar_month(year, month, weights.data or [], meals.data or [])
+                ),
             )
+        except AuthenticationRequiredError:
+            _send_json(self, 401, auth_required_response())
         except (SupabaseConfigurationError, ValidationError) as error:
             log_internal_error("calendar.get", error)
             _send_json(self, 500, internal_error_response())

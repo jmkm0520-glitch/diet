@@ -1,0 +1,16 @@
+.center { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f4f8ef; color: #24351e; }
+.card { width: min(100%, 420px); padding: 36px; border-radius: 24px; background: white; box-shadow: 0 18px 60px rgba(44, 74, 35, .12); }
+.eyebrow { color: #5c8a4b; font-weight: 800; }
+.card h1 { margin: 10px 0 8px; font-size: 30px; }
+.card > p { margin: 0 0 24px; color: #667260; line-height: 1.6; }
+.form { display: grid; gap: 16px; }
+.form label { display: grid; gap: 7px; font-size: 14px; font-weight: 700; }
+.form input { width: 100%; border: 1px solid #d6dfd1; border-radius: 12px; padding: 12px 14px; font: inherit; }
+.form input:focus { outline: 3px solid rgba(92, 138, 75, .18); border-color: #5c8a4b; }
+.form button { border: 0; border-radius: 12px; padding: 13px; background: #4f7d3f; color: white; font: inherit; font-weight: 800; cursor: pointer; }
+.form button:disabled { opacity: .6; cursor: wait; }
+.error { margin: 0; color: #b33131; font-size: 14px; }
+.switch { width: 100%; margin-top: 16px; border: 0; background: transparent; color: #4f7d3f; font: inherit; font-weight: 700; cursor: pointer; }
+.memberBar { position: fixed; z-index: 20; right: 18px; bottom: 18px; display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 14px; border: 1px solid #dce7d6; border-radius: 999px; background: rgba(255,255,255,.94); box-shadow: 0 8px 30px rgba(44,74,35,.12); color: #405039; font-size: 13px; }
+.memberBar button { border: 0; border-radius: 999px; padding: 7px 10px; background: #edf4e9; color: #3f6833; cursor: pointer; }
+@media (max-width: 520px) { .card { padding: 26px 22px; } .memberBar { right: 10px; bottom: 10px; } }

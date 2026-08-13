@@ -8,10 +8,12 @@ from urllib.parse import parse_qs, urlparse
 
 from pydantic import ValidationError
 
+from api.lib.auth import AuthenticationRequiredError, require_member
 from api.lib.http import status_for_error_code
 from api.lib.logging import log_internal_error
 from api.lib.request import RequestBodyTooLargeError, UnsupportedMediaTypeError, read_json_body
 from api.lib.response import (
+    auth_required_response,
     internal_error_response,
     json_bytes,
     success_response,
@@ -32,12 +34,18 @@ def _send_json(handler: BaseHTTPRequestHandler, status: int, payload: dict) -> N
     handler.wfile.write(body)
 
 
-def upsert_meal(client, request: MealUpsertRequest):
+def upsert_meal(client, request: MealUpsertRequest, member_id: str | None = None):
     """Save the requested meal, replacing its date-and-meal slot when it exists."""
 
+    payload = request.model_dump(mode="json")
+    if member_id is not None:
+        payload["member_id"] = member_id
     return (
         client.table("meals")
-        .upsert(request.model_dump(mode="json"), on_conflict="date,meal")
+        .upsert(
+            payload,
+            on_conflict="member_id,date,meal" if member_id is not None else "date,meal",
+        )
         .execute()
     )
 
@@ -60,10 +68,13 @@ def requested_date(path: str) -> str:
     return validate_date(values[0])
 
 
-def delete_meals_for_date(client, date: str):
+def delete_meals_for_date(client, date: str, member_id: str | None = None):
     """Delete every meal slot saved for one calendar date."""
 
-    return client.table("meals").delete().eq("date", date).execute()
+    query = client.table("meals").delete()
+    if member_id is not None:
+        query = query.eq("member_id", member_id)
+    return query.eq("date", date).execute()
 
 
 class handler(BaseHTTPRequestHandler):
@@ -86,8 +97,11 @@ class handler(BaseHTTPRequestHandler):
             return
 
         try:
-            result = upsert_meal(get_supabase_client(), request)
+            member = require_member(self)
+            result = upsert_meal(get_supabase_client(), request, member.id)
             _send_json(self, 200, success_response(final_meal_record(result)))
+        except AuthenticationRequiredError:
+            _send_json(self, 401, auth_required_response())
         except SupabaseConfigurationError as error:
             log_internal_error("meal.put", error)
             _send_json(self, 500, internal_error_response())
@@ -107,12 +121,15 @@ class handler(BaseHTTPRequestHandler):
             return
 
         try:
-            result = delete_meals_for_date(get_supabase_client(), date)
+            member = require_member(self)
+            result = delete_meals_for_date(get_supabase_client(), date, member.id)
             _send_json(
                 self,
                 200,
                 success_response({"date": date, "deleted": len(result.data or [])}),
             )
+        except AuthenticationRequiredError:
+            _send_json(self, 401, auth_required_response())
         except SupabaseConfigurationError as error:
             log_internal_error("meal.delete", error)
             _send_json(self, 500, internal_error_response())

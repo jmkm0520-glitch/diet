@@ -22,7 +22,7 @@ def _required_setting(name: str) -> str:
 
 
 @lru_cache(maxsize=1)
-def get_supabase_client() -> "Client":
+def get_supabase_client() -> Client:
     """Return one lazily initialized client without exposing secret values."""
 
     url = _required_setting("SUPABASE_URL")
@@ -30,3 +30,14 @@ def get_supabase_client() -> "Client":
     from supabase import create_client
 
     return create_client(url, service_role_key)
+
+
+def create_supabase_auth_client() -> Client:
+    """Create an isolated client for auth operations that mutate session state."""
+
+    from supabase import create_client
+
+    return create_client(
+        _required_setting("SUPABASE_URL"),
+        _required_setting("SUPABASE_SERVICE_ROLE_KEY"),
+    )
