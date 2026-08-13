@@ -293,7 +293,7 @@ export default function Home() {
         <div>
           <p className={styles.eyebrow}>오늘의 체중</p>
           <h2 id="weight-title">몸무게를 기록해 보세요</h2>
-          <p className={styles.cardHint}>날짜마다 한 번 저장하고 언제든 수정할 수 있어요.</p>
+          <p className={styles.cardHint}>매일 저장하고 언제든 수정하세요.</p>
         </div>
         <div className={styles.weightControl}>
           <div className={styles.weightInputRow}>

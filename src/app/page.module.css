@@ -970,6 +970,10 @@
     flex-direction: column;
     justify-content: center;
   }
+  .cardHint {
+    font-size: clamp(0.85rem, 3.7vw, 1rem);
+    white-space: nowrap;
+  }
   .weightInputRow {
     justify-content: center;
     margin-top: 0;
