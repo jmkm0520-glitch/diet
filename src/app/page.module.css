@@ -100,9 +100,14 @@
 }
 
 .todayFooter {
+  position: fixed;
+  right: 0;
+  bottom: 20px;
+  left: 0;
+  z-index: 20;
   display: flex;
   justify-content: center;
-  margin: 0 52px 10px;
+  pointer-events: none;
 }
 
 .todayFooter button {
@@ -115,6 +120,7 @@
   font: inherit;
   font-size: 0.95rem;
   font-weight: 800;
+  pointer-events: auto;
 }
 
 .todayFooter button:hover,
@@ -997,7 +1003,7 @@
     padding: 0 24px 36px;
   }
   .todayFooter {
-    margin: 0 24px 8px;
+    bottom: 14px;
   }
   .calendarSection {
     display: flex;
