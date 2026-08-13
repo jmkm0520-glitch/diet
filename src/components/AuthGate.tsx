@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, ReactNode, useEffect, useState } from "react";
+import Link from "next/link";
+import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { ApiClientError, fetchApi } from "../services/apiClient";
 import type { Member } from "../types/auth";
 import styles from "./AuthGate.module.css";
@@ -15,6 +16,9 @@ export function AuthGate({ children }: { children: ReactNode }) {
   const [error, setError] = useState("");
   const [pendingEmail, setPendingEmail] = useState("");
   const [status, setStatus] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const sideMenuRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const savedPendingEmail = window.sessionStorage.getItem("pendingSignupEmail") ?? "";
@@ -31,6 +35,27 @@ export function AuthGate({ children }: { children: ReactNode }) {
     });
     return () => window.clearTimeout(pendingStateTimer);
   }, []);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const focusTimer = window.setTimeout(() => sideMenuRef.current?.focus(), 0);
+    document.body.style.overflow = "hidden";
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      setIsMenuOpen(false);
+      window.setTimeout(() => menuButtonRef.current?.focus(), 0);
+    }
+
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      window.clearTimeout(focusTimer);
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isMenuOpen]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -102,6 +127,12 @@ export function AuthGate({ children }: { children: ReactNode }) {
     });
     setMember(null);
     setMode("login");
+    setIsMenuOpen(false);
+  }
+
+  function closeMenu() {
+    setIsMenuOpen(false);
+    window.setTimeout(() => menuButtonRef.current?.focus(), 0);
   }
 
   if (loading) return <main className={styles.center}>로그인 상태를 확인하고 있어요.</main>;
@@ -171,10 +202,61 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <div className={styles.memberBar}>
-        <span>{member.displayName}님</span>
-        <button type="button" onClick={logout}>로그아웃</button>
-      </div>
+      <button
+        aria-controls="account-side-menu"
+        aria-expanded={isMenuOpen}
+        aria-label="메뉴 열기"
+        className={styles.menuButton}
+        ref={menuButtonRef}
+        type="button"
+        onClick={() => setIsMenuOpen(true)}
+      >
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+        <span aria-hidden="true" />
+      </button>
+      {isMenuOpen ? (
+        <>
+          <button
+            aria-label="메뉴 닫기"
+            className={styles.menuBackdrop}
+            type="button"
+            onClick={closeMenu}
+          />
+          <aside
+            aria-label="사용자 메뉴"
+            aria-modal="true"
+            className={styles.sideMenu}
+            id="account-side-menu"
+            ref={sideMenuRef}
+            role="dialog"
+            tabIndex={-1}
+          >
+            <div className={styles.sideMenuHeader}>
+              <div>
+                <span>로그인 계정</span>
+                <strong>{member.displayName}님</strong>
+              </div>
+              <button aria-label="메뉴 닫기" type="button" onClick={closeMenu}>
+                ×
+              </button>
+            </div>
+            <nav aria-label="추가 메뉴" className={styles.sideMenuNav}>
+              <Link href="/import" onClick={() => setIsMenuOpen(false)}>
+                <span aria-hidden="true">⇧</span>
+                <span>
+                  <strong>가져오기</strong>
+                  <small>CSV 기록 불러오기</small>
+                </span>
+                <b aria-hidden="true">›</b>
+              </Link>
+            </nav>
+            <button className={styles.logoutButton} type="button" onClick={logout}>
+              로그아웃
+            </button>
+          </aside>
+        </>
+      ) : null}
       {children}
     </>
   );

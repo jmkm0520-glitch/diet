@@ -18,7 +18,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 22px 52px;
+  padding: 22px 128px 22px 52px;
   border-bottom: 1px solid #ddd9ce;
   background: #fffdf9;
 }
@@ -187,7 +187,7 @@
   .siteHeader {
     min-height: auto;
     align-items: flex-start;
-    padding: 20px;
+    padding: 10px 68px 10px 16px;
   }
   .brand span {
     display: none;

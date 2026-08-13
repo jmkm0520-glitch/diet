@@ -19,7 +19,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 22px 52px;
+  padding: 22px 128px 22px 52px;
   border-bottom: 1px solid #ddd9ce;
   background: #fffdf9;
 }
@@ -918,7 +918,7 @@
   .siteHeader {
     min-height: auto;
     gap: 8px;
-    padding: 10px 16px;
+    padding: 10px 68px 10px 16px;
   }
   .brand {
     flex-shrink: 1;
@@ -1088,7 +1088,7 @@
 @media (max-width: 380px) {
   .siteHeader {
     gap: 8px;
-    padding: 8px 12px;
+    padding: 8px 64px 8px 12px;
   }
   .brand {
     gap: 8px;
