@@ -22,11 +22,6 @@ log() {
     echo "[$(date '+%H:%M:%S')] $1"
 }
 
-fail() {
-    echo "오류: $1" >&2
-    exit 1
-}
-
 cleanup() {
     if [ -n "$ACTIVE_MOUNT_POINT" ]; then
         hdiutil detach "$ACTIVE_MOUNT_POINT" >/dev/null 2>&1 || true
@@ -61,7 +56,8 @@ install_dmg() {
     echo "MOUNT_POINT=$ACTIVE_MOUNT_POINT"
 
     if [ -z "$ACTIVE_MOUNT_POINT" ]; then
-        fail "DMG 마운트 실패: $name"
+        echo "DMG 마운트 실패: $name" >&2
+        exit 1
     fi
 
     step "$step_no-2" "$name APP 검색"
@@ -72,7 +68,8 @@ install_dmg() {
     echo "APP_PATH=$app_path"
 
     if [ -z "$app_path" ]; then
-        fail ".app 파일을 찾지 못했습니다: $name"
+        echo ".app 파일을 찾지 못했습니다: $name" >&2
+        exit 1
     fi
 
     step "$step_no-3" "$name APP 복사"
@@ -130,7 +127,8 @@ install_node() {
     fi
 
     if [ ! -s "$NVM_DIR/nvm.sh" ]; then
-        fail "nvm 설치 파일을 찾지 못했습니다: $NVM_DIR/nvm.sh"
+        echo "nvm 설치 파일을 찾지 못했습니다: $NVM_DIR/nvm.sh" >&2
+        exit 1
     fi
 
     . "$NVM_DIR/nvm.sh"
@@ -150,25 +148,27 @@ install_pnpm() {
     step "4" "pnpm 설치"
 
     if ! command -v npm >/dev/null 2>&1; then
-        fail "npm 명령어를 찾지 못했습니다. npm을 먼저 설치하세요."
+        echo "npm 명령어를 찾지 못했습니다. npm을 먼저 설치하세요." >&2
+        exit 1
     fi
 
     npm install -g pnpm@latest-11
     hash -r
 
     if ! command -v pnpm >/dev/null 2>&1; then
-        fail "pnpm 명령어를 찾지 못했습니다."
+        echo "pnpm 명령어를 찾지 못했습니다." >&2
+        exit 1
     fi
 
     log "pnpm 설치 완료: $(command -v pnpm)"
-    pnpm --version
 }
 
 install_github_cli() {
     step "5" "GitHub CLI 설치"
 
     if [ ! -x "$HOMEBREW_DIR/bin/brew" ]; then
-        fail "Homebrew를 찾지 못했습니다: $HOMEBREW_DIR/bin/brew"
+        echo "Homebrew를 찾지 못했습니다: $HOMEBREW_DIR/bin/brew" >&2
+        exit 1
     fi
 
     eval "$("$HOMEBREW_DIR/bin/brew" shellenv)"
@@ -183,7 +183,8 @@ install_github_cli() {
     hash -r
 
     if ! command -v gh >/dev/null 2>&1; then
-        fail "gh 명령어를 찾지 못했습니다."
+        echo "gh 명령어를 찾지 못했습니다." >&2
+        exit 1
     fi
 
     log "GitHub CLI 설치 완료: $(command -v gh)"
@@ -194,14 +195,16 @@ install_vercel_cli() {
     step "6" "Vercel CLI 설치"
 
     if ! command -v npm >/dev/null 2>&1; then
-        fail "npm 명령어를 찾지 못했습니다. npm을 먼저 설치하세요."
+        echo "npm 명령어를 찾지 못했습니다. npm을 먼저 설치하세요." >&2
+        exit 1
     fi
 
     npm install -g vercel@latest
     hash -r
 
     if ! command -v vercel >/dev/null 2>&1; then
-        fail "vercel 명령어를 찾지 못했습니다."
+        echo "vercel 명령어를 찾지 못했습니다." >&2
+        exit 1
     fi
 
     log "Vercel CLI 설치 완료: $(command -v vercel)"
@@ -212,7 +215,8 @@ install_ditto_pet() {
     step "7" "Ditto Codex pet 설치"
 
     if ! command -v npx >/dev/null 2>&1; then
-        fail "npx 명령어를 찾지 못했습니다. Node.js를 먼저 설치하세요."
+        echo "npx 명령어를 찾지 못했습니다. Node.js를 먼저 설치하세요." >&2
+        exit 1
     fi
 
     npx codex-pets add ditto
@@ -221,7 +225,8 @@ install_ditto_pet() {
 }
 
 if [ "$(uname -s)" != "Darwin" ]; then
-    fail "이 스크립트는 macOS에서만 실행할 수 있습니다."
+    echo "이 스크립트는 macOS에서만 실행할 수 있습니다." >&2
+    exit 1
 fi
 
 step "0" "설치 준비"
