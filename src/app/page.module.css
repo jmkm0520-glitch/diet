@@ -100,14 +100,9 @@
 }
 
 .todayFooter {
-  position: fixed;
-  right: 0;
-  bottom: 20px;
-  left: 0;
-  z-index: 20;
   display: flex;
   justify-content: center;
-  pointer-events: none;
+  margin: 0 52px 10px;
 }
 
 .todayFooter button {
@@ -120,7 +115,6 @@
   font: inherit;
   font-size: 0.95rem;
   font-weight: 800;
-  pointer-events: auto;
 }
 
 .todayFooter button:hover,
@@ -290,25 +284,25 @@
 
 .mealResetRow {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 0 52px 20px;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 52px 44px;
 }
 
 .mealResetRow button {
   display: inline-flex;
-  height: 48px;
   align-items: center;
   justify-content: center;
-  border: 1px solid #c9584c;
-  border-radius: 16px;
-  background: #fffdf9;
-  padding: 0 21px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  padding: 7px 10px;
   color: #c9584c;
   cursor: pointer;
   font: inherit;
-  font-size: 1.05rem;
+  font-size: 0.82rem;
   font-weight: 800;
 }
 
@@ -1000,10 +994,10 @@
     font-size: 1.15rem;
   }
   .mealResetRow {
-    padding: 0 24px 16px;
+    padding: 0 24px 36px;
   }
   .todayFooter {
-    bottom: 14px;
+    margin: 0 24px 8px;
   }
   .calendarSection {
     display: flex;

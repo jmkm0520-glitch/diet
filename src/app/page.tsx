@@ -332,26 +332,6 @@ export default function Home() {
           </p>
         </div>
       </section>
-      <div className={styles.mealResetRow}>
-        {mealResetError ? (
-          <p aria-live="polite" className={styles.mealResetError}>
-            {mealResetError}
-          </p>
-        ) : null}
-        <button
-          aria-label={`${dateTitle} 식단 초기화`}
-          type="button"
-          disabled={isLoadingDay || isResettingMeals || !hasSavedMeals}
-          onClick={resetMeals}
-        >
-          {isResettingMeals ? "초기화 중..." : "식단 초기화"}
-        </button>
-        {mealResetStatus ? (
-          <p className={styles.srOnly} role="status" aria-live="polite">
-            {mealResetStatus}
-          </p>
-        ) : null}
-      </div>
       <section
         className={styles.mealGrid}
         aria-busy={isLoadingDay || isResettingMeals}
@@ -378,6 +358,26 @@ export default function Home() {
           </button>
         </div>
       ) : null}
+      <div className={styles.mealResetRow}>
+        {mealResetError ? (
+          <p aria-live="polite" className={styles.mealResetError}>
+            {mealResetError}
+          </p>
+        ) : null}
+        <button
+          aria-label={`${dateTitle} 식단 초기화`}
+          type="button"
+          disabled={isLoadingDay || isResettingMeals || !hasSavedMeals}
+          onClick={resetMeals}
+        >
+          {isResettingMeals ? "초기화 중..." : "식단 초기화"}
+        </button>
+        {mealResetStatus ? (
+          <p className={styles.srOnly} role="status" aria-live="polite">
+            {mealResetStatus}
+          </p>
+        ) : null}
+      </div>
     </main>
   );
 }
