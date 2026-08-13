@@ -4,6 +4,7 @@ from email.message import Message
 
 import pytest
 
+from api.authentication import requested_action
 from api.lib.auth import (
     ACCESS_COOKIE,
     AuthenticationRequiredError,
@@ -51,3 +52,9 @@ def test_email_verification_code_requires_exactly_six_digits() -> None:
 
     with pytest.raises(ValueError):
         EmailVerificationRequest(email="user@example.com", token="12345a")
+
+
+def test_authentication_action_requires_exactly_one_value() -> None:
+    assert requested_action("/api/authentication?action=login") == "login"
+    assert requested_action("/api/authentication") == ""
+    assert requested_action("/api/authentication?action=login&action=logout") == ""

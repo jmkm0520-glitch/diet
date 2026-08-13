@@ -36,13 +36,15 @@ JWT, 쿠키, 로그인, 토큰 갱신 등 인증 개념과 요청별 상세 흐�
 
 ## 로그인과 세션
 
-- `POST /api/auth/login`: 이메일·비밀번호 로그인
-- `GET /api/auth/session`: 현재 회원 조회, 필요 시 refresh token으로 세션 갱신
-- `POST /api/auth/logout`: 세션 쿠키 만료
-- `GET /api/auth/signup`: 회원가입 가능 상태
-- `POST /api/auth/signup`: 인증번호 이메일 발송 및 사용자별 가입 대기 저장
-- `POST /api/auth/verify_email`: 이메일 인증 후 회원 생성 완료
-- `POST /api/auth/resend_verification`: 인증번호 이메일 재전송
+- `POST /api/authentication?action=login`: 이메일·비밀번호 로그인
+- `GET /api/authentication?action=session`: 현재 회원 조회 및 토큰 갱신
+- `POST /api/authentication?action=logout`: 세션 쿠키 만료
+- `POST /api/authentication?action=signup`: 인증번호 이메일 발송 및 가입 대기 저장
+- `POST /api/authentication?action=verify_email`: 이메일 인증 후 회원 생성 완료
+- `POST /api/authentication?action=resend_verification`: 인증번호 이메일 재전송
+
+인증 작업은 Vercel Hobby 플랜의 함수 개수 제한을 피하기 위해 `api/authentication.py` 하나에서
+`action` 값으로 분기한다.
 
 세션 쿠키는 JavaScript에서 읽을 수 없다. 기존 `/api/day`, `/api/calendar`, `/api/meal`,
 `/api/weight`는 access token을 검증하고 `members` 행을 확인한 뒤 모든 쿼리에 `member_id`를

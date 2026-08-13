@@ -105,7 +105,7 @@ Python API가 Supabase의 관리자 작업과 DB 작업을 수행할 때 사용�
 
 ```text
 브라우저
-  │ POST /api/auth/signup
+  │ POST /api/authentication?action=signup
   │ 이름 + 이메일 + 비밀번호
   ▼
 Python API
@@ -120,7 +120,7 @@ reserve_member_signup DB 함수
   │ 사용자별 가입 대기 정보 저장
   ▼
 브라우저
-  │ POST /api/auth/verify_email
+  │ POST /api/authentication?action=verify_email
   │ 이메일 + 인증번호
   ▼
 Supabase Auth verify_otp
@@ -142,7 +142,7 @@ Python API
 
 ## 5. 일반 로그인 흐름
 
-1. `AuthGate`가 이메일과 비밀번호를 `POST /api/auth/login`으로 전송한다.
+1. `AuthGate`가 이메일과 비밀번호를 `POST /api/authentication?action=login`으로 전송한다.
 2. Python API의 Pydantic 모델이 이메일 형식과 비밀번호 길이를 검증한다.
 3. Python API가 Supabase Auth의 `sign_in_with_password`를 호출한다.
 4. Supabase Auth가 자격 증명을 확인하고 access token과 refresh token을 발급한다.
@@ -156,7 +156,7 @@ Python API
 
 ## 6. 앱 진입과 세션 확인
 
-`AuthGate`는 앱이 시작되면 `GET /api/auth/session`으로 현재 세션을 확인한다. 세션이 유효하면 회원
+`AuthGate`는 앱이 시작되면 `GET /api/authentication?action=session`으로 현재 세션을 확인한다. 세션이 유효하면 회원
 화면을 표시하고, 그렇지 않으면 로그인 화면을 표시한다. 모든 미인증 사용자는 회원가입 화면으로
 전환할 수 있다. 이메일 인증 진행 상태는 브라우저 `sessionStorage`에 이메일만 임시 보관하여 같은
 탭을 새로고침해도 인증번호 화면을 유지한다.
@@ -189,7 +189,7 @@ Supabase Database
 
 ## 8. 토큰 만료와 갱신 흐름
 
-`GET /api/auth/session`은 먼저 access token으로 회원을 확인한다.
+`GET /api/authentication?action=session`은 먼저 access token으로 회원을 확인한다.
 
 1. access token이 유효하면 현재 회원 정보를 바로 반환한다.
 2. 검증이 실패하면 refresh token 쿠키를 찾는다.
@@ -198,12 +198,12 @@ Supabase Database
 5. 성공하면 두 쿠키를 새 토큰으로 교체한다.
 6. 갱신도 실패하면 두 쿠키를 만료시키고 HTTP `401`을 반환한다.
 
-현재 자동 갱신은 `/api/auth/session` 호출 시 수행된다. 일반 데이터 API가 401을 반환했을 때 요청을
+현재 자동 갱신은 `action=session` 호출 시 수행된다. 일반 데이터 API가 401을 반환했을 때 요청을
 자동 갱신·재시도하는 인터셉터는 구현되어 있지 않다.
 
 ## 9. 로그아웃 흐름
 
-1. 브라우저가 `POST /api/auth/logout`을 호출한다.
+1. 브라우저가 `POST /api/authentication?action=logout`을 호출한다.
 2. Python API가 access token과 refresh token 쿠키에 `Max-Age=0`을 설정한다.
 3. 브라우저가 두 쿠키를 삭제한다.
 4. `AuthGate`가 메모리의 회원 상태를 제거하고 로그인 화면을 표시한다.
@@ -215,13 +215,12 @@ Supabase Database
 
 | 메서드와 경로 | 인증 필요 | 역할 | 주요 상태 코드 |
 | --- | --- | --- | --- |
-| `GET /api/auth/signup` | 아니요 | 회원가입 가능 상태 | `200` |
-| `POST /api/auth/signup` | 아니요 | 인증 이메일 발송과 가입 대기 예약 | `202`, `400`, `409`, `500` |
-| `POST /api/auth/verify_email` | 아니요 | 인증번호 검증과 회원 생성 완료 | `201`, `400`, `409`, `500` |
-| `POST /api/auth/resend_verification` | 아니요 | 인증 이메일 재전송 | `202`, `429`, `500` |
-| `POST /api/auth/login` | 아니요 | 이메일·비밀번호 로그인 | `200`, `400`, `401`, `500` |
-| `GET /api/auth/session` | 쿠키 사용 | 세션 확인과 토큰 갱신 | `200`, `401` |
-| `POST /api/auth/logout` | 아니요 | 브라우저 세션 쿠키 삭제 | `200` |
+| `POST ...?action=signup` | 아니요 | 인증 이메일 발송과 가입 대기 예약 | `202`, `400`, `500` |
+| `POST ...?action=verify_email` | 아니요 | 인증번호 검증과 회원 생성 완료 | `201`, `400`, `500` |
+| `POST ...?action=resend_verification` | 아니요 | 인증 이메일 재전송 | `202`, `429`, `500` |
+| `POST ...?action=login` | 아니요 | 이메일·비밀번호 로그인 | `200`, `400`, `401`, `500` |
+| `GET ...?action=session` | 쿠키 사용 | 세션 확인과 토큰 갱신 | `200`, `401` |
+| `POST ...?action=logout` | 아니요 | 브라우저 세션 쿠키 삭제 | `200` |
 | `/api/day`, `/api/calendar`, `/api/meal`, `/api/weight` | 예 | 회원별 기록 처리 | 성공 코드, `401` |
 
 ## 11. 보안 경계와 주의점
@@ -243,11 +242,6 @@ Supabase Database
 - 프론트엔드 인증 화면과 상태: `src/components/AuthGate.tsx`
 - 브라우저 API 설정: `src/services/apiClient.ts`
 - 쿠키와 회원 검증: `api/lib/auth.py`
-- 로그인: `api/auth/login.py`
-- 회원가입 시작: `api/auth/signup.py`
-- 이메일 확인: `api/auth/verify_email.py`
-- 인증 메일 재전송: `api/auth/resend_verification.py`
-- 세션 확인·갱신: `api/auth/session.py`
-- 로그아웃: `api/auth/logout.py`
+- 통합 인증 엔드포인트: `api/authentication.py`
 - DB 구조와 다중 회원 전환: `supabase/migrations/202608130003_enable_multi_member_signup.sql`
 - 데이터 모델·배포 설계: `docs/MEMBER_AUTH_DESIGN.md`

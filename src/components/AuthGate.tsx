@@ -24,7 +24,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
         setMode("verify");
       }
     }, 0);
-    fetchApi<Member>("/api/auth/session").then((authenticated) => {
+    fetchApi<Member>("/api/authentication?action=session").then((authenticated) => {
       setMember(authenticated);
     }).catch(() => undefined).finally(() => {
       setLoading(false);
@@ -47,11 +47,14 @@ export function AuthGate({ children }: { children: ReactNode }) {
     }
     try {
       if (mode === "signup") {
-        await fetchApi<{ email: string; verificationRequired: boolean }>("/api/auth/signup", {
+        await fetchApi<{ email: string; verificationRequired: boolean }>(
+          "/api/authentication?action=signup",
+          {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        });
+          },
+        );
         setPendingEmail(email);
         window.sessionStorage.setItem("pendingSignupEmail", email);
         setMode("verify");
@@ -59,7 +62,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
         return;
       }
       const endpoint = mode === "verify" ? "verify_email" : "login";
-      const authenticated = await fetchApi<Member>(`/api/auth/${endpoint}`, {
+      const authenticated = await fetchApi<Member>(`/api/authentication?action=${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -82,7 +85,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
     }
     setError("");
     try {
-      await fetchApi<{ sent: boolean }>("/api/auth/resend_verification", {
+      await fetchApi<{ sent: boolean }>("/api/authentication?action=resend_verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: pendingEmail }),
@@ -94,7 +97,9 @@ export function AuthGate({ children }: { children: ReactNode }) {
   }
 
   async function logout() {
-    await fetchApi<{ loggedOut: boolean }>("/api/auth/logout", { method: "POST" });
+    await fetchApi<{ loggedOut: boolean }>("/api/authentication?action=logout", {
+      method: "POST",
+    });
     setMember(null);
     setMode("login");
   }
