@@ -16,7 +16,7 @@ import { clearLocalDay, readLocalCalendarRecords, readLocalDay } from "../servic
 import { ApiClientError, fetchApi } from "../services/apiClient";
 import type { CalendarMonth, DayRecord } from "../types/api";
 import { getCalendarDetailState } from "./calendarDetailState";
-import { buildRecordPageHref } from "./calendarNavigation";
+import { buildRecordPageHref, getCalendarMonthForDate } from "./calendarNavigation";
 import {
   closeDetailFromButton,
   closeDetailFromKey,
@@ -152,6 +152,10 @@ export function CalendarView() {
     setViewedMonth((current) => new Date(current.getFullYear(), current.getMonth() + amount, 1));
   }
 
+  function returnToCurrentMonth() {
+    setViewedMonth(new Date(now.getFullYear(), now.getMonth(), 1));
+  }
+
   function openSelectedDateRecord() {
     if (selectedDate) router.push(buildRecordPageHref(selectedDate));
   }
@@ -221,7 +225,10 @@ export function CalendarView() {
   useEffect(() => {
     const urlDate = readDateFromUrl("");
     if (!urlDate) return;
-    const timeoutId = window.setTimeout(() => void selectDate(urlDate), 0);
+    const timeoutId = window.setTimeout(() => {
+      setViewedMonth(getCalendarMonthForDate(urlDate));
+      void selectDate(urlDate);
+    }, 0);
     return () => window.clearTimeout(timeoutId);
   }, [selectDate]);
 
@@ -450,6 +457,13 @@ export function CalendarView() {
             ? `${selectedDay.date} 기록을 불러왔습니다.`
             : ""}
       </p>
+      {!isCurrentMonth ? (
+        <div className={styles.todayFooter}>
+          <button aria-label="이번 달로 돌아가기" type="button" onClick={returnToCurrentMonth}>
+            오늘로 돌아가기 <span aria-hidden="true">›</span>
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 }
