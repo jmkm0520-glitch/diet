@@ -9,6 +9,7 @@ VENV_PYTHON="$VENV_DIR/bin/python"
 REQUIREMENTS_FILE="$PROJECT_ROOT/requirements.txt"
 REQUIREMENTS_STAMP="$VENV_DIR/.requirements-installed"
 VERCEL_PROJECT_FILE="$PROJECT_ROOT/.vercel/project.json"
+VERCEL_UV_VERSION="0.10.11"
 USE_REMOTE_VERCEL_ENV=true
 
 for arg in "$@"; do
@@ -56,6 +57,18 @@ if [[ ! -f "$REQUIREMENTS_STAMP" || "$REQUIREMENTS_FILE" -nt "$REQUIREMENTS_STAM
   echo ".venv에 Python 의존성을 설치합니다."
   "$VENV_PYTHON" -m pip install --disable-pip-version-check -r "$REQUIREMENTS_FILE"
   touch "$REQUIREMENTS_STAMP"
+fi
+
+# Vercel CLI는 uv를 찾지 못하면 선택된 Python에 `pip install --user`로
+# 설치를 시도합니다. 프로젝트 가상환경에서는 --user 설치가 허용되지
+# 않으므로, PATH에 가상환경을 추가하기 전에 uv를 선제적으로 설치합니다.
+INSTALLED_UV_VERSION="$($VENV_PYTHON -c 'import importlib.metadata; print(importlib.metadata.version("uv"))' 2>/dev/null || true)"
+if [[ "$INSTALLED_UV_VERSION" != "$VERCEL_UV_VERSION" ]]; then
+  echo ".venv에 Vercel 빌더용 uv ${VERCEL_UV_VERSION}을 설치합니다."
+  "$VENV_PYTHON" -m pip install \
+    --disable-pip-version-check \
+    --no-cache-dir \
+    "uv==$VERCEL_UV_VERSION"
 fi
 
 # Vercel CLI가 프로젝트의 .venv를 직접 감지하도록 외부 가상환경 상태를 제거합니다.
