@@ -1,4 +1,5 @@
 """Validated bulk import request models."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -15,6 +16,7 @@ class ImportedMeal(BaseModel):
     food: str = Field(min_length=1, max_length=500)
     type: MealType
 
+
 class ImportedDay(BaseModel):
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
     date: date
@@ -25,6 +27,7 @@ class ImportedDay(BaseModel):
     @classmethod
     def reject_future_date(cls, value: date) -> date:
         return validate_record_date(value)
+
 
 class ImportRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
