@@ -332,21 +332,6 @@ export default function Home() {
           </p>
         </div>
       </section>
-      <section
-        className={styles.mealGrid}
-        aria-busy={isLoadingDay || isResettingMeals}
-        aria-label="오늘의 식단"
-      >
-        {meals.map((meal) => (
-          <MealCard
-            key={`${selectedDate}-${meal.meal}-${isLoadingDay}-${mealResetVersion}`}
-            {...meal}
-            isLoading={isLoadingDay}
-            onSave={saveMeal}
-            record={dayRecord?.meals[meal.meal] ?? null}
-          />
-        ))}
-      </section>
       <div className={styles.mealResetRow}>
         {mealResetError ? (
           <p aria-live="polite" className={styles.mealResetError}>
@@ -367,6 +352,21 @@ export default function Home() {
           </p>
         ) : null}
       </div>
+      <section
+        className={styles.mealGrid}
+        aria-busy={isLoadingDay || isResettingMeals}
+        aria-label="오늘의 식단"
+      >
+        {meals.map((meal) => (
+          <MealCard
+            key={`${selectedDate}-${meal.meal}-${isLoadingDay}-${mealResetVersion}`}
+            {...meal}
+            isLoading={isLoadingDay}
+            onSave={saveMeal}
+            record={dayRecord?.meals[meal.meal] ?? null}
+          />
+        ))}
+      </section>
       {!isViewingToday ? (
         <div className={styles.todayFooter}>
           <button
