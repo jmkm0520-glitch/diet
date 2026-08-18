@@ -1294,7 +1294,7 @@
 }
 
 .mealCard {
-  min-height: 286px;
+  min-height: 340px;
   border-width: 1px;
   border-color: #9fc9bb;
   border-radius: 20px;
@@ -1350,16 +1350,25 @@
 }
 
 .mealChoices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
 .mealChoices button {
+  width: 100%;
   min-height: 44px;
   border-color: var(--color-border);
   border-radius: 11px;
   padding: 10px 13px;
+}
+
+.mealActions {
+  align-items: stretch;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .mealChoices .selectedChoice {
@@ -1383,6 +1392,10 @@
   font-size: 0.92rem;
   cursor: pointer;
   transition: background 160ms ease, transform 160ms ease;
+}
+
+.mealSaveButton {
+  width: 100%;
 }
 
 .mealSaveButton:hover:not(:disabled),
@@ -1600,17 +1613,4 @@
     display: none;
   }
 
-  .mealActions {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .mealChoices {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .mealSaveButton {
-    width: 100%;
-  }
 }
