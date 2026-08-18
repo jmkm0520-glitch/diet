@@ -8,11 +8,16 @@ import styles from "./AuthGate.module.css";
 
 type Mode = "login" | "signup" | "verify";
 
+const VERIFICATION_RESEND_DELAY_SECONDS = 60;
+const VERIFICATION_RESEND_AVAILABLE_AT = "verificationResendAvailableAt";
+
 export function AuthGate({ children }: { children: ReactNode }) {
   const [member, setMember] = useState<Member | null>(null);
   const [mode, setMode] = useState<Mode>("login");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [resendSubmitting, setResendSubmitting] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [error, setError] = useState("");
   const [pendingEmail, setPendingEmail] = useState("");
   const [status, setStatus] = useState("");
@@ -22,19 +27,37 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const savedPendingEmail = window.sessionStorage.getItem("pendingSignupEmail") ?? "";
+    const resendAvailableAt = Number(
+      window.sessionStorage.getItem(VERIFICATION_RESEND_AVAILABLE_AT) ?? 0,
+    );
     const pendingStateTimer = window.setTimeout(() => {
       if (savedPendingEmail) {
         setPendingEmail(savedPendingEmail);
         setMode("verify");
       }
+      setResendCooldown(Math.max(0, Math.ceil((resendAvailableAt - Date.now()) / 1000)));
     }, 0);
-    fetchApi<Member>("/api/authentication?action=session").then((authenticated) => {
-      setMember(authenticated);
-    }).catch(() => undefined).finally(() => {
-      setLoading(false);
-    });
+    fetchApi<Member>("/api/authentication?action=session")
+      .then((authenticated) => {
+        setMember(authenticated);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        setLoading(false);
+      });
     return () => window.clearTimeout(pendingStateTimer);
   }, []);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = window.setTimeout(() => {
+      const resendAvailableAt = Number(
+        window.sessionStorage.getItem(VERIFICATION_RESEND_AVAILABLE_AT) ?? 0,
+      );
+      setResendCooldown(Math.max(0, Math.ceil((resendAvailableAt - Date.now()) / 1000)));
+    }, 1000);
+    return () => window.clearTimeout(timer);
+  }, [resendCooldown]);
 
   useEffect(() => {
     if (!isMenuOpen) return;
@@ -75,13 +98,14 @@ export function AuthGate({ children }: { children: ReactNode }) {
         await fetchApi<{ email: string; verificationRequired: boolean }>(
           "/api/authentication?action=signup",
           {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
           },
         );
         setPendingEmail(email);
         window.sessionStorage.setItem("pendingSignupEmail", email);
+        startVerificationResendCooldown();
         setMode("verify");
         setStatus("인증 메일을 보냈습니다. 이메일의 6자리 인증번호를 입력해 주세요.");
         return;
@@ -94,20 +118,31 @@ export function AuthGate({ children }: { children: ReactNode }) {
       });
       setMember(authenticated);
       window.sessionStorage.removeItem("pendingSignupEmail");
+      window.sessionStorage.removeItem(VERIFICATION_RESEND_AVAILABLE_AT);
     } catch (caught) {
       setError(
-        caught instanceof ApiClientError ? caught.message : "요청을 처리하지 못했습니다. 다시 시도해 주세요.",
+        caught instanceof ApiClientError
+          ? caught.message
+          : "요청을 처리하지 못했습니다. 다시 시도해 주세요.",
       );
     } finally {
       setSubmitting(false);
     }
   }
 
+  function startVerificationResendCooldown() {
+    const resendAvailableAt = Date.now() + VERIFICATION_RESEND_DELAY_SECONDS * 1000;
+    window.sessionStorage.setItem(VERIFICATION_RESEND_AVAILABLE_AT, String(resendAvailableAt));
+    setResendCooldown(VERIFICATION_RESEND_DELAY_SECONDS);
+  }
+
   async function resendVerification() {
+    if (resendSubmitting || resendCooldown > 0) return;
     if (!pendingEmail) {
       setError("먼저 가입에 사용한 이메일을 입력해 주세요.");
       return;
     }
+    setResendSubmitting(true);
     setError("");
     try {
       await fetchApi<{ sent: boolean }>("/api/authentication?action=resend_verification", {
@@ -115,9 +150,14 @@ export function AuthGate({ children }: { children: ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: pendingEmail }),
       });
+      startVerificationResendCooldown();
       setStatus("인증 메일을 다시 보냈습니다.");
     } catch (caught) {
-      setError(caught instanceof ApiClientError ? caught.message : "인증 메일을 보내지 못했습니다.");
+      setError(
+        caught instanceof ApiClientError ? caught.message : "인증 메일을 보내지 못했습니다.",
+      );
+    } finally {
+      setResendSubmitting(false);
     }
   }
 
@@ -161,32 +201,84 @@ export function AuthGate({ children }: { children: ReactNode }) {
             )}
             <label>
               이메일
-              <input name="email" type="email" required autoComplete="email" value={mode === "verify" ? pendingEmail : undefined} onChange={mode === "verify" ? (event) => setPendingEmail(event.target.value) : undefined} />
+              <input
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                value={mode === "verify" ? pendingEmail : undefined}
+                onChange={
+                  mode === "verify" ? (event) => setPendingEmail(event.target.value) : undefined
+                }
+              />
             </label>
             {mode === "verify" ? (
               <label>
                 6자리 인증번호
-                <input name="token" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required autoComplete="one-time-code" />
+                <input
+                  key="verification-token"
+                  name="token"
+                  inputMode="numeric"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  required
+                  autoComplete="one-time-code"
+                />
               </label>
             ) : (
               <label>
                 비밀번호
-                <input name="password" type="password" minLength={8} maxLength={128} required autoComplete={mode === "signup" ? "new-password" : "current-password"} />
+                <input
+                  key="password"
+                  name="password"
+                  type="password"
+                  minLength={8}
+                  maxLength={128}
+                  required
+                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                />
               </label>
             )}
-            {status && <p className={styles.status} role="status">{status}</p>}
-            {error && <p className={styles.error} role="alert">{error}</p>}
+            {status && (
+              <p className={styles.status} role="status">
+                {status}
+              </p>
+            )}
+            {error && (
+              <p className={styles.error} role="alert">
+                {error}
+              </p>
+            )}
             <button type="submit" disabled={submitting}>
-              {submitting ? "처리 중…" : mode === "signup" ? "인증 메일 받기" : mode === "verify" ? "인증하고 가입 완료" : "로그인"}
+              {submitting
+                ? "처리 중…"
+                : mode === "signup"
+                  ? "인증 메일 받기"
+                  : mode === "verify"
+                    ? "인증하고 가입 완료"
+                    : "로그인"}
             </button>
           </form>
           {mode === "verify" && (
-            <button className={styles.switch} type="button" onClick={resendVerification}>
-              인증 메일 다시 보내기
+            <button
+              className={styles.switch}
+              type="button"
+              disabled={resendSubmitting || resendCooldown > 0}
+              onClick={resendVerification}
+            >
+              {resendSubmitting
+                ? "보내는 중…"
+                : resendCooldown > 0
+                  ? `${resendCooldown}초 후 다시 보내기`
+                  : "인증 메일 다시 보내기"}
             </button>
           )}
           {mode !== "verify" && (
-            <button className={styles.switch} type="button" onClick={() => setMode(mode === "signup" ? "login" : "signup")}>
+            <button
+              className={styles.switch}
+              type="button"
+              onClick={() => setMode(mode === "signup" ? "login" : "signup")}
+            >
               {mode === "signup" ? "이미 계정이 있나요? 로그인" : "계정이 없나요? 회원가입"}
             </button>
           )}

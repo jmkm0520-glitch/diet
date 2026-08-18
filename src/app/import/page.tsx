@@ -81,8 +81,8 @@ export default function ImportPage() {
         <p className={styles.eyebrow}>CSV IMPORT</p>
         <h1>다이어트일지 가져오기</h1>
         <p className={styles.lead}>
-          김지민 다이어트 CSV 형식을 식단과 체중 기록으로 변환합니다. 기존의 같은 날짜 기록은 새
-          값으로 갱신됩니다.
+          CSV 형식을 식단과 체중 기록으로 변환합니다. 기존의 같은 날짜 기록은 새 값으로
+          갱신됩니다.
         </p>
         <div className={styles.mapping}>
           <strong>변환 기준</strong>

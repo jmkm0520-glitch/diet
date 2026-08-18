@@ -1,38 +1,249 @@
-.center { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f4f8ef; color: #24351e; }
-.card { width: min(100%, 420px); padding: 36px; border-radius: 24px; background: white; box-shadow: 0 18px 60px rgba(44, 74, 35, .12); }
-.eyebrow { color: #5c8a4b; font-weight: 800; }
-.card h1 { margin: 10px 0 8px; font-size: 30px; }
-.card > p { margin: 0 0 24px; color: #667260; line-height: 1.6; }
-.form { display: grid; gap: 16px; }
-.form label { display: grid; gap: 7px; font-size: 14px; font-weight: 700; }
-.form input { width: 100%; border: 1px solid #d6dfd1; border-radius: 12px; padding: 12px 14px; font: inherit; }
-.form input:focus { outline: 3px solid rgba(92, 138, 75, .18); border-color: #5c8a4b; }
-.form button { border: 0; border-radius: 12px; padding: 13px; background: #4f7d3f; color: white; font: inherit; font-weight: 800; cursor: pointer; }
-.form button:disabled { opacity: .6; cursor: wait; }
-.error { margin: 0; color: #b33131; font-size: 14px; }
-.status { margin: 0; color: #3f6833; font-size: 14px; line-height: 1.5; }
-.switch { width: 100%; margin-top: 16px; border: 0; background: transparent; color: #4f7d3f; font: inherit; font-weight: 700; cursor: pointer; }
-.menuButton { position: fixed; z-index: 80; top: 64px; right: max(76px, calc((100vw - 1680px) / 2 + 52px)); display: grid; width: 50px; height: 50px; place-content: center; gap: 5px; border: 1px solid #ddd9ce; border-radius: 15px; background: #fffdf9; box-shadow: 0 6px 20px rgba(44,74,35,.08); cursor: pointer; }
-.menuButton span { display: block; width: 21px; height: 2px; border-radius: 999px; background: #2f4f3e; }
-.menuButton:focus-visible { outline: 3px solid #1672d3; outline-offset: 3px; }
-.menuBackdrop { position: fixed; z-index: 90; inset: 0; border: 0; background: rgba(31,42,36,.38); cursor: default; }
-.sideMenu { position: fixed; z-index: 100; top: 0; right: 0; display: flex; width: min(88vw, 380px); height: 100dvh; flex-direction: column; background: #fffdf9; padding: 28px; box-shadow: -18px 0 60px rgba(31,42,36,.16); color: #202720; }
-.sideMenuHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding-bottom: 24px; border-bottom: 1px solid #e2ded4; }
-.sideMenuHeader div { display: grid; gap: 6px; }
-.sideMenuHeader span { color: #74766e; font-size: 13px; font-weight: 700; }
-.sideMenuHeader strong { font-size: 21px; letter-spacing: -.04em; }
-.sideMenuHeader button { display: grid; width: 40px; height: 40px; flex: 0 0 40px; place-items: center; border: 1px solid #ddd9ce; border-radius: 13px; background: transparent; color: #405039; cursor: pointer; font: inherit; font-size: 28px; line-height: 1; }
-.sideMenuNav { display: grid; gap: 10px; padding: 24px 0; }
-.sideMenuNav a { display: flex; align-items: center; gap: 14px; border: 1px solid #dce7d6; border-radius: 18px; background: #f4f8ef; padding: 17px; color: #24351e; text-decoration: none; }
-.sideMenuNav a > span:first-child { display: grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; border-radius: 12px; background: #e3f3e9; color: #2f7958; font-size: 22px; font-weight: 800; }
-.sideMenuNav a > span:nth-child(2) { display: grid; flex: 1; gap: 3px; }
-.sideMenuNav strong { font-size: 16px; }
-.sideMenuNav small { color: #74766e; font-size: 12px; }
-.sideMenuNav b { color: #2f7958; font-size: 24px; }
-.logoutButton { margin-top: auto; border: 1px solid #c9584c; border-radius: 16px; background: #fff7f4; padding: 14px; color: #b94d43; cursor: pointer; font: inherit; font-weight: 800; }
-.sideMenu :where(a, button):focus-visible { outline: 3px solid #1672d3; outline-offset: 3px; }
-@media (max-width: 760px) {
-  .menuButton { top: 10px; right: 12px; width: 44px; height: 44px; border-radius: 13px; }
-  .sideMenu { padding: 22px 20px calc(22px + env(safe-area-inset-bottom)); }
+.center {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #f4f8ef;
+  color: #24351e;
 }
-@media (max-width: 520px) { .card { padding: 26px 22px; } }
+.card {
+  width: min(100%, 420px);
+  padding: 36px;
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 18px 60px rgba(44, 74, 35, 0.12);
+}
+.eyebrow {
+  color: #5c8a4b;
+  font-weight: 800;
+}
+.card h1 {
+  margin: 10px 0 8px;
+  font-size: 30px;
+}
+.card > p {
+  margin: 0 0 24px;
+  color: #667260;
+  line-height: 1.6;
+}
+.form {
+  display: grid;
+  gap: 16px;
+}
+.form label {
+  display: grid;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.form input {
+  width: 100%;
+  border: 1px solid #d6dfd1;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: inherit;
+}
+.form input:focus {
+  outline: 3px solid rgba(92, 138, 75, 0.18);
+  border-color: #5c8a4b;
+}
+.form button {
+  border: 0;
+  border-radius: 12px;
+  padding: 13px;
+  background: #4f7d3f;
+  color: white;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.form button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.error {
+  margin: 0;
+  color: #b33131;
+  font-size: 14px;
+}
+.status {
+  margin: 0;
+  color: #3f6833;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.switch {
+  width: 100%;
+  margin-top: 16px;
+  border: 0;
+  background: transparent;
+  color: #4f7d3f;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.switch:disabled {
+  color: #8b9487;
+  cursor: not-allowed;
+}
+.menuButton {
+  position: fixed;
+  z-index: 80;
+  top: 64px;
+  right: max(76px, calc((100vw - 1680px) / 2 + 52px));
+  display: grid;
+  width: 50px;
+  height: 50px;
+  place-content: center;
+  gap: 5px;
+  border: 1px solid #ddd9ce;
+  border-radius: 15px;
+  background: #fffdf9;
+  box-shadow: 0 6px 20px rgba(44, 74, 35, 0.08);
+  cursor: pointer;
+}
+.menuButton span {
+  display: block;
+  width: 21px;
+  height: 2px;
+  border-radius: 999px;
+  background: #2f4f3e;
+}
+.menuButton:focus-visible {
+  outline: 3px solid #1672d3;
+  outline-offset: 3px;
+}
+.menuBackdrop {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  border: 0;
+  background: rgba(31, 42, 36, 0.38);
+  cursor: default;
+}
+.sideMenu {
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  right: 0;
+  display: flex;
+  width: min(88vw, 380px);
+  height: 100dvh;
+  flex-direction: column;
+  background: #fffdf9;
+  padding: 28px;
+  box-shadow: -18px 0 60px rgba(31, 42, 36, 0.16);
+  color: #202720;
+}
+.sideMenuHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e2ded4;
+}
+.sideMenuHeader div {
+  display: grid;
+  gap: 6px;
+}
+.sideMenuHeader span {
+  color: #74766e;
+  font-size: 13px;
+  font-weight: 700;
+}
+.sideMenuHeader strong {
+  font-size: 21px;
+  letter-spacing: -0.04em;
+}
+.sideMenuHeader button {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  place-items: center;
+  border: 1px solid #ddd9ce;
+  border-radius: 13px;
+  background: transparent;
+  color: #405039;
+  cursor: pointer;
+  font: inherit;
+  font-size: 28px;
+  line-height: 1;
+}
+.sideMenuNav {
+  display: grid;
+  gap: 10px;
+  padding: 24px 0;
+}
+.sideMenuNav a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid #dce7d6;
+  border-radius: 18px;
+  background: #f4f8ef;
+  padding: 17px;
+  color: #24351e;
+  text-decoration: none;
+}
+.sideMenuNav a > span:first-child {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border-radius: 12px;
+  background: #e3f3e9;
+  color: #2f7958;
+  font-size: 22px;
+  font-weight: 800;
+}
+.sideMenuNav a > span:nth-child(2) {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+}
+.sideMenuNav strong {
+  font-size: 16px;
+}
+.sideMenuNav small {
+  color: #74766e;
+  font-size: 12px;
+}
+.sideMenuNav b {
+  color: #2f7958;
+  font-size: 24px;
+}
+.logoutButton {
+  margin-top: auto;
+  border: 1px solid #c9584c;
+  border-radius: 16px;
+  background: #fff7f4;
+  padding: 14px;
+  color: #b94d43;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+.sideMenu :where(a, button):focus-visible {
+  outline: 3px solid #1672d3;
+  outline-offset: 3px;
+}
+@media (max-width: 760px) {
+  .menuButton {
+    top: 10px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+  }
+  .sideMenu {
+    padding: 22px 20px calc(22px + env(safe-area-inset-bottom));
+  }
+}
+@media (max-width: 520px) {
+  .card {
+    padding: 26px 22px;
+  }
+}
