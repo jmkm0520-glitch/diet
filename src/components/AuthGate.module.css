@@ -87,13 +87,11 @@
   cursor: not-allowed;
 }
 .menuButton {
-  position: fixed;
-  z-index: 80;
-  top: 64px;
-  right: max(76px, calc((100vw - 1680px) / 2 + 52px));
   display: grid;
+  flex: 0 0 var(--header-control-size);
   width: var(--header-control-size);
   height: var(--header-control-size);
+  padding: 0;
   place-content: center;
   gap: 5px;
   border: 1px solid #ddd9ce;
@@ -232,10 +230,6 @@
 }
 @media (max-width: 760px) {
   .menuButton {
-    top: 10px;
-    right: 12px;
-    width: var(--header-control-size);
-    height: var(--header-control-size);
     border-radius: 13px;
   }
   .sideMenu {

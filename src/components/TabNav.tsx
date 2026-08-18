@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { MouseEvent } from "react";
 import styles from "../app/page.module.css";
+import { AccountMenuButton } from "./AuthGate";
 
 const tabs = [
   { id: "today", label: "오늘 기록", href: "/" },
@@ -37,6 +38,7 @@ export function TabNav() {
           {tab.label}
         </Link>
       ))}
+      <AccountMenuButton />
     </nav>
   );
 }

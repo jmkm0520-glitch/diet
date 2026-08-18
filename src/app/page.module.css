@@ -1139,7 +1139,7 @@
 
 .siteHeader {
   min-height: 96px;
-  padding: 18px 108px 18px 36px;
+  padding: 18px 36px;
   border-color: var(--color-border);
   background: rgb(255 255 255 / 92%);
 }
@@ -1523,7 +1523,11 @@
 
   .siteHeader {
     min-height: 68px;
-    padding: 10px 64px 10px 12px;
+    padding: 10px 12px;
+  }
+
+  .brand span {
+    display: none;
   }
 
   .brandMark {
