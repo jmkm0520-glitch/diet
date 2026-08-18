@@ -1168,6 +1168,10 @@
 }
 
 .tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   min-height: 44px;
   border: 0;
   border-radius: 10px;
@@ -1176,6 +1180,12 @@
   font-size: 0.95rem;
   letter-spacing: -0.035em;
   transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.tabIcon {
+  flex: 0 0 auto;
+  font-size: 1.05em;
+  line-height: 1;
 }
 
 .activeTab {
