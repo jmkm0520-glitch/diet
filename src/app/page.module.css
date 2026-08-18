@@ -1159,6 +1159,12 @@
   padding: 4px;
 }
 
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .tabNav {
   gap: 2px;
   border: 1px solid var(--color-border);
@@ -1546,6 +1552,10 @@
   .brandMark {
     width: var(--header-control-size);
     height: var(--header-control-size);
+  }
+
+  .headerActions {
+    gap: 8px;
   }
 
   .tab {

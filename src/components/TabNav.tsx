@@ -26,19 +26,21 @@ export function TabNav() {
   }
 
   return (
-    <nav className={styles.tabNav} aria-label="화면 전환">
-      {tabs.map((tab) => (
-        <Link
-          aria-current={activeTab === tab.id ? "page" : undefined}
-          className={`${styles.tab} ${activeTab === tab.id ? styles.activeTab : ""}`}
-          href={tab.href}
-          key={tab.id}
-          onClick={(event) => preserveSelectedDate(event, tab.href)}
-        >
-          {tab.label}
-        </Link>
-      ))}
+    <div className={styles.headerActions}>
+      <nav className={styles.tabNav} aria-label="화면 전환">
+        {tabs.map((tab) => (
+          <Link
+            aria-current={activeTab === tab.id ? "page" : undefined}
+            className={`${styles.tab} ${activeTab === tab.id ? styles.activeTab : ""}`}
+            href={tab.href}
+            key={tab.id}
+            onClick={(event) => preserveSelectedDate(event, tab.href)}
+          >
+            {tab.label}
+          </Link>
+        ))}
+      </nav>
       <AccountMenuButton />
-    </nav>
+    </div>
   );
 }
