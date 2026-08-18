@@ -298,8 +298,11 @@
 }
 
 .mealTodayFooter {
-  position: static;
-  padding: 0 52px 32px;
+  padding-inline: 52px;
+}
+
+.mealResetRowWithTodayFooter {
+  padding-bottom: 120px;
 }
 
 .mealResetRow button {
@@ -1005,10 +1008,13 @@
     font-size: 1.15rem;
   }
   .mealResetRow {
-    padding: 0 24px 8px;
+    padding: 0 24px 36px;
+  }
+  .mealResetRowWithTodayFooter {
+    padding-bottom: 88px;
   }
   .mealTodayFooter {
-    padding: 0 24px 36px;
+    padding-inline: 24px;
   }
   .todayFooter {
     bottom: 14px;

@@ -347,7 +347,11 @@ export default function Home() {
           />
         ))}
       </section>
-      <div className={styles.mealResetRow}>
+      <div
+        className={`${styles.mealResetRow} ${
+          !isViewingToday ? styles.mealResetRowWithTodayFooter : ""
+        }`}
+      >
         {mealResetError ? (
           <p aria-live="polite" className={styles.mealResetError}>
             {mealResetError}
