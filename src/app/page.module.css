@@ -1633,6 +1633,12 @@
     min-height: 0;
   }
 
+  .foodInput {
+    min-height: 76px;
+    margin: 12px 0;
+    padding: 16px 18px;
+  }
+
   .mealActions {
     margin-top: 0;
   }
