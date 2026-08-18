@@ -1263,8 +1263,11 @@
 }
 
 .weightControl {
+  display: flex;
   min-height: 108px;
-  padding-top: 24px;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 0;
 }
 
 .weightInputRow {
@@ -1335,12 +1338,12 @@
 }
 
 .foodInput {
-  min-height: 78px;
-  margin: 20px 0 18px;
+  min-height: 112px;
+  margin: 16px 0 14px;
   border-color: var(--color-border);
   border-radius: 12px;
   background: #f8fbf9;
-  padding: 17px;
+  padding: 20px;
   color: var(--color-text);
   font-size: 1rem;
   letter-spacing: -0.02em;
@@ -1374,7 +1377,8 @@
 .mealActions {
   align-items: stretch;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  margin-top: 0;
 }
 
 .mealChoices .selectedChoice {
