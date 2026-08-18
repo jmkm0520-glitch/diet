@@ -92,8 +92,8 @@
   top: 64px;
   right: max(76px, calc((100vw - 1680px) / 2 + 52px));
   display: grid;
-  width: 50px;
-  height: 50px;
+  width: var(--header-control-size);
+  height: var(--header-control-size);
   place-content: center;
   gap: 5px;
   border: 1px solid #ddd9ce;
@@ -234,8 +234,8 @@
   .menuButton {
     top: 10px;
     right: 12px;
-    width: 44px;
-    height: 44px;
+    width: var(--header-control-size);
+    height: var(--header-control-size);
     border-radius: 13px;
   }
   .sideMenu {

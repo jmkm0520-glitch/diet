@@ -25,6 +25,7 @@
   --color-red-400: #df7b72;
   --color-red-600: var(--color-danger);
   --layout-content-max: 1120px;
+  --header-control-size: 50px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -45,6 +46,12 @@
     "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--color-background);
   color: var(--color-text);
+}
+
+@media (max-width: 760px) {
+  :root {
+    --header-control-size: 44px;
+  }
 }
 
 * {

@@ -236,8 +236,8 @@
 }
 
 .brandMark {
-  width: 44px;
-  height: 44px;
+  width: var(--header-control-size);
+  height: var(--header-control-size);
   border-radius: 14px;
   background: var(--color-surface-subtle);
   padding: 4px;
@@ -340,8 +340,8 @@
   }
 
   .brandMark {
-    width: 40px;
-    height: 40px;
+    width: var(--header-control-size);
+    height: var(--header-control-size);
   }
 
   .content {

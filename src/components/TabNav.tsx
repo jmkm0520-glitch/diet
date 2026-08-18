@@ -7,7 +7,7 @@ import styles from "../app/page.module.css";
 
 const tabs = [
   { id: "today", label: "오늘 기록", href: "/" },
-  { id: "calendar", label: "캘린더", href: "/calendar", icon: "♆︎" },
+  { id: "calendar", label: "캘린더", href: "/calendar" },
 ] as const;
 
 export function TabNav() {
@@ -34,12 +34,7 @@ export function TabNav() {
           key={tab.id}
           onClick={(event) => preserveSelectedDate(event, tab.href)}
         >
-          <span>{tab.label}</span>
-          {"icon" in tab && (
-            <span className={styles.tabIcon} aria-hidden="true">
-              {tab.icon}
-            </span>
-          )}
+          {tab.label}
         </Link>
       ))}
     </nav>
