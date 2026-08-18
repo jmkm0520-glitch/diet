@@ -1121,3 +1121,489 @@
     font-size: 0.82rem;
   }
 }
+
+/* Calm clinical redesign */
+.main {
+  width: min(100% - 32px, 1440px);
+  min-height: calc(100vh - 32px);
+  margin: 16px auto;
+  border-color: var(--color-border);
+  border-radius: 28px;
+  background: var(--color-background);
+  box-shadow: 0 18px 50px rgb(20 54 44 / 6%);
+}
+
+.main :where(a, button, input):focus-visible {
+  outline-color: var(--color-focus);
+}
+
+.siteHeader {
+  min-height: 96px;
+  padding: 18px 108px 18px 36px;
+  border-color: var(--color-border);
+  background: rgb(255 255 255 / 92%);
+}
+
+.brand {
+  gap: 12px;
+  color: var(--color-text);
+  font-size: clamp(1.15rem, 1.7vw, 1.5rem);
+  letter-spacing: -0.045em;
+}
+
+.brandMark {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--color-surface-subtle);
+  padding: 4px;
+}
+
+.tabNav {
+  gap: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface-subtle);
+  padding: 4px;
+}
+
+.tab {
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 17px;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  letter-spacing: -0.035em;
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.activeTab {
+  border: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 2px 9px rgb(20 54 44 / 8%);
+}
+
+.header {
+  min-height: 160px;
+  padding: 40px 40px 24px;
+}
+
+.header h1 {
+  color: var(--color-text);
+  font-size: clamp(1.8rem, 3vw, 2.65rem);
+  letter-spacing: -0.065em;
+}
+
+.header > p {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.dateControls {
+  right: 40px;
+  bottom: 24px;
+  gap: 8px;
+}
+
+.dateControls button,
+.datePicker {
+  width: 52px;
+  height: 52px;
+  border-color: var(--color-border);
+  border-radius: 13px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 1.8rem;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.dateControls button:hover:not(:disabled),
+.datePicker:hover {
+  border-color: #9dbcb0;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.calendarIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.weightCard {
+  gap: 24px;
+  margin: 0 40px 24px;
+  border: 1px solid #0b6d59;
+  border-radius: 20px;
+  background: #087a63;
+  padding: 28px 30px;
+  color: #ffffff;
+  box-shadow: 0 14px 34px rgb(8 122 99 / 16%);
+}
+
+.weightCard h2 {
+  letter-spacing: -0.045em;
+}
+
+.cardHint {
+  color: #d3ebe3;
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+}
+
+.weightControl {
+  min-height: 108px;
+  padding-top: 24px;
+}
+
+.weightInputRow {
+  gap: 10px;
+}
+
+.weightInputRow input {
+  width: 148px;
+  min-height: 52px;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 12px 14px;
+  color: var(--color-text);
+  font-size: 1.35rem;
+}
+
+.weightInputRow > span {
+  font-size: 1.05rem;
+}
+
+.weightInputRow button {
+  min-height: 52px;
+  border-radius: 12px;
+  padding: 12px 20px;
+  background: #ffffff;
+  color: var(--color-primary);
+  font-size: 1rem;
+}
+
+.mealGrid {
+  gap: 16px;
+  padding: 0 40px 20px;
+}
+
+.mealCard {
+  min-height: 286px;
+  border-width: 1px;
+  border-color: #9fc9bb;
+  border-radius: 20px;
+  background: var(--color-surface);
+  padding: 24px;
+  box-shadow: 0 8px 28px rgb(20 54 44 / 5%);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.mealCard:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 10px 32px rgb(8 122 99 / 10%);
+}
+
+.freeMealCard {
+  border-color: #e0aaa5;
+}
+
+.unselectedMealCard {
+  border-color: var(--color-border);
+}
+
+.mealName {
+  color: var(--color-text);
+  font-size: 1.32rem;
+  letter-spacing: -0.045em;
+}
+
+.mealEmoji {
+  width: 30px;
+  height: 30px;
+}
+
+.foodInput {
+  min-height: 78px;
+  margin: 20px 0 18px;
+  border-color: var(--color-border);
+  border-radius: 12px;
+  background: #f8fbf9;
+  padding: 17px;
+  color: var(--color-text);
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.foodInput:hover:not(:disabled) {
+  border-color: #aac1b8;
+}
+
+.foodInput:focus {
+  background: var(--color-surface);
+}
+
+.mealChoices {
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.mealChoices button {
+  min-height: 44px;
+  border-color: var(--color-border);
+  border-radius: 11px;
+  padding: 10px 13px;
+}
+
+.mealChoices .selectedChoice {
+  border-color: #8abbaa;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.freeMealCard .mealChoices button:last-child {
+  border-color: #e1aca7;
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.mealSaveButton,
+.calendarEditButton {
+  min-height: 44px;
+  border-radius: 11px;
+  background: var(--color-text);
+  padding: 11px 18px;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.mealSaveButton:hover:not(:disabled),
+.calendarEditButton:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.mealSaveButton:active:not(:disabled),
+.calendarEditButton:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.mealResetRow {
+  padding-inline: 40px;
+}
+
+.mealResetRow button {
+  min-height: 44px;
+  color: var(--color-danger);
+}
+
+.todayFooter button {
+  min-height: 44px;
+  border-color: #96bdb0;
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: 0 8px 24px rgb(20 54 44 / 9%);
+}
+
+.calendarSection {
+  margin: 0 40px 40px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--color-surface);
+  padding: 26px;
+  box-shadow: 0 8px 28px rgb(20 54 44 / 5%);
+}
+
+.calendarSection h2,
+.calendarDetailPanel h3,
+.calendarMealDetails h4 {
+  color: var(--color-text);
+}
+
+.calendarControls button {
+  width: 44px;
+  height: 44px;
+  border-color: var(--color-border);
+  border-radius: 11px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.calendarLegend,
+.weekdayHeader,
+.calendarState,
+.calendarDetailMessage,
+.calendarDetailEmpty,
+.calendarEmptyAction p {
+  color: var(--color-text-muted);
+}
+
+.weekdayHeader {
+  border-color: var(--color-border);
+}
+
+.calendarDateCell,
+.calendarEmptyCell {
+  border-color: #e8efec;
+}
+
+.calendarDateCell:hover:not(:disabled) {
+  background: var(--color-surface-subtle);
+}
+
+.calendarDateCell[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+}
+
+.calendarToday,
+.calendarDateCell.calendarToday[aria-pressed="true"] {
+  background: var(--color-primary-soft);
+  color: #075f4d !important;
+}
+
+.calendarDetailPanel {
+  border-color: var(--color-border);
+  border-radius: 20px;
+  background: var(--color-surface);
+}
+
+.calendarDetailClose {
+  width: 44px;
+  height: 44px;
+  border-color: var(--color-primary-hover);
+  border-radius: 12px;
+  background: var(--color-primary);
+}
+
+.calendarMealList li {
+  background: var(--color-surface-subtle);
+}
+
+.calendarMealList span,
+.calendarWeight {
+  color: var(--color-text-muted);
+}
+
+.calendarResetButton {
+  min-height: 44px;
+  border-color: #dca39e;
+  border-radius: 11px;
+  background: var(--color-surface);
+  color: var(--color-danger);
+}
+
+.cleanTag,
+.calendarDetailEyebrow,
+.calendarDetailStatus,
+.saturday {
+  color: var(--color-primary);
+}
+
+.freeTag,
+.sunday {
+  color: var(--color-danger);
+}
+
+@media (max-width: 760px) {
+  .main {
+    width: 100%;
+    min-height: 100svh;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .siteHeader {
+    min-height: 68px;
+    padding: 10px 64px 10px 12px;
+  }
+
+  .brandMark {
+    width: 40px;
+    height: 40px;
+  }
+
+  .tab {
+    min-height: 40px;
+    padding: 9px 10px;
+    font-size: 0.84rem;
+  }
+
+  .header {
+    min-height: 180px;
+    padding: 30px 20px 88px;
+  }
+
+  .dateControls {
+    right: 20px;
+    bottom: 20px;
+  }
+
+  .weightCard {
+    margin: 0 16px 18px;
+    border-radius: 18px;
+    padding: 22px;
+  }
+
+  .cardHint {
+    white-space: normal;
+  }
+
+  .weightInputRow {
+    justify-content: flex-start;
+  }
+
+  .weightInputRow input {
+    width: min(138px, 43vw);
+  }
+
+  .mealGrid {
+    gap: 12px;
+    padding: 0 16px 14px;
+  }
+
+  .mealCard {
+    border-width: 1px;
+    border-radius: 18px;
+    padding: 20px;
+  }
+
+  .mealResetRow {
+    padding-inline: 16px;
+  }
+
+  .calendarSection {
+    margin: 0 8px 24px;
+    border-radius: 18px;
+    padding: 18px 8px;
+  }
+
+  .calendarDetailPanel {
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+@media (max-width: 390px) {
+  .brand span {
+    display: none;
+  }
+
+  .mealActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mealChoices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .mealSaveButton {
+    width: 100%;
+  }
+}

@@ -247,3 +247,305 @@
     padding: 26px 22px;
   }
 }
+
+/* 2026 visual system: calm, crisp nutrition workspace */
+.loadingScreen {
+  display: grid;
+  min-height: 100svh;
+  place-content: center;
+  justify-items: center;
+  gap: 16px;
+  background: var(--color-background);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.loadingScreen img {
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgb(8 122 99 / 12%);
+}
+
+.authPage {
+  display: grid;
+  min-height: 100svh;
+  place-items: center;
+  padding: 32px;
+  background:
+    linear-gradient(135deg, rgb(8 122 99 / 7%), transparent 36%),
+    var(--color-background);
+  color: var(--color-text);
+}
+
+.authShell {
+  display: grid;
+  width: min(100%, 960px);
+  min-height: 640px;
+  grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 28px;
+  background: var(--color-surface);
+  box-shadow: 0 24px 80px rgb(20 54 44 / 11%);
+}
+
+.authIntro {
+  display: flex;
+  flex-direction: column;
+  padding: 42px;
+  background:
+    radial-gradient(circle at 90% 14%, rgb(255 255 255 / 12%), transparent 16rem),
+    #0b4438;
+  color: #f4fbf8;
+}
+
+.authBrand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  font-size: 1.05rem;
+  letter-spacing: -0.03em;
+}
+
+.authBrand img {
+  border-radius: 15px;
+  background: #ffffff;
+  padding: 5px;
+}
+
+.introCopy {
+  margin-block: auto;
+}
+
+.introCopy span {
+  color: #8fd5be;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.introCopy h2 {
+  margin: 14px 0 16px;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.2;
+  letter-spacing: -0.065em;
+}
+
+.introCopy p {
+  max-width: 420px;
+  margin: 0;
+  color: #c6ddd5;
+  line-height: 1.7;
+}
+
+.introList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 0;
+  padding: 0;
+  color: #c6ddd5;
+  font-size: 0.78rem;
+  list-style: none;
+}
+
+.introList li::before {
+  margin-right: 7px;
+  color: #6cc5a8;
+  content: "✓";
+}
+
+.authShell .card {
+  display: flex;
+  width: auto;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 0;
+  padding: 48px;
+  box-shadow: none;
+}
+
+.authShell .eyebrow {
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.authShell .card h1 {
+  margin: 10px 0 8px;
+  color: var(--color-text);
+  font-size: clamp(1.85rem, 3vw, 2.4rem);
+  letter-spacing: -0.055em;
+}
+
+.authShell .card > p {
+  margin-bottom: 30px;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.authShell .form {
+  gap: 17px;
+}
+
+.authShell .form label {
+  gap: 8px;
+  color: #33443e;
+  font-size: 0.84rem;
+  font-weight: 750;
+}
+
+.authShell .form input {
+  min-height: 50px;
+  border-color: var(--color-border);
+  border-radius: var(--border-radius-control);
+  background: #fbfdfc;
+  padding: 13px 14px;
+  color: var(--color-text);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.authShell .form input:hover {
+  border-color: #aec2ba;
+}
+
+.authShell .form input:focus {
+  border-color: var(--color-primary);
+  outline: 0;
+  background: var(--color-surface);
+  box-shadow: 0 0 0 3px rgb(8 122 99 / 14%);
+}
+
+.authShell .form button {
+  min-height: 50px;
+  border-radius: var(--border-radius-control);
+  background: var(--color-primary);
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.authShell .form button:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.authShell .form button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.authShell .switch {
+  min-height: 44px;
+  margin-top: 10px;
+  border-radius: 10px;
+  color: var(--color-primary);
+  font-size: 0.88rem;
+}
+
+.authShell .switch:hover:not(:disabled) {
+  background: var(--color-primary-soft);
+}
+
+.authShell :where(button, input):focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.authShell .status {
+  border-radius: 10px;
+  background: var(--color-primary-soft);
+  padding: 11px 12px;
+  color: #075f4d;
+}
+
+.authShell .error {
+  border-radius: 10px;
+  background: var(--color-danger-soft);
+  padding: 11px 12px;
+  color: var(--color-danger);
+}
+
+.menuButton {
+  border-color: var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  box-shadow: 0 8px 24px rgb(20 54 44 / 8%);
+}
+
+.menuButton:hover {
+  border-color: #aec2ba;
+  background: var(--color-surface-subtle);
+}
+
+.menuButton span {
+  background: var(--color-text);
+}
+
+.sideMenu {
+  border-left: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.sideMenuHeader {
+  border-color: var(--color-border);
+}
+
+.sideMenuNav a {
+  border-color: var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.sideMenuNav a:hover {
+  border-color: #a7c4b8;
+  background: var(--color-primary-soft);
+}
+
+.sideMenuNav a > span:first-child {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.sideMenuNav b,
+.sideMenuNav small,
+.sideMenuHeader span {
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 780px) {
+  .authPage {
+    padding: 18px;
+  }
+
+  .authShell {
+    width: min(100%, 520px);
+    min-height: auto;
+    grid-template-columns: 1fr;
+    border-radius: 22px;
+  }
+
+  .authIntro {
+    padding: 22px 24px;
+  }
+
+  .introCopy,
+  .introList {
+    display: none;
+  }
+
+  .authShell .card {
+    padding: 34px 28px 30px;
+  }
+}
+
+@media (max-width: 420px) {
+  .authPage {
+    align-items: start;
+    padding: 12px;
+  }
+
+  .authShell .card {
+    padding: 28px 20px 24px;
+  }
+}

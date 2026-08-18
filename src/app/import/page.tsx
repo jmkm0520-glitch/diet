@@ -86,10 +86,10 @@ export default function ImportPage() {
         </p>
         <div className={styles.mapping}>
           <strong>변환 기준</strong>
-          <span>9–11시 → 아침</span>
-          <span>11–3시 → 점심</span>
-          <span>3–6시 → 간식</span>
-          <span>6–8시 → 저녁</span>
+          <span>9~11시 → 아침</span>
+          <span>11~15시 → 점심</span>
+          <span>15~18시 → 간식</span>
+          <span>18~20시 → 저녁</span>
           <span>결식 → 기록 없음</span>
         </div>
         <label className={styles.dropzone}>
@@ -130,7 +130,7 @@ export default function ImportPage() {
                     {preview.rows.slice(0, 10).map((row) => (
                       <tr key={row.date}>
                         <td>{row.date}</td>
-                        <td>{row.weight ?? "—"}</td>
+                        <td>{row.weight ?? "없음"}</td>
                         <td>{row.meals.length}</td>
                         <td>{row.meals.filter((meal) => meal.type === "free").length}</td>
                       </tr>

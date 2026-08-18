@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { ApiClientError, fetchApi } from "../services/apiClient";
 import type { Member } from "../types/auth";
@@ -175,24 +176,62 @@ export function AuthGate({ children }: { children: ReactNode }) {
     window.setTimeout(() => menuButtonRef.current?.focus(), 0);
   }
 
-  if (loading) return <main className={styles.center}>로그인 상태를 확인하고 있어요.</main>;
+  if (loading) {
+    return (
+      <main className={styles.loadingScreen} aria-live="polite">
+        <Image src="/broccoli-logo.png" alt="" width={52} height={52} priority />
+        <span>로그인 상태를 확인하고 있어요</span>
+      </main>
+    );
+  }
 
   if (!member) {
     return (
-      <main className={styles.center}>
-        <section className={styles.card} aria-labelledby="auth-title">
-          <span className={styles.eyebrow}>오늘도 가볍게</span>
-          <h1 id="auth-title">
-            {mode === "signup" ? "첫 회원 만들기" : mode === "verify" ? "이메일 인증" : "로그인"}
-          </h1>
-          <p>
-            {mode === "signup"
-              ? "이메일 인증을 완료하면 나만의 식단과 체중 기록을 시작할 수 있습니다."
-              : mode === "verify"
-                ? "가입한 이메일로 보낸 인증번호를 입력해 주세요."
-                : "식단과 체중 기록을 보려면 로그인해 주세요."}
-          </p>
-          <form className={styles.form} onSubmit={submit}>
+      <main className={styles.authPage}>
+        <section className={styles.authShell} aria-label="오늘도 가볍게 계정">
+          <div className={styles.authIntro}>
+            <div className={styles.authBrand}>
+              <Image src="/broccoli-logo.png" alt="" width={48} height={48} priority />
+              <strong>오늘도 가볍게</strong>
+            </div>
+            <div className={styles.introCopy}>
+              <span>MY DAILY ROUTINE</span>
+              <h2>
+                먹은 것과 몸의 변화를
+                <br />
+                한눈에 기록하세요.
+              </h2>
+              <p>복잡한 기능 없이 식단과 체중에만 집중한 개인 기록 공간입니다.</p>
+            </div>
+            <ul className={styles.introList}>
+              <li>날짜별 식단과 체중 기록</li>
+              <li>캘린더로 흐름 확인</li>
+              <li>이메일 인증으로 안전하게 보관</li>
+            </ul>
+          </div>
+          <section className={styles.card} aria-labelledby="auth-title">
+            <span className={styles.eyebrow}>
+              {mode === "signup"
+                ? "새로운 기록 시작"
+                : mode === "verify"
+                  ? "마지막 한 단계"
+                  : "다시 만나 반가워요"}
+            </span>
+            <h1 id="auth-title">
+              {mode === "signup"
+                ? "첫 회원 만들기"
+                : mode === "verify"
+                  ? "이메일 인증"
+                  : "로그인"}
+            </h1>
+            <p>
+              {mode === "signup"
+                ? "이메일 인증을 완료하면 나만의 식단과 체중 기록을 시작할 수 있습니다."
+                : mode === "verify"
+                  ? "가입한 이메일로 보낸 인증번호를 입력해 주세요."
+                  : "식단과 체중 기록을 보려면 로그인해 주세요."}
+            </p>
+            <form className={styles.form} onSubmit={submit}>
             {mode === "signup" && (
               <label>
                 이름
@@ -258,35 +297,38 @@ export function AuthGate({ children }: { children: ReactNode }) {
                     ? "인증하고 가입 완료"
                     : "로그인"}
             </button>
-          </form>
-          {mode === "verify" && (
-            <button
-              className={styles.switch}
-              type="button"
-              disabled={resendSubmitting || resendCooldown > 0}
-              onClick={resendVerification}
-            >
-              {resendSubmitting
-                ? "보내는 중…"
-                : resendCooldown > 0
-                  ? `${resendCooldown}초 후 다시 보내기`
-                  : "인증 메일 다시 보내기"}
-            </button>
-          )}
-          {mode !== "verify" && (
-            <button
-              className={styles.switch}
-              type="button"
-              onClick={() => setMode(mode === "signup" ? "login" : "signup")}
-            >
-              {mode === "signup" ? "이미 계정이 있나요? 로그인" : "계정이 없나요? 회원가입"}
-            </button>
-          )}
-          {mode === "verify" && (
-            <button className={styles.switch} type="button" onClick={() => setMode("login")}>
-              로그인으로 돌아가기
-            </button>
-          )}
+            </form>
+            {mode === "verify" && (
+              <button
+                className={styles.switch}
+                type="button"
+                disabled={resendSubmitting || resendCooldown > 0}
+                onClick={resendVerification}
+              >
+                {resendSubmitting
+                  ? "보내는 중…"
+                  : resendCooldown > 0
+                    ? `${resendCooldown}초 후 다시 보내기`
+                    : "인증 메일 다시 보내기"}
+              </button>
+            )}
+            {mode !== "verify" && (
+              <button
+                className={styles.switch}
+                type="button"
+                onClick={() => setMode(mode === "signup" ? "login" : "signup")}
+              >
+                {mode === "signup"
+                  ? "이미 계정이 있나요? 로그인"
+                  : "계정이 없나요? 회원가입"}
+              </button>
+            )}
+            {mode === "verify" && (
+              <button className={styles.switch} type="button" onClick={() => setMode("login")}>
+                로그인으로 돌아가기
+              </button>
+            )}
+          </section>
         </section>
       </main>
     );

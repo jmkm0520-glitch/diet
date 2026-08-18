@@ -1,20 +1,30 @@
 :root {
   color-scheme: light;
-  --color-ivory-50: #fffdf8;
-  --color-ivory-100: #faf8f0;
-  --color-ivory-200: #f5f1e8;
-  --color-ivory-300: #f2f3ec;
-  --color-green-100: #e7f3eb;
-  --color-green-500: #70c69a;
-  --color-green-700: #2f7351;
-  --color-green-800: #2f6b4f;
-  --color-red-100: #faebe7;
-  --color-red-400: #ef8c7f;
-  --color-red-600: #bb5548;
-  --color-text: #1f2a24;
-  --color-text-muted: #72766c;
-  --color-border: #dedbd1;
-  --layout-content-max: 960px;
+  --color-background: #f3f7f5;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #eef4f1;
+  --color-surface-strong: #e3eee9;
+  --color-primary: #087a63;
+  --color-primary-hover: #066551;
+  --color-primary-soft: #dff2eb;
+  --color-text: #13211d;
+  --color-text-muted: #60706a;
+  --color-border: #d8e3de;
+  --color-danger: #bd4b45;
+  --color-danger-soft: #fbedeb;
+  --color-focus: #0b74d1;
+  --color-ivory-50: var(--color-surface);
+  --color-ivory-100: var(--color-background);
+  --color-ivory-200: var(--color-surface-subtle);
+  --color-ivory-300: var(--color-surface-strong);
+  --color-green-100: var(--color-primary-soft);
+  --color-green-500: #58b69a;
+  --color-green-700: var(--color-primary);
+  --color-green-800: var(--color-primary-hover);
+  --color-red-100: var(--color-danger-soft);
+  --color-red-400: #df7b72;
+  --color-red-600: var(--color-danger);
+  --layout-content-max: 1120px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -23,15 +33,17 @@
   --space-6: 24px;
   --space-7: 28px;
   --border-width-thin: 1px;
-  --border-radius-card: 18px;
-  --shadow-card: 0 8px 24px rgb(36 59 45 / 7%);
+  --border-radius-card: 20px;
+  --border-radius-control: 12px;
+  --shadow-card: 0 14px 40px rgb(20 54 44 / 8%);
   --font-size-xs: 0.75rem;
-  --font-size-sm: 0.82rem;
+  --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-title: 1.5rem;
   --breakpoint-mobile: 640px;
-  font-family: Arial, Helvetica, sans-serif;
-  background: var(--color-ivory-100);
+  font-family: Pretendard, "Pretendard Variable", SUIT, "Noto Sans KR",
+    "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--color-background);
   color: var(--color-text);
 }
 
@@ -39,12 +51,49 @@
   box-sizing: border-box;
 }
 
-html,
-body {
+html {
   min-height: 100%;
-  margin: 0;
+  background: var(--color-background);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--color-ivory-100);
+  min-height: 100%;
+  margin: 0;
+  background:
+    radial-gradient(circle at 10% 0%, rgb(8 122 99 / 7%), transparent 28rem),
+    var(--color-background);
+  color: var(--color-text);
+  font-family: inherit;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a,
+label[for],
+input[type="date"] {
+  touch-action: manipulation;
+}
+
+::selection {
+  background: var(--color-primary-soft);
+  color: var(--color-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
