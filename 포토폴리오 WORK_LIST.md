@@ -8,6 +8,7 @@
 
 ## 현재 코드 상태 요약 (확인된 사실)
 
+- 배포 URL: **https://www.food-broccoli.shop** — Vercel에 GitHub(`main`) 연동 완료, push할 때마다 자동 배포됨. `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` 환경변수 등록 완료.
 - 회원가입/로그인/이메일 인증/세션 확인이 `AuthGate.tsx` + `api/authentication.py`로 이미 구현되어 있음 (멀티 유저 지원, `202608130003_enable_multi_member_signup.sql`)
 - 식단 기록(아침/점심/저녁/간식, clean/free), 체중 기록, 캘린더(`/calendar`)가 이미 구현되어 있음
 - clean/free 캐릭터 이미지(`clean.png`/`free.png`)와 저장 성공 메시지("○○ 식단이 저장되었습니다.")가 이미 있음
@@ -115,8 +116,9 @@
 
 ## 12. 배포
 
+- [x] 65-a. Vercel ↔ GitHub(`main`) 연동 완료, 환경 변수(`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`) 등록 완료, 배포 URL 확보(https://www.food-broccoli.shop) — 인프라 자체는 준비 끝
 - [ ] 65. 통계/차트/주간요약 관련 신규 환경 변수(있다면) `.env.example`에 추가
-- [ ] 66. Vercel 재배포
+- [ ] 66. Vercel 재배포 (통계 기능 구현 후 push하면 자동 배포됨)
 - [ ] 67. 배포 후 Test 11 재확인
 
 ## 13. 문서화 (포트폴리오 산출물)

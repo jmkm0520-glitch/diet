@@ -2,6 +2,11 @@
 
 Next.js App Router와 TypeScript로 구현하는 다이어트 식단 기록 웹사이트입니다.
 
+## 배포 URL
+
+- Production: [https://www.food-broccoli.shop](https://www.food-broccoli.shop)
+- Vercel에 GitHub 저장소(`main` 브랜치)가 연결되어 있어 push할 때마다 자동으로 재배포됩니다.
+
 ## 로컬 개발 환경
 
 다음 도구가 필요합니다.
@@ -75,17 +80,13 @@ pnpm dev
 - `pnpm lint`: ESLint 검사
 - `pnpm security:check`: 브라우저 결과물·로그·Git 이력의 서버 비밀키 노출 검사
 
-## 데모 이용 시 주의사항
+## 인증과 데이터 분리
 
-현재 버전에는 회원가입과 로그인이 없습니다. 인터넷에 공개하면 사이트 주소를 아는 사람이 같은
-식단과 체중 기록을 조회하거나 변경할 수 있습니다. 실제 개인정보를 입력하는 공개 서비스로
-사용하면 안 됩니다.
+회원가입/로그인/이메일 인증이 구현되어 있습니다 (`AuthGate.tsx`, `api/authentication.py`).
+식단·체중 기록은 로그인한 사용자별로 저장되며, Supabase Row Level Security(RLS)로 다른
+사용자의 기록에 접근할 수 없도록 분리되어 있습니다.
 
-현재 결정은 **로그인 또는 배포 접근 제한을 적용하기 전에는 외부에 공개하지 않는 것**입니다.
-내부 시연은 Vercel Deployment Protection 같은 접근 제한을 사용하고, 실제 사용자에게 공개하기
-전에는 Supabase Auth 기반 로그인을 추가해야 합니다.
-
-데이터베이스 접근 제한, 비밀키 관리, 공개 전 확인사항과 백업·복구 방법은
+데이터베이스 접근 제한, 비밀키 관리, 백업·복구 방법은
 [보안 및 백업·복구 안내](./docs/SECURITY_AND_RECOVERY.md)에 정리되어 있습니다.
 
 프론트엔드에서 시작한 사용자 요청이 Python 백엔드와 Supabase를 거쳐 다시 화면에
