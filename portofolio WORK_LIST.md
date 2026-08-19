@@ -1,7 +1,7 @@
 # Diet Record 개선 작업리스트 (subject.md 기준)
 
 작성일: 2026-08-20
-기준 문서: [subject.md](./subject.md)
+기준 문서: [portofolio subject.md](<./portofolio subject.md>)
 
 > 모든 항목에 번호를 붙였습니다. `[x]`는 현재 코드 기준으로 이미 되어 있다고 확인된 항목, `[ ]`는 이번 개선 프로젝트에서 해야 할 항목입니다.
 > 기존 `TASK_CHECKLIST.md`는 "로그인 없는 1인 데모" 기준으로 작성된 문서라 subject.md(회원가입/로그인/사용자 분리 포함)와 전제가 다릅니다. 이 문서가 subject.md 기준의 최신 작업리스트입니다.
