@@ -430,7 +430,8 @@
   background: #faf4e8;
 }
 .mealChoices button:disabled,
-.mealSaveButton:disabled {
+.mealSaveButton:disabled,
+.mealDeleteButton:disabled {
   cursor: wait;
   opacity: 0.65;
 }
@@ -477,6 +478,27 @@
   background-color: #c94f3d;
 }
 .mealSaveButton:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.mealDeleteButton {
+  width: 100%;
+  border: 1px solid #e8ddc7;
+  border-radius: 16px;
+  background: transparent;
+  padding: 12px 21px;
+  color: #948c78;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.mealDeleteButton:hover:not(:disabled) {
+  border-color: #e2624f;
+  background: #fdece6;
+  color: #e2624f;
+}
+.mealDeleteButton:active:not(:disabled) {
   transform: scale(0.97);
 }
 .mealInputError {

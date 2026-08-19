@@ -49,6 +49,20 @@ export function saveLocalMeal(
   return record;
 }
 
+export function deleteLocalMeal(date: string, meal: Meal): DayRecord {
+  const day = readLocalDay(date);
+  const nextDay: DayRecord = { ...day, date, meals: { ...day.meals, [meal]: null } };
+  const hasRecords = nextDay.weight || Object.values(nextDay.meals).some((slot) => slot !== null);
+
+  if (hasRecords) {
+    window.localStorage.setItem(storageKey(date), JSON.stringify(nextDay));
+  } else {
+    window.localStorage.removeItem(storageKey(date));
+  }
+
+  return nextDay;
+}
+
 export function clearLocalMeals(date: string): DayRecord {
   const day = readLocalDay(date);
   const clearedDay: DayRecord = {

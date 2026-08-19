@@ -59,6 +59,9 @@ def final_meal_record(result) -> dict:
     return saved
 
 
+MEAL_SLOTS = ("breakfast", "lunch", "dinner", "snack")
+
+
 def requested_date(path: str) -> str:
     """Read one valid date from a meal reset request URL."""
 
@@ -68,12 +71,27 @@ def requested_date(path: str) -> str:
     return validate_date(values[0])
 
 
-def delete_meals_for_date(client, date: str, member_id: str | None = None):
-    """Delete every meal slot saved for one calendar date."""
+def requested_meal(path: str) -> str | None:
+    """Read the optional single meal slot a delete request targets."""
+
+    values = parse_qs(urlparse(path).query).get("meal", [])
+    if not values:
+        return None
+    if len(values) != 1 or values[0] not in MEAL_SLOTS:
+        raise ValueError("meal query parameter must name one meal slot")
+    return values[0]
+
+
+def delete_meals_for_date(
+    client, date: str, member_id: str | None = None, meal: str | None = None
+):
+    """Delete every meal slot saved for one calendar date, or only one slot."""
 
     query = client.table("meals").delete()
     if member_id is not None:
         query = query.eq("member_id", member_id)
+    if meal is not None:
+        query = query.eq("meal", meal)
     return query.eq("date", date).execute()
 
 
@@ -112,6 +130,7 @@ class handler(BaseHTTPRequestHandler):
     def do_DELETE(self) -> None:
         try:
             date = requested_date(self.path)
+            meal = requested_meal(self.path)
         except ValueError:
             _send_json(
                 self,
@@ -122,7 +141,7 @@ class handler(BaseHTTPRequestHandler):
 
         try:
             member = require_member(self)
-            result = delete_meals_for_date(get_supabase_client(), date, member.id)
+            result = delete_meals_for_date(get_supabase_client(), date, member.id, meal)
             _send_json(
                 self,
                 200,

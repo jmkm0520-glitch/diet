@@ -324,6 +324,10 @@ src/app/page.tsx의 updateWeightInput(), saveWeight()
 
 그 다음 API를 직접 호출하지 않고 부모에게 받은 `onSave(meal, food, type)`을 호출한다.
 
+이미 저장된 카드에는 `삭제` 버튼이 함께 보인다. 이 버튼은 부모에게 받은 `onDelete(meal)`을 호출해
+`DELETE /api/meal?date=...&meal=...`로 그 한 칸만 지운다. 하루 전체를 지우는 `식단 초기화`와 달리
+잘못 저장한 한 끼만 되돌릴 때 쓴다.
+
 ### 2단계: 부모 `Home`이 HTTP 요청을 맡는다
 
 `Home`이 `MealCard`에 넘긴 `onSave`는 `Home.saveMeal()`이다. 이 함수가 다음 요청을 만든다.

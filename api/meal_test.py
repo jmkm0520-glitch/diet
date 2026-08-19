@@ -7,7 +7,13 @@ from datetime import timedelta
 import pytest
 
 from api.lib.validators import app_today
-from api.meal import delete_meals_for_date, final_meal_record, requested_date, upsert_meal
+from api.meal import (
+    delete_meals_for_date,
+    final_meal_record,
+    requested_date,
+    requested_meal,
+    upsert_meal,
+)
 from api.models.meal import MealUpsertRequest
 
 
@@ -18,6 +24,7 @@ class InMemoryMealTable:
         self.conflict: str | None = None
         self.delete_requested = False
         self.filter_date: str | None = None
+        self.filter_meal: str | None = None
 
     def upsert(self, payload: dict, on_conflict: str):
         self.payload = payload
@@ -29,14 +36,21 @@ class InMemoryMealTable:
         return self
 
     def eq(self, column: str, value: str):
-        assert column == "date"
-        self.filter_date = value
+        assert column in {"date", "meal"}
+        if column == "date":
+            self.filter_date = value
+        else:
+            self.filter_meal = value
         return self
+
+    def _matches(self, key: tuple[str, str]) -> bool:
+        date, meal = key
+        return date == self.filter_date and self.filter_meal in (None, meal)
 
     def execute(self):
         if self.delete_requested:
-            deleted = [row for (date, _), row in self.rows.items() if date == self.filter_date]
-            self.rows = {key: row for key, row in self.rows.items() if key[0] != self.filter_date}
+            deleted = [row for key, row in self.rows.items() if self._matches(key)]
+            self.rows = {key: row for key, row in self.rows.items() if not self._matches(key)}
             return type("Result", (), {"data": deleted})()
         assert self.payload is not None
         key = (self.payload["date"], self.payload["meal"])
@@ -156,3 +170,28 @@ def test_meal_reset_reads_the_selected_date_from_the_url() -> None:
 
     with pytest.raises(ValueError):
         requested_date("/api/meal?date=not-a-date")
+
+
+def test_deleting_one_meal_slot_keeps_the_other_slots_for_that_date() -> None:
+    client = InMemoryMealClient()
+    for meal in ("breakfast", "lunch", "dinner"):
+        upsert_meal(
+            client,
+            MealUpsertRequest(date="2026-08-11", meal=meal, food="테스트 음식", type="clean"),
+        )
+
+    result = delete_meals_for_date(client, "2026-08-11", None, "breakfast")
+
+    assert len(result.data) == 1
+    assert sorted(client.table_instance.rows) == [
+        ("2026-08-11", "dinner"),
+        ("2026-08-11", "lunch"),
+    ]
+
+
+def test_meal_delete_reads_the_optional_meal_slot_from_the_url() -> None:
+    assert requested_meal("/api/meal?date=2026-08-12") is None
+    assert requested_meal("/api/meal?date=2026-08-12&meal=snack") == "snack"
+
+    with pytest.raises(ValueError):
+        requested_meal("/api/meal?date=2026-08-12&meal=brunch")

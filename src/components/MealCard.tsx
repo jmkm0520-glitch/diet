@@ -13,6 +13,7 @@ export type MealCardProps = {
   record: MealRecord | null;
   isLoading: boolean;
   onSave: (meal: Meal, food: string, type: MealType) => Promise<void>;
+  onDelete: (meal: Meal) => Promise<void>;
 };
 
 export function MealCard({
@@ -23,6 +24,7 @@ export function MealCard({
   record,
   isLoading,
   onSave,
+  onDelete,
 }: MealCardProps) {
   const food = record?.food ?? defaultFood;
   const initialType = record?.type ?? (food.trim() ? defaultType : null);
@@ -32,6 +34,7 @@ export function MealCard({
   const [saveStatus, setSaveStatus] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLocked, setIsLocked] = useState(() => Boolean(record));
+  const [isDeleting, setIsDeleting] = useState(false);
   const { isFree, isSelected, label } = getMealCardState(type);
 
   async function saveMeal() {
@@ -65,10 +68,23 @@ export function MealCard({
     setSaveStatus(`${title} 식단 수정 모드입니다.`);
   }
 
+  async function deleteMeal() {
+    if (!window.confirm(`${title} 식단 기록을 삭제할까요?`)) return;
+    setIsDeleting(true);
+    setError(null);
+    setSaveStatus("");
+    try {
+      await onDelete(meal);
+    } catch {
+      setError("식단을 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.");
+      setIsDeleting(false);
+    }
+  }
+
   return (
     <article
       aria-label={`${title} (${meal}) 식단 기록`}
-      aria-busy={isLoading || isSaving}
+      aria-busy={isLoading || isSaving || isDeleting}
       className={`${styles.mealCard} ${isFree ? styles.freeMealCard : ""} ${!isSelected ? styles.unselectedMealCard : ""}`}
     >
       <div className={styles.mealHeader}>
@@ -99,7 +115,7 @@ export function MealCard({
           aria-invalid={Boolean(error)}
           aria-label={`${title} 음식 내용`}
           className={styles.foodInput}
-          disabled={isLoading || isSaving || isLocked}
+          disabled={isLoading || isSaving || isDeleting || isLocked}
           id={`food-${meal}`}
           maxLength={500}
           name="food"
@@ -121,7 +137,7 @@ export function MealCard({
               aria-label={`${title} 클린식 선택`}
               aria-pressed={type === "clean"}
               className={type === "clean" ? styles.selectedChoice : ""}
-              disabled={isSaving || isLocked}
+              disabled={isSaving || isDeleting || isLocked}
               type="button"
               onClick={() => {
                 setType((current) => (current === "clean" ? null : "clean"));
@@ -133,7 +149,7 @@ export function MealCard({
               aria-label={`${title} 자유식 선택`}
               aria-pressed={isFree}
               className={isFree ? styles.selectedChoice : ""}
-              disabled={isSaving || isLocked}
+              disabled={isSaving || isDeleting || isLocked}
               type="button"
               onClick={() => {
                 setType((current) => (current === "free" ? null : "free"));
@@ -145,12 +161,23 @@ export function MealCard({
           <button
             aria-label={`${title} 식단 ${isLocked ? "수정" : "저장"}`}
             className={`${styles.mealSaveButton} ${isLocked ? styles.mealSaveButtonEdit : ""}`}
-            disabled={isSaving}
+            disabled={isSaving || isDeleting}
             type="button"
             onClick={isLocked ? unlockMeal : saveMeal}
           >
             {isSaving ? "저장 중..." : isLocked ? "수정" : "저장"}
           </button>
+          {record ? (
+            <button
+              aria-label={`${title} 식단 삭제`}
+              className={styles.mealDeleteButton}
+              disabled={isSaving || isDeleting}
+              type="button"
+              onClick={deleteMeal}
+            >
+              {isDeleting ? "삭제 중..." : "삭제"}
+            </button>
+          ) : null}
         </div>
         {error && (
           <p className={styles.mealInputError} id={`food-error-${meal}`} role="alert">
