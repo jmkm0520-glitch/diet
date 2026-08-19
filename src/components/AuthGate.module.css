@@ -12,7 +12,7 @@
 .error { margin: 0; color: #b33131; font-size: 14px; }
 .status { margin: 0; color: #3f6833; font-size: 14px; line-height: 1.5; }
 .switch { width: 100%; margin-top: 16px; border: 0; background: transparent; color: #4f7d3f; font: inherit; font-weight: 700; cursor: pointer; }
-.menuButton { position: fixed; z-index: 80; top: 64px; right: max(76px, calc((100vw - 1680px) / 2 + 52px)); display: grid; width: 50px; height: 50px; place-content: center; gap: 5px; border: 1px solid #ddd9ce; border-radius: 15px; background: #fffdf9; box-shadow: 0 6px 20px rgba(44,74,35,.08); cursor: pointer; }
+.menuButton { position: fixed; z-index: 80; top: 64px; right: max(76px, calc((100vw - 1680px) / 2 + 52px)); display: grid; width: 50px; height: 50px; place-content: center; gap: 5px; border: 1px solid #ddd9ce; border-radius: 15px; background: #fffdf9; box-shadow: 0 6px 20px rgba(44,74,35,.08); cursor: pointer; transform: translateZ(0); -webkit-transform: translateZ(0); will-change: transform; }
 .menuButton span { display: block; width: 21px; height: 2px; border-radius: 999px; background: #2f4f3e; }
 .menuButton:focus-visible { outline: 3px solid #1672d3; outline-offset: 3px; }
 .menuBackdrop { position: fixed; z-index: 90; inset: 0; border: 0; background: rgba(31,42,36,.38); cursor: default; }
