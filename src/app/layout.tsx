@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Gothic_A1 } from "next/font/google";
+import { Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
 import { AuthGate } from "../components/AuthGate";
 
-const gothicA1 = Gothic_A1({
+const notoSansKr = Noto_Sans_KR({
   subsets: ["korean"],
   weight: ["400", "600", "700", "800", "900"],
   variable: "--font-sans",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ko" className={gothicA1.variable}>
+    <html lang="ko" className={notoSansKr.variable}>
       <body><AuthGate>{children}</AuthGate></body>
     </html>
   );
