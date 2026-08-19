@@ -294,7 +294,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0 52px 44px;
+  padding: 0 52px 110px;
 }
 
 .mealResetRow button {
@@ -1000,7 +1000,7 @@
     font-size: 1.15rem;
   }
   .mealResetRow {
-    padding: 0 24px 36px;
+    padding: 0 24px 90px;
   }
   .todayFooter {
     bottom: 14px;
