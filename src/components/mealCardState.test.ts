@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { getMealCardState } from "./mealCardState.ts";
+import { EMPTY_FOOD_ERROR, getMealCardState, getMealSaveInput } from "./mealCardState.ts";
 
 describe("getMealCardState", () => {
   it("uses the clean card state for clean meals", () => {
@@ -25,6 +25,31 @@ describe("getMealCardState", () => {
       isFree: false,
       isSelected: false,
       label: "음식 입력 전",
+    });
+  });
+});
+
+describe("getMealSaveInput", () => {
+  it("refuses to save a meal with no food entered", () => {
+    assert.deepEqual(getMealSaveInput("   ", "free", "clean"), {
+      ok: false,
+      error: EMPTY_FOOD_ERROR,
+    });
+  });
+
+  it("trims the entered food and keeps the chosen type", () => {
+    assert.deepEqual(getMealSaveInput("  햄버거 ", "free", "clean"), {
+      ok: true,
+      food: "햄버거",
+      type: "free",
+    });
+  });
+
+  it("falls back to the card default type when none is chosen", () => {
+    assert.deepEqual(getMealSaveInput("샐러드", null, "clean"), {
+      ok: true,
+      food: "샐러드",
+      type: "clean",
     });
   });
 });

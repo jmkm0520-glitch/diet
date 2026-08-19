@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import styles from "../app/page.module.css";
 import type { Meal, MealRecord, MealType } from "../types/api";
-import { getMealCardState } from "./mealCardState";
+import { getMealCardState, getMealSaveInput } from "./mealCardState";
 
 export type MealCardProps = {
   meal: Meal;
@@ -35,8 +35,14 @@ export function MealCard({
   const { isFree, isSelected, label } = getMealCardState(type);
 
   async function saveMeal() {
-    const inputFood = foodInput.trim() || "공복";
-    const selectedType = type ?? defaultType;
+    const input = getMealSaveInput(foodInput, type, defaultType);
+    if (!input.ok) {
+      setError(input.error);
+      setSaveStatus("");
+      return;
+    }
+
+    const { food: inputFood, type: selectedType } = input;
     setIsSaving(true);
     setError(null);
     setSaveStatus("");

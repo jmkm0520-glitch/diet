@@ -318,7 +318,7 @@ src/app/page.tsx의 updateWeightInput(), saveWeight()
 사용자가 저장을 누르면 `MealCard.saveMeal()`이 다음 값을 정리한다.
 
 ```text
-음식이 비어 있음 → "공복"
+음식이 비어 있음 → 저장하지 않고 "먹은 음식을 입력해주세요." 오류 표시
 식단 종류를 고르지 않음 → 해당 카드의 defaultType
 ```
 
