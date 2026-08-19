@@ -118,7 +118,7 @@ export function MealCard({
               disabled={isSaving || isLocked}
               type="button"
               onClick={() => {
-                setType("clean");
+                setType((current) => (current === "clean" ? null : "clean"));
               }}
             >
               클린식
@@ -130,7 +130,7 @@ export function MealCard({
               disabled={isSaving || isLocked}
               type="button"
               onClick={() => {
-                setType("free");
+                setType((current) => (current === "free" ? null : "free"));
               }}
             >
               자유식
