@@ -19,14 +19,14 @@
 
 ## 1. 기존 서비스 분석 (문서화)
 
-- [ ] 1. 서비스 목적 정리 (식단 기록 + 패턴 확인, 칼로리 계산/진단 아님)
-- [ ] 2. 타겟 사용자 정의 문장 작성 (subject.md 4.2 예시 기반)
-- [ ] 3. 주요 페이지 목록 정리 (`/`, `/calendar`, `/import`)
-- [ ] 4. 기존 기능 목록 정리 (회원가입/로그인/식단기록/체중기록/캘린더)
-- [ ] 5. 데이터 구조 정리 (`meals`, `weights`, `members` 테이블과 주요 컬럼)
-- [ ] 6. 사용 기술 정리 (Next.js App Router, TypeScript, Python Vercel Functions, Supabase)
-- [ ] 7. 배포 구조 정리 (Vercel + Supabase, `vercel.json` 기준)
-- [ ] 8. 위 1~7번을 "서비스 개선 문서"(예: `docs/service-review.md`)로 통합 작성
+- [x] 1. 서비스 목적 정리 (식단 기록 + 패턴 확인, 칼로리 계산/진단 아님) → `docs/service-review.md` 1장
+- [x] 2. 타겟 사용자 정의 문장 작성 (subject.md 4.2 예시 기반) → `docs/service-review.md` 2장
+- [x] 3. 주요 페이지 목록 정리 (`/`, `/calendar`, `/import`) → `docs/service-review.md` 3장
+- [x] 4. 기존 기능 목록 정리 (회원가입/로그인/식단기록/체중기록/캘린더) → `docs/service-review.md` 4장
+- [x] 5. 데이터 구조 정리 (`meals`, `weights`, `members` 테이블과 주요 컬럼) → `docs/service-review.md` 5장
+- [x] 6. 사용 기술 정리 (Next.js App Router, TypeScript, Python Vercel Functions, Supabase) → `docs/service-review.md` 6장
+- [x] 7. 배포 구조 정리 (Vercel + Supabase, `vercel.json` 기준) → `docs/service-review.md` 7장
+- [x] 8. 위 1~7번을 "서비스 개선 문서"([`docs/service-review.md`](<./docs/service-review.md>))로 통합 작성
 
 ## 2. 사용자 흐름 점검
 
