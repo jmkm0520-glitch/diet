@@ -33,16 +33,10 @@ export function MealCard({
   const [isSaving, setIsSaving] = useState(false);
   const [isLocked, setIsLocked] = useState(() => Boolean(record));
   const { isFree, isSelected, label } = getMealCardState(type);
+  const editModeStatus = `${title} 식단 수정 모드입니다.`;
 
   async function saveMeal() {
-    const input = getMealSaveInput(foodInput, type, defaultType);
-    if (!input.ok) {
-      setError(input.error);
-      setSaveStatus("");
-      return;
-    }
-
-    const { food: inputFood, type: selectedType } = input;
+    const { food: inputFood, type: selectedType } = getMealSaveInput(foodInput, type, defaultType);
     setIsSaving(true);
     setError(null);
     setSaveStatus("");
@@ -59,10 +53,12 @@ export function MealCard({
     }
   }
 
-  function unlockMeal() {
+  /** Enter edit mode, whether the user pressed 수정 or just touched a field. */
+  function startEditing() {
+    if (!isLocked) return;
     setIsLocked(false);
     setError(null);
-    setSaveStatus(`${title} 식단 수정 모드입니다.`);
+    setSaveStatus(editModeStatus);
   }
 
   return (
@@ -99,7 +95,7 @@ export function MealCard({
           aria-invalid={Boolean(error)}
           aria-label={`${title} 음식 내용`}
           className={styles.foodInput}
-          disabled={isLoading || isSaving || isLocked}
+          disabled={isLoading || isSaving}
           id={`food-${meal}`}
           maxLength={500}
           name="food"
@@ -109,10 +105,11 @@ export function MealCard({
           onChange={(event) => {
             const nextFood = event.target.value;
             setFoodInput(nextFood);
-            if (!nextFood.trim() && !record) setType(null);
+            if (!nextFood.trim()) setType(null);
             if (nextFood.trim() && type === null) setType(defaultType);
             setError(null);
-            setSaveStatus("");
+            setSaveStatus(isLocked ? editModeStatus : "");
+            setIsLocked(false);
           }}
         />
         <div className={styles.mealActions}>
@@ -121,10 +118,11 @@ export function MealCard({
               aria-label={`${title} 클린식 선택`}
               aria-pressed={type === "clean"}
               className={type === "clean" ? styles.selectedChoice : ""}
-              disabled={isSaving || isLocked}
+              disabled={isSaving}
               type="button"
               onClick={() => {
                 setType((current) => (current === "clean" ? null : "clean"));
+                startEditing();
               }}
             >
               클린식
@@ -133,10 +131,11 @@ export function MealCard({
               aria-label={`${title} 자유식 선택`}
               aria-pressed={isFree}
               className={isFree ? styles.selectedChoice : ""}
-              disabled={isSaving || isLocked}
+              disabled={isSaving}
               type="button"
               onClick={() => {
                 setType((current) => (current === "free" ? null : "free"));
+                startEditing();
               }}
             >
               자유식
@@ -147,7 +146,7 @@ export function MealCard({
             className={`${styles.mealSaveButton} ${isLocked ? styles.mealSaveButtonEdit : ""}`}
             disabled={isSaving}
             type="button"
-            onClick={isLocked ? unlockMeal : saveMeal}
+            onClick={isLocked ? startEditing : saveMeal}
           >
             {isSaving ? "저장 중..." : isLocked ? "수정" : "저장"}
           </button>

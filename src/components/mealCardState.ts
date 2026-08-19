@@ -13,19 +13,19 @@ export function getMealCardState(type: MealType | null): MealCardState {
     : { isFree: false, isSelected: true, label: "클린식" };
 }
 
-export const EMPTY_FOOD_ERROR = "먹은 음식을 입력해주세요.";
+/** Food and type saved when a meal card is left empty. */
+export const EMPTY_FOOD = "공복";
+export const EMPTY_FOOD_TYPE: MealType = "clean";
 
-export type MealSaveInput =
-  | { ok: true; food: string; type: MealType }
-  | { ok: false; error: string };
+export type MealSaveInput = { food: string; type: MealType };
 
-/** Reject a blank food entry so an empty meal is never saved. */
+/** Fill an empty meal card in as a clean 공복 record instead of blocking the save. */
 export function getMealSaveInput(
   foodInput: string,
   type: MealType | null,
   defaultType: MealType,
 ): MealSaveInput {
   const food = foodInput.trim();
-  if (!food) return { ok: false, error: EMPTY_FOOD_ERROR };
-  return { ok: true, food, type: type ?? defaultType };
+  if (!food) return { food: EMPTY_FOOD, type: EMPTY_FOOD_TYPE };
+  return { food, type: type ?? defaultType };
 }
