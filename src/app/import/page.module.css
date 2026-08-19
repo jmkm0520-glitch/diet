@@ -12,6 +12,12 @@
   outline: 3px solid #1672d3;
   outline-offset: 3px;
 }
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 16px;
+}
 .siteHeader {
   position: sticky;
   top: 0;
@@ -21,7 +27,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 22px 128px 22px 52px;
+  padding: 22px 52px;
   border-bottom: 1px solid #e8ddc7;
   background: #fffaf0;
 }
@@ -202,7 +208,7 @@
   .siteHeader {
     min-height: auto;
     align-items: flex-start;
-    padding: 10px 68px 10px 16px;
+    padding: 10px 16px;
   }
   .brand span {
     display: none;

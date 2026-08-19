@@ -4,6 +4,7 @@ import Link from "next/link";
 import styles from "../page.module.css";
 import { CalendarView } from "../../components/CalendarView";
 import { TabNav } from "../../components/TabNav";
+import { SiteMenuButton } from "../../components/AuthGate";
 
 export default function CalendarPage() {
   return (
@@ -20,7 +21,10 @@ export default function CalendarPage() {
           />
           <span>오늘도 가볍게</span>
         </Link>
-        <TabNav />
+        <div className={styles.headerActions}>
+          <TabNav />
+          <SiteMenuButton />
+        </div>
       </header>
       <CalendarView />
     </main>

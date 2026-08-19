@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChangeEvent, useState } from "react";
 import { TabNav } from "../../components/TabNav";
+import { SiteMenuButton } from "../../components/AuthGate";
 import { ApiClientError, fetchApi } from "../../services/apiClient";
 import { formatLocalDate } from "../../services/date";
 import { saveLocalMeal, saveLocalWeight } from "../../services/localDayStorage";
@@ -75,7 +76,10 @@ export default function ImportPage() {
           />
           <span>오늘도 가볍게</span>
         </Link>
-        <TabNav />
+        <div className={styles.headerActions}>
+          <TabNav />
+          <SiteMenuButton />
+        </div>
       </header>
       <section className={styles.content}>
         <p className={styles.eyebrow}>CSV IMPORT</p>

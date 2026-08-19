@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MealCard } from "../components/MealCard";
 import { TabNav } from "../components/TabNav";
+import { SiteMenuButton } from "../components/AuthGate";
 import {
   formatLocalDate,
   isFutureLocalDate,
@@ -255,7 +256,10 @@ export default function Home() {
           />
           <span>오늘도 가볍게</span>
         </Link>
-        <TabNav />
+        <div className={styles.headerActions}>
+          <TabNav />
+          <SiteMenuButton />
+        </div>
       </header>
       <section className={styles.header}>
         <h1>{dateTitle}</h1>

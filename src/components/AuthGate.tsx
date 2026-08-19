@@ -2,12 +2,53 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  FormEvent,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { ApiClientError, fetchApi } from "../services/apiClient";
 import type { Member } from "../types/auth";
 import styles from "./AuthGate.module.css";
 
 type Mode = "login" | "signup" | "verify";
+
+type SiteMenuContextValue = { isMenuOpen: boolean; openMenu: () => void };
+
+const SiteMenuContext = createContext<SiteMenuContextValue | null>(null);
+
+const MENU_BUTTON_ID = "site-menu-button";
+
+/** Return focus to the header button after the side menu closes. */
+function focusMenuButton() {
+  window.setTimeout(() => document.getElementById(MENU_BUTTON_ID)?.focus(), 0);
+}
+
+/** Hamburger button for the site header. Renders nothing until a member is signed in. */
+export function SiteMenuButton() {
+  const menu = useContext(SiteMenuContext);
+  if (!menu) return null;
+
+  return (
+    <button
+      aria-controls="account-side-menu"
+      aria-expanded={menu.isMenuOpen}
+      aria-label="메뉴 열기"
+      className={styles.menuButton}
+      id={MENU_BUTTON_ID}
+      type="button"
+      onClick={menu.openMenu}
+    >
+      <span aria-hidden="true" />
+      <span aria-hidden="true" />
+      <span aria-hidden="true" />
+    </button>
+  );
+}
 
 export function AuthGate({ children }: { children: ReactNode }) {
   const [member, setMember] = useState<Member | null>(null);
@@ -18,7 +59,6 @@ export function AuthGate({ children }: { children: ReactNode }) {
   const [pendingEmail, setPendingEmail] = useState("");
   const [status, setStatus] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const sideMenuRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -47,7 +87,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
     function closeOnEscape(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
       setIsMenuOpen(false);
-      window.setTimeout(() => menuButtonRef.current?.focus(), 0);
+      focusMenuButton();
     }
 
     document.addEventListener("keydown", closeOnEscape);
@@ -133,7 +173,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   function closeMenu() {
     setIsMenuOpen(false);
-    window.setTimeout(() => menuButtonRef.current?.focus(), 0);
+    focusMenuButton();
   }
 
   if (loading) return <main className={styles.center}>로그인 상태를 확인하고 있어요.</main>;
@@ -209,20 +249,9 @@ export function AuthGate({ children }: { children: ReactNode }) {
   }
 
   return (
-    <>
-      <button
-        aria-controls="account-side-menu"
-        aria-expanded={isMenuOpen}
-        aria-label="메뉴 열기"
-        className={styles.menuButton}
-        ref={menuButtonRef}
-        type="button"
-        onClick={() => setIsMenuOpen(true)}
-      >
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-      </button>
+    <SiteMenuContext.Provider
+      value={{ isMenuOpen, openMenu: () => setIsMenuOpen(true) }}
+    >
       {isMenuOpen ? (
         <>
           <button
@@ -266,6 +295,6 @@ export function AuthGate({ children }: { children: ReactNode }) {
         </>
       ) : null}
       {children}
-    </>
+    </SiteMenuContext.Provider>
   );
 }

@@ -22,7 +22,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 28px 132px 28px 56px;
+  padding: 28px 56px;
   border-bottom: 1px solid #e8ddc7;
   background: #fffaf0;
 }
@@ -45,6 +45,12 @@
   object-fit: contain;
 }
 
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 16px;
+}
 .tabNav {
   display: inline-flex;
   align-items: center;
@@ -961,7 +967,7 @@
   .siteHeader {
     min-height: auto;
     gap: 8px;
-    padding: 10px 68px 10px 16px;
+    padding: 10px 16px;
   }
   .brand {
     flex-shrink: 1;
@@ -973,6 +979,9 @@
     width: 36px;
     height: 36px;
     flex: 0 0 36px;
+  }
+  .headerActions {
+    gap: 8px;
   }
   .tabNav {
     flex-shrink: 0;
@@ -1131,7 +1140,10 @@
 @media (max-width: 380px) {
   .siteHeader {
     gap: 8px;
-    padding: 8px 64px 8px 12px;
+    padding: 8px 12px;
+  }
+  .headerActions {
+    gap: 6px;
   }
   .brand {
     gap: 8px;
