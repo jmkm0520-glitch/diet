@@ -17,7 +17,6 @@ import { ApiClientError, fetchApi } from "../services/apiClient";
 import type { DayRecord, Meal, MealRecord, MealType } from "../types/api";
 import {
   clearLocalMeals,
-  deleteLocalMeal,
   readLocalDay,
   saveLocalMeal,
   saveLocalWeight,
@@ -57,12 +56,6 @@ export default function Home() {
   const [isWeightLocked, setIsWeightLocked] = useState(false);
   const [isResettingMeals, setIsResettingMeals] = useState(false);
   const [mealResetVersion, setMealResetVersion] = useState(0);
-  const [mealVersions, setMealVersions] = useState<Record<Meal, number>>({
-    breakfast: 0,
-    lunch: 0,
-    dinner: 0,
-    snack: 0,
-  });
   const [mealResetError, setMealResetError] = useState<string | null>(null);
   const [mealResetStatus, setMealResetStatus] = useState("");
 
@@ -165,25 +158,6 @@ export default function Home() {
       date: selectedDate,
       meals: { ...(current?.meals ?? readLocalDay(selectedDate).meals), [meal]: record },
     }));
-  }
-
-  async function deleteMeal(meal: Meal) {
-    try {
-      await fetchApi<{ date: string; deleted: number }>(
-        `/api/meal?date=${selectedDate}&meal=${meal}`,
-        { method: "DELETE" },
-      );
-    } catch (error) {
-      if (!isApiNotFound(error)) throw error;
-    }
-
-    const localDay = deleteLocalMeal(selectedDate, meal);
-    setDayRecord((current) => ({
-      ...(current ?? localDay),
-      date: selectedDate,
-      meals: { ...(current?.meals ?? localDay.meals), [meal]: null },
-    }));
-    setMealVersions((current) => ({ ...current, [meal]: current[meal] + 1 }));
   }
 
   async function resetMeals() {
@@ -365,10 +339,9 @@ export default function Home() {
       >
         {meals.map((meal) => (
           <MealCard
-            key={`${selectedDate}-${meal.meal}-${isLoadingDay}-${mealResetVersion}-${mealVersions[meal.meal]}`}
+            key={`${selectedDate}-${meal.meal}-${isLoadingDay}-${mealResetVersion}`}
             {...meal}
             isLoading={isLoadingDay}
-            onDelete={deleteMeal}
             onSave={saveMeal}
             record={dayRecord?.meals[meal.meal] ?? null}
           />
