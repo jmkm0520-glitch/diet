@@ -138,7 +138,7 @@ export function MealCard({
           </div>
           <button
             aria-label={`${title} 식단 ${isLocked ? "수정" : "저장"}`}
-            className={styles.mealSaveButton}
+            className={`${styles.mealSaveButton} ${isLocked ? styles.mealSaveButtonEdit : ""}`}
             disabled={isSaving}
             type="button"
             onClick={isLocked ? unlockMeal : saveMeal}
