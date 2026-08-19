@@ -5,7 +5,7 @@ import "./globals.css";
 import { AuthGate } from "../components/AuthGate";
 
 const notoSansKr = Noto_Sans_KR({
-  subsets: ["korean"],
+  subsets: ["latin"],
   weight: ["400", "600", "700", "800", "900"],
   variable: "--font-sans",
   display: "swap",
