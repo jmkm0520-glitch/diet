@@ -3,10 +3,10 @@
   min-height: calc(100vh - 48px);
   margin: 24px auto;
   overflow: hidden;
-  border: 1px solid #ddd9ce;
+  border: 1px solid #e8ddc7;
   border-radius: 42px;
-  background: #f5f2ea;
-  color: #202720;
+  background: #faf4e8;
+  color: #2b2620;
 }
 .main :where(a, button, input):focus-visible {
   outline: 3px solid #1672d3;
@@ -19,14 +19,14 @@
   justify-content: space-between;
   gap: 24px;
   padding: 22px 128px 22px 52px;
-  border-bottom: 1px solid #ddd9ce;
-  background: #fffdf9;
+  border-bottom: 1px solid #e8ddc7;
+  background: #fffaf0;
 }
 .brand {
   display: inline-flex;
   align-items: center;
   gap: 18px;
-  color: #202720;
+  color: #2b2620;
   font-size: clamp(1.35rem, 2vw, 2rem);
   font-weight: 800;
   letter-spacing: -0.07em;
@@ -45,7 +45,7 @@
 }
 .eyebrow {
   margin: 0 0 10px;
-  color: #2f7958;
+  color: #2f8f63;
   font-size: 0.82rem;
   font-weight: 900;
   letter-spacing: 0.14em;
@@ -58,7 +58,7 @@
 .lead {
   max-width: 760px;
   margin: 16px 0 30px;
-  color: #74766e;
+  color: #8a8271;
   font-size: 1.12rem;
   line-height: 1.65;
 }
@@ -72,14 +72,14 @@
 .mapping span {
   border: 1px solid #d7d5cb;
   border-radius: 999px;
-  background: #fffdf9;
+  background: #fffaf0;
   padding: 9px 13px;
   font-size: 0.92rem;
 }
 .mapping strong {
-  border-color: #2f7958;
-  background: #e3f3e9;
-  color: #2f7958;
+  border-color: #2f8f63;
+  background: #e2f5ec;
+  color: #2f8f63;
 }
 .dropzone {
   display: grid;
@@ -87,13 +87,13 @@
   place-content: center;
   border: 2px dashed #75a38b;
   border-radius: 30px;
-  background: #fffdf9;
+  background: #fffaf0;
   text-align: center;
   cursor: pointer;
 }
 .dropzone:hover,
 .dropzone:focus-within {
-  border-color: #2f7958;
+  border-color: #2f8f63;
   background: #f4faf6;
 }
 .dropzone span {
@@ -102,7 +102,7 @@
 }
 .dropzone small {
   margin-top: 8px;
-  color: #74766e;
+  color: #8a8271;
 }
 .dropzone input {
   position: absolute;
@@ -113,9 +113,9 @@
 .preview {
   margin-top: 28px;
   border-radius: 30px;
-  background: #fffdf9;
+  background: #fffaf0;
   padding: 30px;
-  box-shadow: 0 12px 36px rgb(36 59 45 / 7%);
+  box-shadow: 0 12px 36px rgb(43 38 32 / 7%);
 }
 .preview h2,
 .preview p {
@@ -123,14 +123,14 @@
 }
 .preview > div:first-child p {
   margin-top: 7px;
-  color: #74766e;
+  color: #8a8271;
 }
 .errors {
   margin-top: 20px;
   border-radius: 18px;
-  background: #fff0ec;
+  background: #fdece6;
   padding: 18px;
-  color: #a3473e;
+  color: #b6503e;
 }
 .errors p {
   margin-top: 8px;
@@ -150,12 +150,12 @@
   text-align: left;
 }
 .tableWrap th {
-  color: #74766e;
+  color: #8a8271;
   font-size: 0.86rem;
 }
 .tableWrap > p {
   margin-top: 10px;
-  color: #74766e;
+  color: #8a8271;
   text-align: right;
 }
 .importButton {
@@ -163,7 +163,7 @@
   margin-top: 24px;
   border: 0;
   border-radius: 18px;
-  background: #2f7958;
+  background: #2f8f63;
   padding: 17px;
   color: #fff;
   cursor: pointer;
@@ -173,7 +173,7 @@
 }
 .importButton:hover:not(:disabled),
 .importButton:focus-visible:not(:disabled) {
-  background: #256546;
+  background: #24734f;
 }
 .importButton:active:not(:disabled) {
   transform: scale(0.98);
@@ -184,7 +184,7 @@
 }
 .message {
   margin-top: 16px !important;
-  color: #2f7958;
+  color: #2f8f63;
   font-weight: 800;
   text-align: center;
 }

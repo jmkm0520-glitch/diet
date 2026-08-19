@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { ApiClientError, fetchApi } from "../services/apiClient";
@@ -141,6 +142,13 @@ export function AuthGate({ children }: { children: ReactNode }) {
     return (
       <main className={styles.center}>
         <section className={styles.card} aria-labelledby="auth-title">
+          <Image
+            className={styles.logoMark}
+            src="/broccoli-logo.png"
+            alt=""
+            width={48}
+            height={48}
+          />
           <span className={styles.eyebrow}>오늘도 가볍게</span>
           <h1 id="auth-title">
             {mode === "signup" ? "첫 회원 만들기" : mode === "verify" ? "이메일 인증" : "로그인"}

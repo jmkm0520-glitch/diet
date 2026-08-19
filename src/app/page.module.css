@@ -1,11 +1,11 @@
 .main {
   width: min(100% - 48px, 1680px);
   min-height: calc(100vh - 48px);
-  margin: 24px auto;
+  margin: 32px auto;
   overflow: hidden;
-  border: 1px solid #ddd9ce;
+  border: 1px solid #e8ddc7;
   border-radius: 42px;
-  background: #f5f2ea;
+  background: #faf4e8;
 }
 
 .main :where(a, button, input):focus-visible {
@@ -19,16 +19,16 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 22px 128px 22px 52px;
-  border-bottom: 1px solid #ddd9ce;
-  background: #fffdf9;
+  padding: 28px 132px 28px 56px;
+  border-bottom: 1px solid #e8ddc7;
+  background: #fffaf0;
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
   gap: 18px;
-  color: #202720;
+  color: #2b2620;
   font-size: clamp(1.35rem, 2vw, 2rem);
   font-weight: 800;
   letter-spacing: -0.07em;
@@ -47,7 +47,7 @@
   align-items: center;
   gap: 4px;
   border-radius: 22px;
-  background: #f5f2ea;
+  background: #faf4e8;
   padding: 6px;
 }
 
@@ -55,7 +55,7 @@
   border: 3px solid transparent;
   border-radius: 18px;
   padding: 13px 22px;
-  color: #777a71;
+  color: #8a8271;
   font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.06em;
@@ -64,20 +64,20 @@
 
 .tab:hover,
 .tab:focus-visible {
-  color: #202720;
+  color: #2b2620;
 }
 
 .activeTab {
   border-color: #1672d3;
-  background: #fffdf9;
-  color: #202720;
+  background: #fffaf0;
+  color: #2b2620;
   box-shadow: 0 0 0 2px rgb(22 114 211 / 15%);
 }
 
 .header {
   position: relative;
   min-height: 188px;
-  padding: 50px 52px 26px;
+  padding: 58px 56px 32px;
 }
 
 .header h1,
@@ -86,7 +86,7 @@
 }
 
 .header h1 {
-  color: #202720;
+  color: #2b2620;
   font-size: clamp(2rem, 3vw, 3rem);
   font-weight: 800;
   letter-spacing: -0.08em;
@@ -94,7 +94,7 @@
 
 .header > p {
   margin-top: 10px;
-  color: #74766e;
+  color: #8a8271;
   font-size: clamp(1rem, 1.4vw, 1.3rem);
   letter-spacing: -0.05em;
 }
@@ -111,11 +111,11 @@
 }
 
 .todayFooter button {
-  border: 1px solid #2f7958;
+  border: 1px solid #2f8f63;
   border-radius: 999px;
-  background: #fffdf9;
+  background: #fffaf0;
   padding: 10px 16px;
-  color: #2f7958;
+  color: #2f8f63;
   cursor: pointer;
   font: inherit;
   font-size: 0.95rem;
@@ -125,7 +125,7 @@
 
 .todayFooter button:hover,
 .todayFooter button:focus-visible {
-  background: #e3f3e9;
+  background: #e2f5ec;
 }
 
 .todayFooter span {
@@ -134,8 +134,8 @@
 
 .dateControls {
   position: absolute;
-  right: 52px;
-  bottom: 28px;
+  right: 56px;
+  bottom: 34px;
   display: flex;
   gap: 14px;
 }
@@ -146,10 +146,10 @@
   width: 70px;
   height: 70px;
   place-items: center;
-  border: 1px solid #ddd9ce;
+  border: 1px solid #e8ddc7;
   border-radius: 20px;
-  background: #fffdf9;
-  color: #202720;
+  background: #fffaf0;
+  color: #2b2620;
   cursor: pointer;
   font: inherit;
   font-size: 2.25rem;
@@ -159,7 +159,7 @@
 .dateControls button:hover,
 .dateControls button:focus-visible,
 .datePicker:hover {
-  border-color: #2f7351;
+  border-color: #24734f;
 }
 
 .dateControls button:disabled {
@@ -203,11 +203,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 30px;
-  margin: 0 52px 32px;
+  margin: 0 56px 36px;
   border-radius: 34px;
-  background: #2f7958;
-  padding: 36px;
-  color: #fffdf9;
+  background: #2f8f63;
+  padding: 40px;
+  color: #fffaf0;
 }
 
 .weightCard h2,
@@ -220,7 +220,7 @@
 }
 .cardHint {
   margin-top: 8px;
-  color: #d7eadf;
+  color: #d3ecdf;
   font-size: 1.1rem;
   letter-spacing: -0.05em;
 }
@@ -246,7 +246,7 @@
   border-radius: 20px;
   background: #f7f8f5;
   padding: 19px 18px;
-  color: #202b24;
+  color: #2b2620;
   font: inherit;
   font-size: 1.75rem;
   font-weight: 800;
@@ -263,9 +263,9 @@
 .weightInputRow button {
   border: 0;
   border-radius: 20px;
-  background: #fffdf9;
+  background: #fffaf0;
   padding: 19px 24px;
-  color: #2f7958;
+  color: #2f8f63;
   cursor: pointer;
   font: inherit;
   font-size: 1.35rem;
@@ -273,7 +273,7 @@
 }
 .weightInputRow button:hover:not(:disabled),
 .weightInputRow button:focus-visible:not(:disabled) {
-  background: #e3f3e9;
+  background: #e2f5ec;
 }
 .weightInputRow button:active:not(:disabled) {
   transform: scale(0.97);
@@ -292,8 +292,8 @@
 .mealGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 26px;
-  padding: 0 52px 20px;
+  gap: 32px;
+  padding: 0 56px 28px;
 }
 
 .mealResetRow {
@@ -302,7 +302,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0 52px 110px;
+  padding: 0 56px 110px;
 }
 
 .mealResetRow button {
@@ -313,7 +313,7 @@
   border-radius: 8px;
   background: transparent;
   padding: 7px 10px;
-  color: #c9584c;
+  color: #e2624f;
   cursor: pointer;
   font: inherit;
   font-size: 0.82rem;
@@ -322,7 +322,7 @@
 
 .mealResetRow button:hover:not(:disabled),
 .mealResetRow button:focus-visible:not(:disabled) {
-  background: #fff1ed;
+  background: #fdece6;
 }
 
 .mealResetRow button:disabled {
@@ -332,7 +332,7 @@
 
 .mealResetError {
   margin: 0;
-  color: #c9584c;
+  color: #e2624f;
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -340,16 +340,16 @@
 .mealCard {
   min-width: 0;
   min-height: 340px;
-  border: 4px solid #2f7958;
+  border: 4px solid #2f8f63;
   border-radius: 34px;
-  background: #fffdf9;
-  padding: 32px;
+  background: #fffaf0;
+  padding: 36px;
 }
 .freeMealCard {
-  border-color: #c9584c;
+  border-color: #e2624f;
 }
 .unselectedMealCard {
-  border-color: #d8d5cc;
+  border-color: #e0d6c4;
 }
 .mealHeader {
   display: flex;
@@ -362,7 +362,7 @@
   align-items: center;
   gap: 9px;
   margin: 0;
-  color: #202720;
+  color: #2b2620;
   font-size: 1.75rem;
   font-weight: 800;
   letter-spacing: -0.07em;
@@ -383,11 +383,11 @@
   width: 100%;
   min-height: 100px;
   margin: 26px 0 22px;
-  border: 1px solid #ddd9ce;
+  border: 1px solid #e8ddc7;
   border-radius: 20px;
   background: #f8f6ef;
   padding: 21px;
-  color: #30342e;
+  color: #2b2620;
   font: inherit;
   font-size: 1.2rem;
   font-weight: 600;
@@ -395,35 +395,36 @@
   text-overflow: ellipsis;
 }
 .foodInput:disabled {
-  color: #85877f;
+  color: #948c78;
 }
 .mealActions {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  flex-direction: column;
+  gap: 12px;
   margin-top: auto;
 }
 .mealChoices {
   display: flex;
   gap: 10px;
-  color: #85877f;
+  color: #948c78;
   font-size: 1.05rem;
   font-weight: 800;
 }
 .mealChoices button {
-  border: 1px solid #dedbd1;
+  flex: 1;
+  border: 1px solid #e8ddc7;
   border-radius: 999px;
   background: transparent;
-  padding: 12px 16px;
+  padding: 14px 16px;
   color: inherit;
   cursor: pointer;
   font: inherit;
   font-weight: inherit;
+  text-align: center;
 }
 .mealChoices button:hover:not(:disabled):not(.selectedChoice) {
-  border-color: #b7c9bd;
-  background: #f5f2ea;
+  border-color: #c9bfa8;
+  background: #faf4e8;
 }
 .mealChoices button:disabled,
 .mealSaveButton:disabled {
@@ -431,26 +432,26 @@
   opacity: 0.65;
 }
 .mealChoices .selectedChoice {
-  border-color: #2f7958;
-  background: #e8f3ec;
-  color: #2f7958;
+  border-color: #2f8f63;
+  background: #e2f5ec;
+  color: #2f8f63;
 }
 .freeMealCard .mealChoices .selectedChoice {
-  border-color: #dedbd1;
+  border-color: #e8ddc7;
   background: transparent;
-  color: #85877f;
+  color: #948c78;
 }
 .freeMealCard .mealChoices button:last-child {
-  border-color: #c9584c;
-  background: #fff1ed;
-  color: #c9584c;
+  border-color: #e2624f;
+  background: #fdece6;
+  color: #e2624f;
 }
 .mealSaveButton {
-  flex: 0 0 auto;
+  width: 100%;
   border: 0;
   border-radius: 16px;
-  background: #232823;
-  padding: 14px 21px;
+  background: #2b2620;
+  padding: 16px 21px;
   color: #fff;
   font: inherit;
   font-size: 1.05rem;
@@ -458,14 +459,14 @@
   white-space: nowrap;
 }
 .mealSaveButton:hover:not(:disabled) {
-  background-color: #383f38;
+  background-color: #3d3830;
 }
 .mealSaveButton:active:not(:disabled) {
   transform: scale(0.97);
 }
 .mealInputError {
   margin: 12px 0 0;
-  color: #c9584c;
+  color: #e2624f;
   font-size: 0.95rem;
   font-weight: 700;
 }
@@ -474,15 +475,15 @@
   display: flex;
   min-height: calc(100svh - 230px);
   flex-direction: column;
-  margin: 0 52px 52px;
+  margin: 0 56px 56px;
   border-radius: 34px;
-  background: #fffdf9;
-  padding: 32px;
+  background: #fffaf0;
+  padding: 38px;
 }
 
 .calendarSection h2 {
   margin: 0;
-  color: #202720;
+  color: #2b2620;
   font-size: 1.9rem;
   letter-spacing: -0.07em;
 }
@@ -500,10 +501,10 @@
   width: 48px;
   height: 48px;
   place-items: center;
-  border: 1px solid #ddd9ce;
+  border: 1px solid #e8ddc7;
   border-radius: 14px;
-  background: #fffdf9;
-  color: #202720;
+  background: #fffaf0;
+  color: #2b2620;
   cursor: pointer;
   font: inherit;
   font-size: 2rem;
@@ -512,8 +513,8 @@
 
 .calendarControls button:hover,
 .calendarControls button:focus-visible {
-  border-color: #2f7958;
-  color: #2f7958;
+  border-color: #2f8f63;
+  color: #2f8f63;
 }
 
 .calendarLegend {
@@ -521,7 +522,7 @@
   flex-wrap: wrap;
   gap: 18px;
   margin: -8px 0 20px;
-  color: #74766e;
+  color: #8a8271;
   font-size: 0.95rem;
   font-weight: 700;
 }
@@ -541,8 +542,8 @@
 .weekdayHeader {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  border-bottom: 1px solid #ddd9ce;
-  color: #74766e;
+  border-bottom: 1px solid #e8ddc7;
+  color: #8a8271;
   font-size: 1.08rem;
   font-weight: 800;
   text-align: center;
@@ -553,10 +554,10 @@
 }
 
 .sunday {
-  color: #c9584c;
+  color: #e2624f;
 }
 .saturday {
-  color: #2f7958;
+  color: #2f8f63;
 }
 
 .calendarGrid {
@@ -569,8 +570,8 @@
 .calendarDateCell,
 .calendarEmptyCell {
   min-height: 90px;
-  border-right: 1px solid #eeeae1;
-  border-bottom: 1px solid #eeeae1;
+  border-right: 1px solid #f2e8d4;
+  border-bottom: 1px solid #f2e8d4;
   padding: 12px;
 }
 
@@ -581,8 +582,8 @@
   width: 100%;
   appearance: none;
   border: 0;
-  border-right: 1px solid #eeeae1;
-  border-bottom: 1px solid #eeeae1;
+  border-right: 1px solid #f2e8d4;
+  border-bottom: 1px solid #f2e8d4;
   background: transparent;
   color: inherit;
   cursor: pointer;
@@ -593,7 +594,7 @@
 .calendarDateCell[aria-pressed="true"] {
   z-index: 1;
   background: transparent;
-  box-shadow: inset 0 0 0 2px #2f7958;
+  box-shadow: inset 0 0 0 2px #2f8f63;
 }
 
 .calendarDateNumber {
@@ -623,7 +624,7 @@
 }
 
 .calendarWeight {
-  color: #657166;
+  color: #7d7863;
   font-size: 1.02rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
@@ -633,7 +634,7 @@
 .calendarState {
   min-height: 1.4em;
   margin: 16px 0 0;
-  color: #747b73;
+  color: #867f6b;
   font-size: 0.9rem;
   text-align: center;
 }
@@ -642,7 +643,7 @@
   position: fixed;
   inset: 0;
   z-index: 30;
-  background: rgb(32 39 32 / 38%);
+  background: rgb(43 38 32 / 38%);
   backdrop-filter: blur(2px);
 }
 
@@ -656,10 +657,10 @@
   min-height: 380px;
   overflow-y: auto;
   transform: translate(-50%, -50%);
-  border: 1px solid #ddd9ce;
+  border: 1px solid #e8ddc7;
   border-radius: 26px;
-  background: #fffdf9;
-  box-shadow: 0 24px 70px rgb(32 39 32 / 24%);
+  background: #fffaf0;
+  box-shadow: 0 24px 70px rgb(43 38 32 / 24%);
   padding: 28px 30px;
 }
 
@@ -672,9 +673,9 @@
   width: 38px;
   height: 38px;
   place-items: center;
-  border: 1px solid #256546;
+  border: 1px solid #24734f;
   border-radius: 50%;
-  background: #2f7958;
+  background: #2f8f63;
   color: #fff;
   cursor: pointer;
   font: inherit;
@@ -684,13 +685,13 @@
 
 .calendarDetailClose:hover,
 .calendarDetailClose:focus-visible {
-  background: #256546;
+  background: #24734f;
   color: #fff;
 }
 
 .calendarDetailEyebrow {
   margin: 0 0 5px;
-  color: #2f7958;
+  color: #2f8f63;
   font-size: 0.85rem;
   font-weight: 800;
 }
@@ -702,7 +703,7 @@
 
 .calendarDetailMessage {
   margin: 8px 0 0;
-  color: #657166;
+  color: #7d7863;
   font-weight: 700;
 }
 
@@ -717,7 +718,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  color: #2f7958;
+  color: #2f8f63;
   font-weight: 800;
 }
 
@@ -726,14 +727,14 @@
 }
 
 .calendarDetailEmpty {
-  color: #747b73;
+  color: #867f6b;
   font-weight: 700;
 }
 
 .calendarDetailWeight {
-  border-left: 1px solid #d8ddd6;
+  border-left: 1px solid #e0d6c4;
   padding-left: 14px;
-  color: #202720;
+  color: #2b2620;
   font-size: 1.1rem;
   font-weight: 800;
 }
@@ -744,7 +745,7 @@
 
 .calendarMealDetails h4 {
   margin: 0 0 10px;
-  color: #202720;
+  color: #2b2620;
   font-size: 1rem;
 }
 
@@ -763,12 +764,12 @@
   min-height: 44px;
   gap: 16px;
   border-radius: 10px;
-  background: #fffdf9;
+  background: #fffaf0;
   padding: 10px 12px;
 }
 
 .calendarMealList span {
-  color: #657166;
+  color: #7d7863;
   font-weight: 700;
 }
 
@@ -778,7 +779,7 @@
   justify-content: flex-end;
   max-width: 78%;
   gap: 8px;
-  color: #202720;
+  color: #2b2620;
   min-width: 0;
   flex-wrap: wrap;
   overflow-wrap: anywhere;
@@ -797,17 +798,17 @@
 }
 
 .calendarMealClean {
-  background: #e3f3e9;
-  color: #2f7958;
+  background: #e2f5ec;
+  color: #2f8f63;
 }
 
 .calendarMealFree {
-  background: #fce9e6;
-  color: #c9584c;
+  background: #fdece6;
+  color: #e2624f;
 }
 
 .calendarMealMissing {
-  color: #92988f !important;
+  color: #9c9481 !important;
   font-weight: 700;
 }
 
@@ -817,7 +818,7 @@
   margin-left: auto;
   border: 0;
   border-radius: 12px;
-  background: #2f7958;
+  background: #2f8f63;
   padding: 11px 16px;
   color: #fff;
   cursor: pointer;
@@ -826,7 +827,7 @@
 }
 .calendarEditButton:hover,
 .calendarEditButton:focus-visible {
-  background: #256546;
+  background: #24734f;
 }
 .calendarEditButton:active {
   transform: scale(0.97);
@@ -844,11 +845,11 @@
 }
 
 .calendarResetButton {
-  border: 1px solid #c9584c;
+  border: 1px solid #e2624f;
   border-radius: 12px;
-  background: #fffdf9;
+  background: #fffaf0;
   padding: 10px 15px;
-  color: #b94d43;
+  color: #b6503e;
   cursor: pointer;
   font: inherit;
   font-weight: 800;
@@ -856,7 +857,7 @@
 
 .calendarResetButton:hover,
 .calendarResetButton:focus-visible {
-  background: #fce9e6;
+  background: #fdece6;
 }
 
 .calendarResetButton:disabled {
@@ -866,7 +867,7 @@
 
 .calendarResetError {
   margin: 10px 0 0;
-  color: #b94d43;
+  color: #b6503e;
   font-size: 0.9rem;
   font-weight: 700;
   text-align: right;
@@ -882,7 +883,7 @@
 
 .calendarEmptyAction p {
   margin: 0;
-  color: #657166;
+  color: #7d7863;
   font-weight: 700;
 }
 
@@ -892,22 +893,22 @@
 }
 
 .calendarDateCell:nth-child(7n + 1) {
-  color: #c9584c;
+  color: #e2624f;
 }
 .calendarDateCell:nth-child(7n) {
-  color: #2f7958;
+  color: #2f8f63;
 }
 
 .calendarToday {
-  background: #e3f3e9;
+  background: #e2f5ec;
   box-shadow: none;
-  color: #1f6949 !important;
+  color: #24734f !important;
   font-weight: 800;
 }
 
 .calendarDateCell.calendarToday[aria-pressed="true"] {
-  background: #e3f3e9;
-  box-shadow: inset 0 0 0 2px #2f7958;
+  background: #e2f5ec;
+  box-shadow: inset 0 0 0 2px #2f8f63;
 }
 .cleanTag,
 .freeTag,
@@ -917,13 +918,13 @@
   letter-spacing: -0.05em;
 }
 .cleanTag {
-  color: #2f7958;
+  color: #2f8f63;
 }
 .freeTag {
-  color: #c9584c;
+  color: #e2624f;
 }
 .unselectedTag {
-  color: #92948d;
+  color: #9c9481;
 }
 .srOnly {
   position: absolute;
@@ -1080,7 +1081,7 @@
     transform: none;
     border-bottom: 0;
     border-radius: 24px 24px 0 0;
-    box-shadow: 0 -12px 32px rgb(32 39 32 / 14%);
+    box-shadow: 0 -12px 32px rgb(43 38 32 / 14%);
     padding: 26px 24px calc(26px + env(safe-area-inset-bottom));
   }
   .calendarDetailPanel::before {
@@ -1089,7 +1090,7 @@
     height: 4px;
     margin: 0 auto 18px;
     border-radius: 999px;
-    background: #d7d5cc;
+    background: #e0d6c4;
     content: "";
   }
   .mealCard {
