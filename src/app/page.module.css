@@ -167,6 +167,12 @@
   opacity: 0.4;
 }
 
+.dateControls button {
+  position: relative;
+  z-index: 1;
+  touch-action: manipulation;
+}
+
 .calendarDateCell:disabled {
   cursor: not-allowed;
   opacity: 0.45;
@@ -174,6 +180,9 @@
 
 .datePicker {
   position: relative;
+  z-index: 0;
+  overflow: hidden;
+  isolation: isolate;
 }
 
 .datePicker:focus-within {
@@ -183,8 +192,23 @@
 .datePicker input {
   position: absolute;
   inset: 0;
+  box-sizing: border-box;
+  display: block;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  height: 100%;
   opacity: 0;
+  cursor: pointer;
+}
+
+.datePicker input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
   cursor: pointer;
 }
 
