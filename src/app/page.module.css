@@ -470,6 +470,12 @@
 .mealSaveButtonEdit:hover:not(:disabled) {
   background-color: #24734f;
 }
+.freeMealCard .mealSaveButtonEdit {
+  background: #e2624f;
+}
+.freeMealCard .mealSaveButtonEdit:hover:not(:disabled) {
+  background-color: #c94f3d;
+}
 .mealSaveButton:active:not(:disabled) {
   transform: scale(0.97);
 }
