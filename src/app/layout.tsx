@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Gothic_A1 } from "next/font/google";
 import "./globals.css";
 import { AuthGate } from "../components/AuthGate";
+
+const gothicA1 = Gothic_A1({
+  subsets: ["korean"],
+  weight: ["400", "600", "700", "800", "900"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "오늘도 가볍게",
@@ -14,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ko">
+    <html lang="ko" className={gothicA1.variable}>
       <body><AuthGate>{children}</AuthGate></body>
     </html>
   );

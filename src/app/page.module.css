@@ -250,6 +250,7 @@
   font: inherit;
   font-size: 1.75rem;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
   text-align: center;
 }
 .weightInputRow input:disabled {
@@ -269,6 +270,13 @@
   font: inherit;
   font-size: 1.35rem;
   font-weight: 800;
+}
+.weightInputRow button:hover:not(:disabled),
+.weightInputRow button:focus-visible:not(:disabled) {
+  background: #e3f3e9;
+}
+.weightInputRow button:active:not(:disabled) {
+  transform: scale(0.97);
 }
 .weightInputRow button:disabled {
   cursor: wait;
@@ -413,6 +421,10 @@
   font: inherit;
   font-weight: inherit;
 }
+.mealChoices button:hover:not(:disabled):not(.selectedChoice) {
+  border-color: #b7c9bd;
+  background: #f5f2ea;
+}
 .mealChoices button:disabled,
 .mealSaveButton:disabled {
   cursor: wait;
@@ -444,6 +456,12 @@
   font-size: 1.05rem;
   font-weight: 800;
   white-space: nowrap;
+}
+.mealSaveButton:hover:not(:disabled) {
+  background-color: #383f38;
+}
+.mealSaveButton:active:not(:disabled) {
+  transform: scale(0.97);
 }
 .mealInputError {
   margin: 12px 0 0;
@@ -608,6 +626,7 @@
   color: #657166;
   font-size: 1.02rem;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
@@ -801,8 +820,16 @@
   background: #2f7958;
   padding: 11px 16px;
   color: #fff;
+  cursor: pointer;
   font: inherit;
   font-weight: 800;
+}
+.calendarEditButton:hover,
+.calendarEditButton:focus-visible {
+  background: #256546;
+}
+.calendarEditButton:active {
+  transform: scale(0.97);
 }
 
 .calendarDetailActions {

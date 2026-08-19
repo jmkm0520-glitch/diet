@@ -91,6 +91,11 @@
   text-align: center;
   cursor: pointer;
 }
+.dropzone:hover,
+.dropzone:focus-within {
+  border-color: #2f7958;
+  background: #f4faf6;
+}
 .dropzone span {
   font-size: 1.25rem;
   font-weight: 800;
@@ -165,6 +170,13 @@
   font: inherit;
   font-size: 1.08rem;
   font-weight: 800;
+}
+.importButton:hover:not(:disabled),
+.importButton:focus-visible:not(:disabled) {
+  background: #256546;
+}
+.importButton:active:not(:disabled) {
+  transform: scale(0.98);
 }
 .importButton:disabled {
   cursor: not-allowed;

@@ -30,13 +30,23 @@
   --font-size-base: 1rem;
   --font-size-title: 1.5rem;
   --breakpoint-mobile: 640px;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   background: var(--color-ivory-100);
   color: var(--color-text);
 }
 
 * {
   box-sizing: border-box;
+}
+
+:where(button, a, input) {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease,
+    transform 120ms ease;
 }
 
 html,
