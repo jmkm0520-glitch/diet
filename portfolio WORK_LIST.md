@@ -1,7 +1,7 @@
 # Diet Record 개선 작업리스트 (subject.md 기준)
 
 작성일: 2026-08-20
-기준 문서: [portofolio subject.md](<./portofolio subject.md>)
+기준 문서: [portfolio subject.md](<./portfolio subject.md>)
 
 > 모든 항목에 번호를 붙였습니다. `[x]`는 현재 코드 기준으로 이미 되어 있다고 확인된 항목, `[ ]`는 이번 개선 프로젝트에서 해야 할 항목입니다.
 > 기존 `TASK_CHECKLIST.md`는 "로그인 없는 1인 데모" 기준으로 작성된 문서라 subject.md(회원가입/로그인/사용자 분리 포함)와 전제가 다릅니다. 이 문서가 subject.md 기준의 최신 작업리스트입니다.
@@ -19,28 +19,28 @@
 
 ## 1. 기존 서비스 분석 (문서화)
 
-- [x] 1. 서비스 목적 정리 (식단 기록 + 패턴 확인, 칼로리 계산/진단 아님) → `docs/portofolio service-review.md` 1장
-- [x] 2. 타겟 사용자 정의 문장 작성 (subject.md 4.2 예시 기반) → `docs/portofolio service-review.md` 2장
-- [x] 3. 주요 페이지 목록 정리 (`/`, `/calendar`, `/import`) → `docs/portofolio service-review.md` 3장
-- [x] 4. 기존 기능 목록 정리 (회원가입/로그인/식단기록/체중기록/캘린더) → `docs/portofolio service-review.md` 4장
-- [x] 5. 데이터 구조 정리 (`meals`, `weights`, `members` 테이블과 주요 컬럼) → `docs/portofolio service-review.md` 5장
-- [x] 6. 사용 기술 정리 (Next.js App Router, TypeScript, Python Vercel Functions, Supabase) → `docs/portofolio service-review.md` 6장
-- [x] 7. 배포 구조 정리 (Vercel + Supabase, `vercel.json` 기준) → `docs/portofolio service-review.md` 7장
-- [x] 8. 위 1~7번을 "서비스 개선 문서"([`docs/portofolio service-review.md`](<./docs/portofolio service-review.md>))로 통합 작성
+- [x] 1. 서비스 목적 정리 (식단 기록 + 패턴 확인, 칼로리 계산/진단 아님) → `docs/portfolio service-review.md` 1장
+- [x] 2. 타겟 사용자 정의 문장 작성 (subject.md 4.2 예시 기반) → `docs/portfolio service-review.md` 2장
+- [x] 3. 주요 페이지 목록 정리 (`/`, `/calendar`, `/import`) → `docs/portfolio service-review.md` 3장
+- [x] 4. 기존 기능 목록 정리 (회원가입/로그인/식단기록/체중기록/캘린더) → `docs/portfolio service-review.md` 4장
+- [x] 5. 데이터 구조 정리 (`meals`, `weights`, `members` 테이블과 주요 컬럼) → `docs/portfolio service-review.md` 5장
+- [x] 6. 사용 기술 정리 (Next.js App Router, TypeScript, Python Vercel Functions, Supabase) → `docs/portfolio service-review.md` 6장
+- [x] 7. 배포 구조 정리 (Vercel + Supabase, `vercel.json` 기준) → `docs/portfolio service-review.md` 7장
+- [x] 8. 위 1~7번을 "서비스 개선 문서"([`docs/portfolio service-review.md`](<./docs/portfolio service-review.md>))로 통합 작성
 
 ## 2. 사용자 흐름 점검
 
-- [x] 9. Flow 1(로그인) 흐름 정리 → `portofolio.md` 6장 (로그인 필요 화면이라 자동 클릭 테스트 대신 코드·캡쳐 대조)
-- [x] 10. Flow 2(식단 기록) 흐름 정리 → `portofolio.md` 6장
-- [x] 11. Flow 3(기록 확인/캘린더) 흐름 정리 → `portofolio.md` 6장
-- [x] 12. 세 Flow 삽입 — 본문은 `portofolio.md` 6장, 서비스 개선 문서 9장에서 연결
+- [x] 9. Flow 1(로그인) 흐름 정리 → `portfolio.md` 6장 (로그인 필요 화면이라 자동 클릭 테스트 대신 코드·캡쳐 대조)
+- [x] 10. Flow 2(식단 기록) 흐름 정리 → `portfolio.md` 6장
+- [x] 11. Flow 3(기록 확인/캘린더) 흐름 정리 → `portfolio.md` 6장
+- [x] 12. 세 Flow 삽입 — 본문은 `portfolio.md` 6장, 서비스 개선 문서 9장에서 연결
 
 ## 3. UX 문제 정의 & 우선순위
 
-- [x] 13. UX 문제 **7건** 도출 → `portofolio.md` 7장
+- [x] 13. UX 문제 **7건** 도출 → `portfolio.md` 7장
 - [x] 14. HIGH 3 / MEDIUM 2 / LOW 2 로 태깅 (판단 기준 3축 명시)
 - [x] 15. HIGH 3건(통계 부재 / 하루 판정이 미기록 무시 / 회원가입 문구)을 개선 대상으로 확정
-- [x] 16. Before/After 3항목 선정 = 15번의 HIGH 3건 → `portofolio.md` 8장
+- [x] 16. Before/After 3항목 선정 = 15번의 HIGH 3건 → `portfolio.md` 8장
 
 ## 4. UI/UX 개선 (핵심 기능 개선)
 

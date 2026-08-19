@@ -2,8 +2,8 @@
 
 작성일: 2026-08-20
 대상 서비스: **오늘도 가볍게** (https://www.food-broccoli.shop)
-기준 문서: [portofolio subject.md](<../portofolio subject.md>) 4.1
-작업 항목: [portofolio WORK_LIST.md](<../portofolio WORK_LIST.md>) 1~8번
+기준 문서: [portfolio subject.md](<../portfolio subject.md>) 4.1
+작업 항목: [portfolio WORK_LIST.md](<../portfolio WORK_LIST.md>) 1~8번
 
 > 이 문서는 신규 기능(통계·차트·주간 요약)을 추가하기 **전에** 현재 서비스가 무엇인지 확정하기 위한 분석
 > 문서다. 아래 내용은 추정이 아니라 저장소의 코드·마이그레이션·배포 설정에서 확인한 사실만 담았다.
@@ -96,7 +96,7 @@
 - 저장은 `PUT /api/meal` 하나로 처리하며, `(회원, 날짜, 끼니)` 조합에 대한 **upsert**다. 같은 칸을 다시
   저장하면 새 행이 쌓이지 않고 덮어쓴다.
 - 음식을 비운 채 저장하면 **`공복` + 클린식**으로 자동 저장된다. 자유식을 선택해 둔 상태여도 클린식으로
-  저장한다. (2026-08-20 확정 정책 — WORK_LIST 45번, `portofolio subject.md`의 입력 차단 요구와는 의도된 차이)
+  저장한다. (2026-08-20 확정 정책 — WORK_LIST 45번, `portfolio subject.md`의 입력 차단 요구와는 의도된 차이)
 - 저장 후에도 입력칸이나 분류 버튼을 건드리면 `수정` 버튼을 누르지 않아도 수정 모드로 전환된다.
 - 하루치 전체 삭제는 `DELETE /api/meal?date=...` (화면의 `식단 초기화` 버튼)로만 가능하다. **한 끼만 지우는
   기능은 없다.**
@@ -286,7 +286,7 @@ Vercel ── 빌드 ──┬─▶ Next.js 정적/서버 렌더링  (src/)
 ## 9. 사용자 흐름
 
 로그인 / 식단 기록 / 기록 확인 3개 흐름을 코드와 화면을 대조해 정리했다.
-다이어그램과 설명은 [`portofolio.md`](../portofolio.md) 6장에 있다. 여기서 중복하지 않는다.
+다이어그램과 설명은 [`portfolio.md`](../portfolio.md) 6장에 있다. 여기서 중복하지 않는다.
 
 ---
 
