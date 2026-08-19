@@ -277,6 +277,15 @@ export default function Home() {
               type="date"
               value={selectedDate}
               onChange={(event) => selectDate(event.target.value)}
+              onClick={(event) => {
+                const input = event.currentTarget;
+                if (typeof input.showPicker !== "function") return;
+                try {
+                  input.showPicker();
+                } catch {
+                  // 브라우저가 달력 열기를 거부하면 포커스만 준 기본 동작을 남긴다.
+                }
+              }}
             />
           </label>
           <button
