@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import styles from "../app/page.module.css";
 import type { Meal, MealRecord, MealType } from "../types/api";
-import { getMealCardState } from "./mealCardState";
+import { getMealCardState, toggleMealType } from "./mealCardState";
 
 export type MealCardProps = {
   meal: Meal;
@@ -112,25 +112,25 @@ export function MealCard({
         <div className={styles.mealActions}>
           <div className={styles.mealChoices} aria-label={`${title} 식단 종류`}>
             <button
-              aria-label={`${title} 클린식 선택`}
+              aria-label={`${title} 클린식 ${type === "clean" ? "선택 해제" : "선택"}`}
               aria-pressed={type === "clean"}
               className={type === "clean" ? styles.selectedChoice : ""}
               disabled={isSaving || isLocked}
               type="button"
               onClick={() => {
-                setType("clean");
+                setType((currentType) => toggleMealType(currentType, "clean"));
               }}
             >
               클린식
             </button>
             <button
-              aria-label={`${title} 자유식 선택`}
+              aria-label={`${title} 자유식 ${type === "free" ? "선택 해제" : "선택"}`}
               aria-pressed={isFree}
               className={isFree ? styles.selectedChoice : ""}
               disabled={isSaving || isLocked}
               type="button"
               onClick={() => {
-                setType("free");
+                setType((currentType) => toggleMealType(currentType, "free"));
               }}
             >
               자유식

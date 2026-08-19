@@ -66,6 +66,41 @@ Supabase 기본 메일 서비스는 개발용 전송 제한이 있으므로 운�
 가입 대기 이메일을 변경해야 하는 복구 상황에서는 해당 사용자의 `member_signup_claims` 행과 미확인
 `auth.users` 사용자를 확인한 후 삭제하고 다시 가입한다.
 
+### Google SMTP 설정
+
+Google 계정의 일반 비밀번호를 SMTP에 입력하지 않는다. 발송 전용 Google 계정에
+2단계 인증을 켜고 [Google 앱 비밀번호](https://myaccount.google.com/apppasswords)에서
+`Supabase Auth` 용도의 16자리 앱 비밀번호를 발급한다. 이 비밀번호는 다시 표시되지 않으며
+저장소나 `.env` 파일에 커밋하지 않는다.
+
+Supabase Dashboard의 `Authentication > Emails > SMTP Settings`에서 Custom SMTP를 켜고
+다음과 같이 입력한다.
+
+| 항목         | 입력값                                           |
+| ------------ | ------------------------------------------------ |
+| Sender email | Google 계정 전체 이메일 주소                     |
+| Sender name  | `오늘도 가볍게`                                  |
+| Host         | `smtp.gmail.com`                                 |
+| Port         | `465`                                            |
+| Username     | Sender email과 같은 Google 계정 전체 이메일 주소 |
+| Password     | Google에서 발급한 16자리 앱 비밀번호             |
+
+`smtp.gmail.com:465`는 SSL 연결을 사용한다. 587 포트도 TLS/STARTTLS로 사용할 수
+있지만, Supabase와 Google SMTP 조합에서는 위 설정을 기본값으로 사용한다. Google
+Workspace를 사용하면 Sender email과 Username을 Workspace 관리자 계정으로 맞춘다.
+
+저장 후 다음을 확인한다.
+
+1. `Authentication > Sign In / Providers > Email`에서 Confirm email이 켜져 있는지 확인한다.
+2. Confirm signup 템플릿에 `{{ .Token }}`이 있는지 확인한다.
+3. 실제 수신 가능한 새 이메일로 가입해 6자리 번호가 수신되는지 확인한다.
+4. 메일이 오지 않으면 Supabase Auth Logs의 SMTP 오류와 스팸함을 확인한다.
+5. Google 계정 비밀번호를 바꾸면 앱 비밀번호가 폐기되므로 새로 발급해 SMTP
+   설정을 갱신한다.
+
+Gmail SMTP는 개발·소규모 운영에는 적합하지만 대규모 트랜잭션 메일에는 발송 한도와
+도메인 인증 제어가 있는 전용 발송 서비스를 사용한다.
+
 ## 배포 순서와 복구
 
 1. 변경 전 Supabase 논리 백업을 만든다.

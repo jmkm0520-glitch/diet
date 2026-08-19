@@ -12,3 +12,10 @@ export function getMealCardState(type: MealType | null): MealCardState {
     ? { isFree: true, isSelected: true, label: "자유식" }
     : { isFree: false, isSelected: true, label: "클린식" };
 }
+
+export function toggleMealType(
+  currentType: MealType | null,
+  selectedType: MealType,
+): MealType | null {
+  return currentType === selectedType ? null : selectedType;
+}

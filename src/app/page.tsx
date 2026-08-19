@@ -347,18 +347,11 @@ export default function Home() {
           />
         ))}
       </section>
-      {!isViewingToday ? (
-        <div className={styles.todayFooter}>
-          <button
-            aria-label="오늘 날짜로 돌아가기"
-            type="button"
-            onClick={() => selectDate(todayDate)}
-          >
-            오늘로 돌아가기 <span aria-hidden="true">›</span>
-          </button>
-        </div>
-      ) : null}
-      <div className={styles.mealResetRow}>
+      <div
+        className={`${styles.mealResetRow} ${
+          !isViewingToday ? styles.mealResetRowWithTodayFooter : ""
+        }`}
+      >
         {mealResetError ? (
           <p aria-live="polite" className={styles.mealResetError}>
             {mealResetError}
@@ -378,6 +371,17 @@ export default function Home() {
           </p>
         ) : null}
       </div>
+      {!isViewingToday ? (
+        <div className={`${styles.todayFooter} ${styles.mealTodayFooter}`}>
+          <button
+            aria-label="오늘 날짜로 돌아가기"
+            type="button"
+            onClick={() => selectDate(todayDate)}
+          >
+            오늘로 돌아가기 <span aria-hidden="true">›</span>
+          </button>
+        </div>
+      ) : null}
     </main>
   );
 }
