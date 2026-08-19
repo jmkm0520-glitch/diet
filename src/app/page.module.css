@@ -14,6 +14,9 @@
 }
 
 .siteHeader {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   min-height: 130px;
   align-items: center;
