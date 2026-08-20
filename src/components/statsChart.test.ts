@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { buildDailyBars, donutDash, donutLabel } from "./statsChart.ts";
+import { buildDailyBars, buildWeightLine, donutDash, donutLabel } from "./statsChart.ts";
 
 describe("donutDash", () => {
   it("fills the whole ring when every meal is clean", () => {
@@ -24,9 +24,9 @@ describe("donutDash", () => {
 
 describe("buildDailyBars", () => {
   const daily = [
-    { date: "2026-08-18", clean: 2, free: 2 },
-    { date: "2026-08-19", clean: 0, free: 0 },
-    { date: "2026-08-20", clean: 1, free: 0 },
+    { date: "2026-08-18", clean: 2, free: 2, weight: null },
+    { date: "2026-08-19", clean: 0, free: 0, weight: null },
+    { date: "2026-08-20", clean: 1, free: 0, weight: null },
   ];
 
   it("scales the busiest day to the full chart height", () => {
@@ -54,7 +54,7 @@ describe("buildDailyBars", () => {
   });
 
   it("gives every day zero height when nothing is recorded", () => {
-    const bars = buildDailyBars([{ date: "2026-08-20", clean: 0, free: 0 }]);
+    const bars = buildDailyBars([{ date: "2026-08-20", clean: 0, free: 0, weight: null }]);
     assert.equal(bars[0].cleanHeight, 0);
     assert.equal(bars[0].freeHeight, 0);
   });
@@ -63,5 +63,61 @@ describe("buildDailyBars", () => {
 describe("donutLabel", () => {
   it("describes both shares for screen readers", () => {
     assert.equal(donutLabel(16, 5, 76), "클린식 16회 76퍼센트, 자유식 5회 24퍼센트");
+  });
+});
+
+describe("buildWeightLine", () => {
+  const daily = [
+    { date: "2026-08-18", weight: 55.5 },
+    { date: "2026-08-19", weight: null },
+    { date: "2026-08-20", weight: 54.5 },
+  ];
+
+  it("skips days without a weight instead of drawing them at zero", () => {
+    const line = buildWeightLine(daily);
+    assert.equal(line.points.length, 2);
+    assert.deepEqual(
+      line.points.map((point) => point.date),
+      ["2026-08-18", "2026-08-20"],
+    );
+  });
+
+  it("spreads points across the window by their position, not their order", () => {
+    const line = buildWeightLine(daily);
+    assert.equal(line.points[0].x, 0);
+    assert.equal(line.points[1].x, 1);
+  });
+
+  it("scales to the recorded range so a small change stays visible", () => {
+    const line = buildWeightLine(daily);
+    assert.equal(line.min, 54.5);
+    assert.equal(line.max, 55.5);
+    assert.equal(line.points[0].y, 1);
+    assert.equal(line.points[1].y, 0);
+  });
+
+  it("centres a single point instead of pinning it to an edge", () => {
+    const line = buildWeightLine([{ date: "2026-08-20", weight: 55 }]);
+    assert.equal(line.points[0].x, 0.5);
+    assert.equal(line.points[0].y, 0.5);
+  });
+
+  it("centres every point when the weight never changed", () => {
+    const line = buildWeightLine([
+      { date: "2026-08-19", weight: 55 },
+      { date: "2026-08-20", weight: 55 },
+    ]);
+    assert.deepEqual(
+      line.points.map((point) => point.y),
+      [0.5, 0.5],
+    );
+  });
+
+  it("returns an empty line when no weight is recorded", () => {
+    assert.deepEqual(buildWeightLine([{ date: "2026-08-20", weight: null }]), {
+      points: [],
+      min: 0,
+      max: 0,
+    });
   });
 });

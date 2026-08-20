@@ -49,3 +49,49 @@ export function buildDailyBars(daily: StatsDay[]): DailyBar[] {
 export function donutLabel(clean: number, free: number, cleanRatio: number): string {
   return `클린식 ${clean}회 ${cleanRatio}퍼센트, 자유식 ${free}회 ${100 - cleanRatio}퍼센트`;
 }
+
+export type WeightPoint = {
+  date: string;
+  label: string;
+  weight: number;
+  /** Position inside the plot box, 0–1, left to right and bottom to top. */
+  x: number;
+  y: number;
+};
+
+export type WeightLine = {
+  points: WeightPoint[];
+  min: number;
+  max: number;
+};
+
+/**
+ * Place the recorded weights on a line. Days without a weight are skipped
+ * rather than drawn at zero, and the scale hugs the recorded range so a small
+ * change is still visible. A single point sits in the middle of the box.
+ */
+export function buildWeightLine(daily: { date: string; weight: number | null }[]): WeightLine {
+  const recorded = daily.filter(
+    (day): day is { date: string; weight: number } => typeof day.weight === "number",
+  );
+  if (recorded.length === 0) return { points: [], min: 0, max: 0 };
+
+  const weights = recorded.map((day) => day.weight);
+  const min = Math.min(...weights);
+  const max = Math.max(...weights);
+  const span = max - min;
+  const lastIndex = daily.length - 1;
+
+  const points = recorded.map((day) => {
+    const index = daily.findIndex((entry) => entry.date === day.date);
+    return {
+      date: day.date,
+      label: String(Number(day.date.split("-")[2])),
+      weight: day.weight,
+      x: lastIndex > 0 ? index / lastIndex : 0.5,
+      y: span > 0 ? (day.weight - min) / span : 0.5,
+    };
+  });
+
+  return { points, min, max };
+}

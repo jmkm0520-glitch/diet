@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import styles from "../app/page.module.css";
 import { fetchApi } from "../services/apiClient";
 import type { DietStats } from "../types/api";
-import { buildDailyBars, donutDash, donutLabel } from "./statsChart";
+import { buildDailyBars, buildWeightLine, donutDash, donutLabel } from "./statsChart";
 import { buildWeeklySummary } from "./weeklySummary";
 
 const RING_RADIUS = 52;
@@ -72,6 +72,7 @@ export function StatsView() {
   }
 
   const { stats } = state;
+  const weightLine = buildWeightLine(stats.daily);
   const cards = [
     { key: "total", label: "총 기록", value: `${stats.total}회`, hint: "저장한 끼니 수" },
     { key: "clean", label: "클린식", value: `${stats.clean}회`, hint: "가볍게 먹은 끼니" },
@@ -173,6 +174,47 @@ export function StatsView() {
               <p className={styles.barHint}>막대가 없는 날은 기록하지 않은 날입니다.</p>
             </figure>
           </div>
+
+          {weightLine.points.length > 1 ? (
+            <figure className={styles.weightCardChart}>
+              <figcaption>
+                체중 변화
+                <span>
+                  {weightLine.min}kg ~ {weightLine.max}kg
+                </span>
+              </figcaption>
+              <svg
+                className={styles.weightChart}
+                viewBox="0 0 100 40"
+                preserveAspectRatio="none"
+                role="img"
+                aria-label={`최근 ${stats.range.days}일 체중 ${weightLine.points
+                  .map((point) => `${point.label}일 ${point.weight}킬로그램`)
+                  .join(", ")}`}
+              >
+                <polyline
+                  className={styles.weightLine}
+                  points={weightLine.points
+                    .map((point) => `${point.x * 100},${36 - point.y * 32}`)
+                    .join(" ")}
+                  vectorEffect="non-scaling-stroke"
+                />
+                {weightLine.points.map((point) => (
+                  <circle
+                    className={styles.weightDot}
+                    cx={point.x * 100}
+                    cy={36 - point.y * 32}
+                    key={point.date}
+                    r="1.4"
+                  />
+                ))}
+              </svg>
+              <p className={styles.weightChartHint}>
+                기록한 {weightLine.points.length}일만 이었습니다. 세로 폭은 이 기간의 최소·최대에
+                맞췄습니다.
+              </p>
+            </figure>
+          ) : null}
 
           <section className={styles.summaryCard} aria-labelledby="summary-title">
             <h2 id="summary-title">이번 주 식단 요약</h2>

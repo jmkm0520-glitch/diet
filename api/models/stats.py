@@ -28,6 +28,7 @@ class StatsDay(BaseModel):
     date: date
     clean: int = Field(ge=0)
     free: int = Field(ge=0)
+    weight: float | None = Field(default=None, gt=0, le=9999.99)
 
 
 class StatsPrevious(BaseModel):

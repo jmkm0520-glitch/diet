@@ -136,9 +136,9 @@ def test_daily_breakdown_keeps_one_entry_per_day_in_order() -> None:
     daily = build_stats(3, "2026-08-18", "2026-08-20", rows)["daily"]
 
     assert daily == [
-        {"date": "2026-08-18", "clean": 1, "free": 1},
-        {"date": "2026-08-19", "clean": 0, "free": 0},
-        {"date": "2026-08-20", "clean": 1, "free": 0},
+        {"date": "2026-08-18", "clean": 1, "free": 1, "weight": None},
+        {"date": "2026-08-19", "clean": 0, "free": 0, "weight": None},
+        {"date": "2026-08-20", "clean": 1, "free": 0, "weight": None},
     ]
 
 
@@ -213,3 +213,24 @@ def test_delta_is_zero_when_the_previous_window_holds_nothing() -> None:
 
     assert stats["previous"]["total"] == 0
     assert stats["cleanRatioDelta"] == 0
+
+
+def test_weights_land_on_their_day_and_leave_the_rest_empty() -> None:
+    daily = build_stats(
+        3,
+        "2026-08-18",
+        "2026-08-20",
+        [meal("2026-08-18", "clean")],
+        [],
+        [{"date": "2026-08-18", "weight": 55.5}, {"date": "2026-08-20", "weight": 55.1}],
+    )["daily"]
+
+    assert [entry["weight"] for entry in daily] == [55.5, None, 55.1]
+
+
+def test_a_weight_outside_the_window_is_ignored() -> None:
+    daily = build_stats(
+        2, "2026-08-19", "2026-08-20", [], [], [{"date": "2026-01-01", "weight": 60.0}]
+    )["daily"]
+
+    assert all(entry["weight"] is None for entry in daily)

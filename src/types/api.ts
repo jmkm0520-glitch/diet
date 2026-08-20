@@ -53,6 +53,7 @@ export type StatsDay = {
   date: string;
   clean: number;
   free: number;
+  weight: number | null;
 };
 
 export type StatsPrevious = {

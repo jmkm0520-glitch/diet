@@ -123,6 +123,7 @@ def build_stats(
     end: str,
     meal_rows: list[dict],
     previous_rows: list[dict] | None = None,
+    weight_rows: list[dict] | None = None,
 ) -> dict:
     """Count the meals in one window, both in total and day by day.
 
@@ -147,8 +148,9 @@ def build_stats(
         if counts is not None:
             counts[meal_type] += 1
 
+    weights = {str(row.get("date")): row.get("weight") for row in weight_rows or []}
     total = clean + free
-    daily = [{"date": day, **counts} for day, counts in per_day.items()]
+    daily = [{"date": day, **counts, "weight": weights.get(day)} for day, counts in per_day.items()]
     previous_clean, previous_free = count_meals(previous_rows or [])
     previous_total = previous_clean + previous_free
     previous_ratio = clean_ratio(previous_clean, previous_total)
@@ -208,10 +210,19 @@ class handler(BaseHTTPRequestHandler):
             previous = [
                 row for row in rows if previous_start <= str(row.get("date")) <= previous_end
             ]
+            weights = (
+                get_supabase_client()
+                .table("weights")
+                .select("date,weight")
+                .eq("member_id", member.id)
+                .gte("date", start)
+                .lte("date", end)
+                .execute()
+            ).data or []
             _send_json(
                 self,
                 200,
-                success_response(build_stats(days, start, end, current, previous)),
+                success_response(build_stats(days, start, end, current, previous, weights)),
             )
         except AuthenticationRequiredError:
             _send_json(self, 401, auth_required_response())
