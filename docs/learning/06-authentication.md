@@ -1,4 +1,4 @@
-# 인증과 인가 집중하기
+# 로그인과 회원별 데이터 보호 집중하기
 
 [← 학습 가이드 목차](./README.md) · [이전: 데이터베이스 집중하기](./05-database.md)
 
@@ -12,18 +12,18 @@
 
 ## 먼저 기억할 한 문장
 
-> 이 프로젝트에서 로그인의 중심 목적은 JWT를 사용하는 것이 아니라, 사용자를 확인하고 각 회원의
-> 식단과 체중을 안전하게 분리하는 것이다.
+> 이 프로젝트에서 로그인의 중심 목적은 요청을 보낸 사용자를 확인하고, 그 사용자가 자신의 식단과
+> 체중 기록에만 접근하게 하는 것이다.
 
-JWT는 이 목적을 구현하는 과정에서 Supabase access token이 선택한 **형식**이다. 인증 전체를 JWT
-하나로 설명하면 로그인 상태, 쿠키, token 저장과 실제 권한 확인의 차이를 놓치기 쉽다.
+로그인 버튼을 누르는 것은 시작일 뿐이다. 이후 요청에서도 같은 사용자인지 확인하고, 그 사람이
+접근할 수 있는 기록을 구분해야 한다. 먼저 이 목적을 이해한 뒤 필요한 개념을 하나씩 알아본다.
 
-## 전체 흐름에서 인증의 위치
+## 전체 흐름에서 로그인 확인의 위치
 
 ```text
-AuthGate가 로그인·세션 확인 요청
-→ Python 인증 API가 입력을 검사
-→ Supabase Auth가 계정 또는 token을 확인
+AuthGate가 로그인 상태 확인 요청
+→ Python 로그인 API가 입력을 검사
+→ Supabase Auth가 계정 또는 로그인 후 발급한 증명값을 확인
 → Python API가 public.members 회원을 확인
 → 검증된 member_id로 식단·체중 query
 → 해당 회원의 결과만 응답
@@ -37,20 +37,21 @@ AuthGate가 로그인·세션 확인 요청
 과정이다.
 
 로그인할 때는 Supabase Auth가 이메일과 비밀번호를 확인한다. 로그인 이후의 데이터 요청에서는
-Supabase Auth가 access token이 유효한 사용자를 가리키는지 확인한다.
+Supabase Auth가 로그인 성공 후 발급한 증명값이 유효한 사용자를 가리키는지 확인한다.
 
 ```text
 로그인 시: 이메일 + 비밀번호 → Supabase Auth → 계정 사용자 확인
-요청 시: access token → Supabase Auth → token의 사용자 확인
+요청 시: 로그인 후 발급받은 증명값 → Supabase Auth → 같은 사용자 확인
 ```
 
-비밀번호를 아는지 또는 이미 발급된 자격 증명이 유효한지를 확인해 “누구인가”에 답하는 단계다.
+비밀번호를 아는지 또는 로그인 후 받은 증명값이 유효한지를 확인해 “누구인가”에 답하는 단계다. 이
+증명값의 정확한 이름과 역할은 로그인 상태와 세션을 먼저 이해한 뒤 살펴본다.
 
 ## 2. 인가는 “무엇을 할 수 있는가”를 판단한다
 
 **인가** (Authorization)는 인증된 사용자가 어떤 기능과 데이터에 접근할 수 있는지 판단하는 과정이다.
 
-이 프로젝트에서는 access token의 사용자를 확인하는 것만으로 끝나지 않는다.
+이 프로젝트에서는 로그인한 사용자를 확인하는 것만으로 끝나지 않는다.
 
 1. 같은 ID의 `public.members` 행이 있는지 확인한다.
 2. 그 회원 ID를 체중·식단 query의 `member_id` 조건으로 사용한다.
@@ -73,40 +74,91 @@ Python API가 모든 보호된 요청에서 인증과 인가를 다시 수행해
 ## 4. 세션은 로그인 상태가 이어지는 관계다
 
 **세션** (Session)은 사용자가 로그인한 뒤 로그아웃하거나 만료·폐기될 때까지 인증 상태가 이어지는
-기간과 관계를 뜻한다. 쿠키 한 개나 JWT 한 개의 다른 이름이 아니다.
+기간과 관계를 뜻한다. 로그인 상태를 이어 가는 특정 값 하나를 가리키는 이름이 아니다.
 
 이 프로젝트는 애플리케이션 전용 `sessions` table이나 Python 메모리에 로그인 상태를 직접 저장하지
 않는다. Supabase Auth의 세션을 사용한다. Supabase Auth는 `auth.sessions`를 관리하고 브라우저가
-사용할 access token과 refresh token을 발급한다.
+로그인 상태를 이어 가는 데 필요한 값을 발급한다.
 
 ```text
 로그인 성공
 → Supabase Auth session 생성
-→ 앱이 access/refresh token을 보관
+→ 앱이 로그인 유지에 필요한 값을 보관
 → 이후 요청에서 사용자 확인
 → logout·만료·폐기까지 로그인 상태 유지
 ```
 
-세션은 로그인 상태 전체를 가리키고, 다음에 설명할 쿠키와 token은 그 상태를 이어가는 수단이다.
+세션은 로그인 상태가 이어지는 전체 관계를 가리킨다. 이제 그 관계를 이어 가기 위해 서버가 발급하는
+값부터 살펴보자.
 
-## 5. 쿠키는 브라우저의 저장·전송 수단이다
+## 5. 토큰은 서버가 발급한 자격 증명이다
 
-**쿠키** (Cookie)는 서버가 HTTP 응답의 `Set-Cookie` 헤더로 브라우저에 저장시키는 작은 값이다.
+**토큰** (Token)은 서버가 “앞에서 로그인을 마친 사용자”임을 이후 요청에서 증명할 수 있도록 발급하는
+값이다. 사용자는 로그인할 때 비밀번호를 증명하고 token을 받은 뒤, 매 데이터 요청마다 비밀번호 대신
+token을 사용한다.
+
+```text
+이메일·비밀번호로 한 번 로그인
+→ 제한된 수명과 목적의 token 발급
+→ 이후 요청은 token으로 사용자 확인
+```
+
+token을 가진 사람은 그 token으로 허용된 작업을 할 수 있으므로 비밀번호처럼 노출되지 않도록
+보호해야 한다. 값의 이름에 `token`이 들어 있다는 사실만으로 유효해지는 것도 아니다. 서버는 발급한
+곳과 유효 기간 등을 확인해야 한다.
+
+`token`은 역할을 설명하는 넓은 말이다. 모든 token이 같은 목적을 가지거나 같은 내부 모양을 사용하지
+않는다. 먼저 이 프로젝트가 사용하는 두 token의 역할부터 구분한다.
+
+## 6. Access token과 Refresh token의 역할은 다르다
+
+Supabase session은 목적이 다른 token 두 개를 앱에 전달한다.
+
+### Access token
+
+**Access token**은 보호된 API가 현재 사용자를 확인할 때 쓰는 비교적 짧은 수명의 자격 증명이다. 체중과
+식단을 조회하거나 저장하는 요청처럼 보호된 데이터 요청마다 사용한다.
+
+### Refresh token
+
+**Refresh token**은 Access token이 만료되었을 때 새로운 Access token과 Refresh token 쌍을 받는 데
+사용한다. Access token보다 오래 유지되며 보호된 데이터 요청마다 보내지 않고 로그인 상태를 갱신할
+때만 사용한다.
+
+| 구분 | Access token | Refresh token |
+| --- | --- | --- |
+| 주목적 | 보호된 API에서 사용자 확인 | 만료된 Access token 갱신 |
+| 사용 빈도 | 보호된 데이터 요청마다 | 갱신이 필요할 때 |
+| 수명 | 비교적 짧음 | 비교적 긺 |
+
+```text
+평소 데이터 요청 → Access token으로 사용자 확인
+Access token 만료 → Refresh token으로 새 token 발급 → 데이터 요청 다시 시도
+```
+
+token의 수명과 Supabase session의 실제 유효성은 같은 개념이 아니다. token이 브라우저에 남아 있어도
+이미 사용되었거나 폐기되었거나 session이 유효하지 않으면 사용할 수 없다.
+
+이제 브라우저가 두 token을 어디에 보관하고 요청에 어떻게 실어 보내는지 살펴보자.
+
+## 7. 쿠키는 브라우저의 저장·전송 수단이다
+
+**쿠키** (Cookie)는 서버가 HTTP 응답의 `Set-Cookie` header로 브라우저에 저장시키는 작은 값이다.
 브라우저는 이후 조건에 맞는 요청에 쿠키를 자동으로 포함한다.
 
 ```http
 Set-Cookie: 이름=값; Path=/; HttpOnly; SameSite=Lax
 ```
 
-쿠키 자체가 사용자의 신원을 증명하는 인증 방식은 아니다. 이 프로젝트는 Supabase가 발급한 token을
-쿠키에 넣어 보관하고 전송한다.
+쿠키는 값을 보관하고 전송하는 수단이다. 쿠키 자체가 사용자의 신원을 증명하는 것은 아니다. 이
+프로젝트는 앞에서 배운 Access token과 Refresh token을 각각 쿠키에 넣어 보관하고 전송한다.
 
 현재 [`set_session_cookies()`](../../api/lib/auth.py)는 두 쿠키를 만든다.
 
 | 쿠키 | 담는 값 | 현재 수명 |
 | --- | --- | --- |
-| `diet_access_token` | access token | Supabase session의 `expires_in`과 맞춤 |
-| `diet_refresh_token` | refresh token | 최대 2,592,000초, 즉 30일 |
+| `diet_access_token` | Access token | Supabase session의 `expires_in`과 맞춤 |
+| `diet_refresh_token` | Refresh token | 최대 2,592,000초, 즉 30일 |
 
 두 쿠키의 공통 속성은 다음과 같다.
 
@@ -122,52 +174,8 @@ Set-Cookie: 이름=값; Path=/; HttpOnly; SameSite=Lax
 못하지만, [`fetchApi()`](../../src/services/apiClient.ts)의 `credentials: "same-origin"` 요청에는
 브라우저가 같은 출처의 쿠키를 자동으로 포함한다.
 
-## 6. 토큰은 서버가 발급한 자격 증명이다
-
-**토큰** (Token)은 발급자가 만든 자격 증명이다. 사용자는 로그인할 때 비밀번호를 증명하고 token을
-받은 뒤, 매 데이터 요청마다 비밀번호 대신 token으로 앞선 인증 결과를 이어간다.
-
-```text
-이메일·비밀번호로 한 번 로그인
-→ 제한된 수명과 목적의 token 발급
-→ 이후 요청은 token으로 사용자 확인
-```
-
-token을 가진 사람은 그 token의 권한을 행사할 수 있으므로 비밀번호처럼 노출되지 않도록 보호해야
-한다. 쿠키 이름이 `diet_access_token`이라는 사실만으로 token이 유효해지는 것도 아니다. 서버는
-token의 종류와 형식에 맞는 방법으로 발급자와 유효 기간 등을 확인해야 한다.
-
-`token`은 역할을 설명하는 넓은 말이다. token의 내부 모양은 하나로 정해져 있지 않다. 단순한 임의의
-문자열일 수도 있고, 다음에 살펴볼 JWT 형식일 수도 있다.
-
-## 7. Access token과 Refresh token의 역할은 다르다
-
-Supabase session은 목적이 다른 token 두 개를 앱에 전달한다. 먼저 두 token이 각각 언제 필요한지
-구분하고, 그다음 Access token이 사용하는 JWT 형식을 살펴본다.
-
-### Access token
-
-**Access token**은 보호된 API가 현재 사용자를 확인할 때 쓰는 비교적 짧은 수명의 자격 증명이다.
-Supabase Auth의 Access token은 JWT 형식이다. 이 프로젝트에서는 `diet_access_token` HttpOnly 쿠키에
-들어간다.
-
-### Refresh token
-
-**Refresh token**은 Access token이 만료되었을 때 새로운 Access token과 Refresh token 쌍을 받는 데
-사용한다. 더 오래 유지되며 이 프로젝트에서는 `diet_refresh_token` HttpOnly 쿠키에 들어간다.
-
-Supabase Auth의 Refresh token은 JWT가 아니라 session 갱신을 위한 고유 문자열이다. 보호된 데이터
-요청마다 사용하지 않고 session 갱신 endpoint에서만 꺼낸다.
-
-| 구분 | Access token | Refresh token |
-| --- | --- | --- |
-| 주목적 | 보호된 API에서 사용자 확인 | 만료된 Access token 갱신 |
-| 형식 | JWT | 고유 문자열 |
-| 사용 빈도 | 보호된 데이터 요청마다 | 갱신이 필요할 때 |
-| 프로젝트 쿠키 수명 | `expires_in` | 최대 30일 |
-
-쿠키 수명과 Supabase session의 실제 유효성은 같은 개념이 아니다. 쿠키가 브라우저에 남아 있어도
-token이 이미 사용되었거나 폐기되었거나 session이 유효하지 않으면 갱신에 실패할 수 있다.
+지금까지 Access token이 무엇이고 브라우저가 어디에 보관하는지 살펴봤다. 마지막으로 Access token
+문자열이 어떤 형식으로 만들어지는지 알아보자.
 
 ## 8. JWT는 Access token을 표현하는 형식이다
 
@@ -282,10 +290,11 @@ payload를 바꾸면 원래 signature와 맞지 않게 된다. 따라서 signatu
 인가: 확인된 사람이 무엇을 할 수 있는지 판단
 
 세션: 로그인 상태가 이어지는 관계
-└─ 쿠키: 브라우저가 자격 증명을 저장·자동 전송하는 수단
-   ├─ access token: API 사용자 확인용 자격 증명
-   │  └─ JWT: 이 access token의 표현 형식
-   └─ refresh token: session 갱신용 고유 문자열
+├─ Access token: API 사용자 확인용 자격 증명
+└─ Refresh token: session 갱신용 자격 증명
+
+쿠키: 두 token을 브라우저에 저장하고 자동 전송하는 수단
+JWT: Access token의 정보를 표현하는 형식
 ```
 
 “쿠키 기반인가, JWT 기반인가?”를 반드시 둘 중 하나로만 고를 필요는 없다. 이 프로젝트는 JWT access
@@ -459,16 +468,17 @@ Supabase Auth에서는 아니다. access token은 JWT이고 refresh token은 ses
 ## 이해 확인
 
 1. 인증과 인가는 각각 어떤 질문에 답하는가?
-2. 세션과 쿠키는 어떤 점에서 다른가?
-3. Access token과 Refresh token의 목적과 형식은 어떻게 다른가?
-4. token과 JWT는 어떤 관계인가?
-5. JWT의 header, payload, signature는 각각 어떤 역할을 하는가?
-6. JWT의 payload를 읽는 것만으로 사용자를 믿을 수 없는 이유는 무엇인가?
-7. `require_member()`는 cookie 존재 확인 외에 무엇을 확인하는가?
-8. 현재 로그아웃이 처리하는 범위와 처리하지 않는 범위는 무엇인가?
+2. 세션과 token은 어떤 점에서 다른가?
+3. Access token과 Refresh token은 각각 언제 사용하는가?
+4. 쿠키는 token과 어떤 점에서 다른가?
+5. token과 JWT는 어떤 관계인가?
+6. JWT의 header, payload, signature는 각각 어떤 역할을 하는가?
+7. JWT의 payload를 읽는 것만으로 사용자를 믿을 수 없는 이유는 무엇인가?
+8. `require_member()`는 cookie 존재 확인 외에 무엇을 확인하는가?
+9. 현재 로그아웃이 처리하는 범위와 처리하지 않는 범위는 무엇인가?
 
-답하기 어렵다면 **인증 → 인가 → 세션 → 쿠키 → token → Access·Refresh token → JWT** 순서로 한
-항목씩 다시 읽는다.
+답하기 어렵다면 **인증 → 인가 → 로그인 상태 → 세션 → token → Access·Refresh token → 쿠키 →
+JWT** 순서로 한 항목씩 다시 읽는다.
 
 ## 파일을 어디서부터 읽으면 될까?
 
