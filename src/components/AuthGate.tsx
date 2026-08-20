@@ -194,7 +194,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
           />
           <span className={styles.eyebrow}>오늘도 가볍게</span>
           <h1 id="auth-title">
-            {mode === "signup" ? "첫 회원 만들기" : mode === "verify" ? "이메일 인증" : "로그인"}
+            {mode === "signup" ? "회원가입" : mode === "verify" ? "이메일 인증" : "로그인"}
           </h1>
           <p>
             {mode === "signup"
