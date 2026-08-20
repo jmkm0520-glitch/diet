@@ -55,6 +55,7 @@ export function CalendarView() {
     records: {},
   });
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<DayRecord | null>(null);
   const [isSelectedDayLoading, setIsSelectedDayLoading] = useState(false);
   const [isResettingDay, setIsResettingDay] = useState(false);
@@ -84,15 +85,16 @@ export function CalendarView() {
   const selectedStatus = selectedDetailState?.status ?? null;
   const hasSelectedRecord = selectedDetailState?.hasAnyRecord ?? false;
 
+  /**
+   * Closing the panel only hides it. The date stays selected — its cell keeps
+   * the highlight and the URL keeps `?date=`, so switching to 오늘 기록 opens
+   * the same day instead of jumping back to today.
+   */
   const closeDetailPanel = useCallback(() => {
     const selectedDateButton = selectedDateButtonRef.current;
-    selectedDayRequest.current += 1;
-    setSelectedDate(null);
-    setSelectedDay(null);
-    setIsSelectedDayLoading(false);
+    setIsDetailOpen(false);
     setIsResettingDay(false);
     setDayResetError(null);
-    clearDateFromUrl();
     window.setTimeout(() => selectedDateButton?.focus(), 0);
   }, []);
 
@@ -118,7 +120,7 @@ export function CalendarView() {
   }, [viewedMonth]);
 
   useEffect(() => {
-    if (!selectedDate) return;
+    if (!isDetailOpen) return;
 
     const previousOverflow = document.body.style.overflow;
     const focusTimeoutId = window.setTimeout(() => detailPanelRef.current?.focus(), 0);
@@ -146,7 +148,7 @@ export function CalendarView() {
       document.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [selectedDate, closeDetailPanel]);
+  }, [isDetailOpen, closeDetailPanel]);
 
   function moveMonth(amount: number) {
     setViewedMonth((current) => new Date(current.getFullYear(), current.getMonth() + amount, 1));
@@ -204,6 +206,7 @@ export function CalendarView() {
       selectedDayRequest.current = requestId;
       if (trigger) selectedDateButtonRef.current = trigger;
       setSelectedDate(date);
+      setIsDetailOpen(true);
       writeDateToUrl(date);
       setSelectedDay(null);
       setIsSelectedDayLoading(true);
@@ -328,7 +331,7 @@ export function CalendarView() {
             ? "이번 달에 저장한 기록이 없습니다."
             : ""}
       </p>
-      {selectedDate ? (
+      {isDetailOpen && selectedDate ? (
         <>
           <div aria-hidden="true" className={styles.calendarModalBackdrop} />
           <aside
