@@ -58,6 +58,7 @@ export default function Home() {
   const [isResettingMeals, setIsResettingMeals] = useState(false);
   const [mealResetVersion, setMealResetVersion] = useState(0);
   const [mealResetError, setMealResetError] = useState<string | null>(null);
+  const [dayLoadError, setDayLoadError] = useState<string | null>(null);
   const [mealResetStatus, setMealResetStatus] = useState("");
 
   const selectDate = useCallback(
@@ -127,7 +128,7 @@ export default function Home() {
         setIsWeightLocked(true);
         setWeightStatus("체중이 저장되었습니다.");
       } else {
-        setWeightSaveError("체중을 저장하지 못했어요. 입력값은 유지했으니 다시 저장해 주세요.");
+        setWeightSaveError("체중 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
       }
     } finally {
       setIsSavingWeight(false);
@@ -215,6 +216,7 @@ export default function Home() {
     fetchApi<DayRecord>(`/api/day?date=${selectedDate}`)
       .then((record) => {
         if (!cancelled) {
+          setDayLoadError(null);
           setDayRecord(record);
           setWeightInput(record.weight ? String(record.weight.weight) : "");
           setWeightError(null);
@@ -227,6 +229,7 @@ export default function Home() {
       .catch((error) => {
         if (!cancelled) {
           const localDay = isApiNotFound(error) ? readLocalDay(selectedDate) : null;
+          setDayLoadError(localDay ? null : "식단 기록을 불러오지 못했습니다.");
           setDayRecord(localDay);
           setWeightInput(localDay?.weight ? String(localDay.weight.weight) : "");
           setWeightError(null);
@@ -345,6 +348,11 @@ export default function Home() {
           </p>
         </div>
       </section>
+      {dayLoadError ? (
+        <p className={styles.dayLoadError} role="alert">
+          {dayLoadError}
+        </p>
+      ) : null}
       <section
         className={styles.mealGrid}
         aria-busy={isLoadingDay || isResettingMeals}
@@ -360,6 +368,13 @@ export default function Home() {
           />
         ))}
       </section>
+      {!isLoadingDay && !dayLoadError && !hasSavedMeals ? (
+        <p className={styles.mealEmptyState}>
+          {isViewingToday
+            ? "아직 오늘 기록한 식단이 없어요. 첫 식단을 기록해보세요."
+            : "이 날짜에는 기록된 식단이 없습니다."}
+        </p>
+      ) : null}
       {!isViewingToday ? (
         <div className={styles.todayFooter}>
           <button

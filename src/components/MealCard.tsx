@@ -47,7 +47,7 @@ export function MealCard({
       setIsLocked(true);
       setSaveStatus(`${title} 식단이 저장되었습니다.`);
     } catch {
-      setError("식단을 저장하지 못했어요. 입력 내용은 유지했으니 다시 저장해 주세요.");
+      setError("식단 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setIsSaving(false);
     }

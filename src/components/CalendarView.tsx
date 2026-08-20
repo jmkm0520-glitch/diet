@@ -448,7 +448,7 @@ export function CalendarView() {
                 )}
               </>
             ) : (
-              <p className={styles.calendarDetailMessage}>기록을 불러오지 못했습니다.</p>
+              <p className={styles.calendarDetailMessage}>식단 기록을 불러오지 못했습니다.</p>
             )}
           </aside>
         </>
