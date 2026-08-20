@@ -281,8 +281,9 @@ pnpm test
 python -m pytest api -q
 ```
 
-수동 확인이 필요한 시나리오(회원가입, 사용자 A/B 데이터 분리, 배포 환경 전체 플로우)는
-[`docs/manual-test-checklist.md`](./docs/manual-test-checklist.md)에 절차로 정리했습니다.
+수동 확인이 필요한 시나리오(회원가입, 사용자 A/B 데이터 분리, 390px 반응형, 배포 환경 전체 플로우)는
+[`docs/manual-test-checklist.md`](./docs/manual-test-checklist.md)에 절차로 정리했으며,
+**2026-08-20에 Test 1~11 전부 통과**를 확인했습니다.
 
 ## 실행 방법
 

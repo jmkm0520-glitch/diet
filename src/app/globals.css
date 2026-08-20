@@ -1,19 +1,19 @@
 :root {
   color-scheme: light;
-  --color-ivory-50: #fffaf0;
-  --color-ivory-100: #faf4e8;
-  --color-ivory-200: #f2e8d4;
-  --color-ivory-300: #eee2c8;
-  --color-green-100: #e2f5ec;
-  --color-green-500: #4fb583;
-  --color-green-700: #2f8f63;
-  --color-green-800: #24734f;
-  --color-red-100: #fdece6;
-  --color-red-400: #ea8271;
-  --color-red-600: #e2624f;
-  --color-text: #2b2620;
-  --color-text-muted: #8a8271;
-  --color-border: #e8ddc7;
+  --color-ivory-50: #ffffff;
+  --color-ivory-100: #f4f6f5;
+  --color-ivory-200: #e5e9e7;
+  --color-ivory-300: #d9dfdc;
+  --color-green-100: #e0f2eb;
+  --color-green-500: #42a77a;
+  --color-green-700: #176b4d;
+  --color-green-800: #0f5138;
+  --color-red-100: #fce9e6;
+  --color-red-400: #e88b7e;
+  --color-red-600: #c94f43;
+  --color-text: #17221e;
+  --color-text-muted: #617069;
+  --color-border: #d8dfdc;
   --layout-content-max: 960px;
   --space-1: 4px;
   --space-2: 8px;
@@ -23,15 +23,15 @@
   --space-6: 24px;
   --space-7: 28px;
   --border-width-thin: 1px;
-  --border-radius-card: 18px;
-  --shadow-card: 0 8px 24px rgb(43 38 32 / 7%);
+  --border-radius-card: 14px;
+  --shadow-card: 0 12px 32px rgb(23 34 30 / 7%);
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.82rem;
   --font-size-base: 1rem;
   --font-size-title: 1.5rem;
   --breakpoint-mobile: 640px;
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-  background: var(--color-ivory-100);
+  background: #eef1ef;
   color: var(--color-text);
 }
 
@@ -56,5 +56,5 @@ body {
 }
 
 body {
-  background: var(--color-ivory-100);
+  background: #eef1ef;
 }
