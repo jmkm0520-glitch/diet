@@ -200,6 +200,12 @@ export function AuthGate({ children }: { children: ReactNode }) {
                 ? "가입한 이메일로 보낸 인증번호를 입력해 주세요."
                 : "식단과 체중 기록을 보려면 로그인해 주세요."}
           </p>
+          {/*
+            The token and password inputs occupy the same slot. Without distinct
+            keys React reuses the DOM node between modes, and an uncontrolled
+            input keeps whatever was typed — the password showed up in the
+            verification field.
+          */}
           <form className={styles.form} onSubmit={submit}>
             {mode === "signup" && (
               <label>
@@ -212,12 +218,12 @@ export function AuthGate({ children }: { children: ReactNode }) {
               <input name="email" type="email" required autoComplete="email" value={mode === "verify" ? pendingEmail : undefined} onChange={mode === "verify" ? (event) => setPendingEmail(event.target.value) : undefined} />
             </label>
             {mode === "verify" ? (
-              <label>
+              <label key="verification-token">
                 6자리 인증번호
                 <input name="token" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required autoComplete="one-time-code" />
               </label>
             ) : (
-              <label>
+              <label key="password">
                 비밀번호
                 <input name="password" type="password" minLength={8} maxLength={128} required autoComplete={mode === "signup" ? "new-password" : "current-password"} />
               </label>
