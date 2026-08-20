@@ -184,25 +184,24 @@ export function AuthGate({ children }: { children: ReactNode }) {
   if (!member) {
     return (
       <main className={styles.center}>
-        <section className={styles.card} aria-labelledby="auth-title">
-          <Image
-            className={styles.logoMark}
-            src="/broccoli-logo.png"
-            alt=""
-            width={48}
-            height={48}
-          />
-          <span className={styles.eyebrow}>오늘도 가볍게</span>
-          <h1 id="auth-title">
-            {mode === "signup" ? "회원가입" : mode === "verify" ? "이메일 인증" : "로그인"}
-          </h1>
-          <p>
-            {mode === "signup"
-              ? "이메일 인증을 완료하면 나만의 식단과 체중 기록을 시작할 수 있습니다."
-              : mode === "verify"
-                ? "가입한 이메일로 보낸 인증번호를 입력해 주세요."
-                : "식단과 체중 기록을 보려면 로그인해 주세요."}
-          </p>
+        <div className={styles.authShell}>
+          <section className={styles.authIntro} aria-label="오늘도 가볍게 소개">
+            <Image src="/broccoli-logo.png" alt="" width={72} height={72} priority />
+            <p>오늘도 가볍게</p>
+            <h2>한 끼씩 기록하는<br />나만의 건강 루틴</h2>
+            <span>식단과 체중의 작은 변화를<br />부담 없이 이어가 보세요.</span>
+          </section>
+          <section className={styles.card} aria-labelledby="auth-title">
+            <h1 id="auth-title">
+              {mode === "signup" ? "회원가입" : mode === "verify" ? "이메일 인증" : "로그인"}
+            </h1>
+            <p>
+              {mode === "signup"
+                ? "이메일 인증을 완료하면 나만의 식단과 체중 기록을 시작할 수 있습니다."
+                : mode === "verify"
+                  ? "가입한 이메일로 보낸 인증번호를 입력해 주세요."
+                  : "식단과 체중 기록을 보려면 로그인해 주세요."}
+            </p>
           {/*
             Two things had to change so the verification field starts empty.
 
@@ -215,12 +214,12 @@ export function AuthGate({ children }: { children: ReactNode }) {
             field that takes the password's place, whatever autocomplete says.
             Remounting the form gives the browser a form it has not seen.
           */}
-          <form
+            <form
             autoComplete="off"
             className={styles.form}
             key={mode === "verify" ? "verify-form" : "credentials-form"}
             onSubmit={submit}
-          >
+            >
             {mode === "signup" && (
               <label>
                 이름
@@ -257,23 +256,24 @@ export function AuthGate({ children }: { children: ReactNode }) {
             <button type="submit" disabled={submitting}>
               {submitting ? "처리 중…" : mode === "signup" ? "인증 메일 받기" : mode === "verify" ? "인증하고 가입 완료" : "로그인"}
             </button>
-          </form>
-          {mode === "verify" && (
-            <button className={styles.switch} type="button" onClick={resendVerification}>
-              인증 메일 다시 보내기
-            </button>
-          )}
-          {mode !== "verify" && (
-            <button className={styles.switch} type="button" onClick={() => setMode(mode === "signup" ? "login" : "signup")}>
-              {mode === "signup" ? "이미 계정이 있나요? 로그인" : "계정이 없나요? 회원가입"}
-            </button>
-          )}
-          {mode === "verify" && (
-            <button className={styles.switch} type="button" onClick={() => setMode("login")}>
-              로그인으로 돌아가기
-            </button>
-          )}
-        </section>
+            </form>
+            {mode === "verify" && (
+              <button className={styles.switch} type="button" onClick={resendVerification}>
+                인증 메일 다시 보내기
+              </button>
+            )}
+            {mode !== "verify" && (
+              <button className={styles.switch} type="button" onClick={() => setMode(mode === "signup" ? "login" : "signup")}>
+                {mode === "signup" ? "이미 계정이 있나요? 로그인" : "계정이 없나요? 회원가입"}
+              </button>
+            )}
+            {mode === "verify" && (
+              <button className={styles.switch} type="button" onClick={() => setMode("login")}>
+                로그인으로 돌아가기
+              </button>
+            )}
+          </section>
+        </div>
       </main>
     );
   }

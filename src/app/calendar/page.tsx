@@ -8,7 +8,7 @@ import { SiteMenuButton } from "../../components/AuthGate";
 
 export default function CalendarPage() {
   return (
-    <main className={styles.main}>
+    <main className={`${styles.main} ${styles.referenceDashboard}`}>
       <header className={styles.siteHeader}>
         <Link className={styles.brand} href="/" aria-label="오늘도 가볍게 홈">
           <Image

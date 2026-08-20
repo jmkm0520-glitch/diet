@@ -225,3 +225,51 @@
     padding: 20px;
   }
 }
+
+/* Shared visual language for the import flow. */
+.main { border-color: var(--color-border); border-radius: 20px; background: #fff; color: var(--color-text); box-shadow: 0 24px 72px rgb(23 34 30 / 8%); }
+.siteHeader { min-height: 82px; padding: 16px 32px; border-color: var(--color-border); background: rgb(255 255 255 / 94%); }
+.brand { gap: 11px; color: var(--color-text); font-size: 1.1rem; }
+.brandMark { width: 34px; height: 34px; border-radius: 9px; filter: saturate(.55) contrast(1.08); }
+.content { max-width: 920px; padding: 48px 0 64px; }
+.eyebrow { color: var(--color-green-700); letter-spacing: .08em; }
+.content h1 { color: var(--color-text); letter-spacing: -.065em; }
+.lead, .dropzone small, .preview > div:first-child p, .tableWrap th, .tableWrap > p { color: var(--color-text-muted); }
+.dropzone { min-height: 220px; border-color: #8ab7a5; border-radius: 14px; background: #f8faf9; }
+.dropzone:hover, .dropzone:focus-within { border-color: var(--color-green-700); background: var(--color-green-100); }
+.preview { border: 1px solid var(--color-border); border-radius: 14px; box-shadow: none; }
+.importButton { border-radius: 10px; background: var(--color-green-700); }
+.importButton:hover:not(:disabled), .importButton:focus-visible:not(:disabled) { background: var(--color-green-800); }
+@media (max-width: 760px) { .main { border-radius: 0; box-shadow: none; } .siteHeader { min-height: 64px; padding: 10px 16px; } .brandMark { width: 32px; height: 32px; } }
+
+/* Cobalt ledger variant for importing past records. */
+.main { border: 2px solid var(--color-text); border-radius: 0; background: #fdfdff; box-shadow: 10px 10px 0 var(--color-green-700); }
+.siteHeader { min-height: 74px; padding: 12px 24px; border-color: var(--color-text); border-width: 0 0 2px; background: #fdfdff; }
+.brand { font-weight: 900; }
+.brandMark { border-radius: 0; filter: grayscale(1) contrast(1.45); }
+.content h1 { font-weight: 900; }
+.eyebrow { color: var(--color-green-700); }
+.mapping strong, .mapping span { border-color: var(--color-text); border-radius: 0; background: #fdfdff; }
+.mapping strong { border-color: var(--color-green-700); background: var(--color-green-700); color: #fff; }
+.dropzone { border-color: var(--color-text); border-radius: 0; background: #fdfdff; }
+.dropzone:hover, .dropzone:focus-within { border-color: var(--color-green-700); background: var(--color-green-100); }
+.preview { border: 2px solid var(--color-text); border-radius: 0; background: #fdfdff; }
+.importButton { border: 1px solid var(--color-text); border-radius: 0; background: var(--color-text); }
+.importButton:hover:not(:disabled), .importButton:focus-visible:not(:disabled) { background: var(--color-green-700); }
+@media (max-width: 760px) { .main { border: 0; box-shadow: none; } .siteHeader { padding: 10px 16px; border-bottom-width: 1px; } }
+
+/* Garden diary styling for importing existing notes. */
+.main { border: 1px solid #c7ddbb; border-radius: 30px; background: #fffef9; box-shadow: 0 18px 52px rgb(43 101 55 / 12%); }
+.siteHeader { min-height: 82px; padding: 15px 28px; border-color: var(--color-border); border-width: 0 0 1px; background: #fffef9; }
+.brand { color: var(--color-green-800); font-weight: 900; }
+.brandMark { border-radius: 13px; filter: none; }
+.content h1 { color: var(--color-green-800); }
+.eyebrow { color: var(--color-green-700); }
+.mapping strong, .mapping span { border: 0; border-radius: 999px; background: #edf5e8; }
+.mapping strong { background: var(--color-green-700); color: #fff; }
+.dropzone { border-color: #9dcb9f; border-radius: 22px; background: #f8fcf3; }
+.dropzone:hover, .dropzone:focus-within { border-color: var(--color-green-700); background: var(--color-green-100); }
+.preview { border: 1px solid var(--color-border); border-radius: 22px; background: #fffef9; }
+.importButton { border: 0; border-radius: 14px; background: var(--color-green-700); }
+.importButton:hover:not(:disabled), .importButton:focus-visible:not(:disabled) { background: var(--color-green-800); }
+@media (max-width: 760px) { .main { border: 0; border-radius: 0; box-shadow: none; } .siteHeader { min-height: 64px; padding: 10px 16px; } .brandMark { border-radius: 11px; } }

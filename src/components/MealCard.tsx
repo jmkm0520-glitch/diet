@@ -72,9 +72,10 @@ export function MealCard({
           {title}
           {isSelected ? (
             <Image
+              aria-hidden="true"
               className={styles.mealEmoji}
               src={isFree ? "/free.png" : "/clean.png"}
-              alt={`${label} 이모티콘`}
+              alt=""
               width={35}
               height={35}
             />

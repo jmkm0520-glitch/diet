@@ -45,3 +45,123 @@
   .sideMenu { padding: 22px 20px calc(22px + env(safe-area-inset-bottom)); }
 }
 @media (max-width: 520px) { .card { padding: 32px 26px; } }
+
+/* Authentication and account controls share the quiet app palette. */
+.center { background: #eef1ef; color: var(--color-text); }
+.card { border: 1px solid var(--color-border); border-radius: 18px; background: #fff; box-shadow: 0 24px 72px rgb(23 34 30 / 10%); }
+.logoMark { border-radius: 10px; filter: saturate(.55) contrast(1.08); }
+.eyebrow, .status { color: var(--color-green-700); }
+.card > p, .sideMenuHeader span, .sideMenuNav small { color: var(--color-text-muted); }
+.form input { border-color: var(--color-border); border-radius: 9px; background: #f8faf9; }
+.form input:focus { border-color: var(--color-green-700); background: #fff; outline-color: rgb(23 107 77 / 16%); }
+.form button { border-radius: 10px; background: var(--color-green-700); }
+.form button:hover:not(:disabled) { background: var(--color-green-800); }
+.switch { color: var(--color-green-700); }
+.menuButton { width: 42px; height: 42px; border-color: var(--color-border); border-radius: 10px; background: #fff; box-shadow: none; }
+.menuButton:hover { border-color: var(--color-green-700); box-shadow: none; }
+.menuButton span { background: var(--color-text); }
+.menuBackdrop { background: rgb(12 29 22 / 42%); }
+.sideMenu { background: #fff; color: var(--color-text); box-shadow: -18px 0 60px rgb(23 34 30 / 16%); }
+.sideMenuHeader { border-color: var(--color-border); }
+.sideMenuHeader button { border-color: var(--color-border); color: var(--color-text); }
+.sideMenuNav a { border-color: var(--color-border); border-radius: 12px; background: #f8faf9; color: var(--color-text); }
+.sideMenuNav a:hover, .sideMenuNav a:focus-visible { border-color: #a9cfbe; background: var(--color-green-100); }
+.sideMenuNav a > span:first-child { border-radius: 8px; background: var(--color-green-100); color: var(--color-green-800); }
+.sideMenuNav b { color: var(--color-green-700); }
+.logoutButton { border-color: #e5aaa2; border-radius: 10px; background: #fff7f6; color: #a33f36; }
+
+/* Cobalt ledger authentication. */
+.center { background: #e8ecf7; }
+.card { border: 2px solid var(--color-text); border-radius: 0; box-shadow: 10px 10px 0 var(--color-green-700); }
+.logoMark { border-radius: 0; filter: grayscale(1) contrast(1.45); }
+.form input { border-color: var(--color-text); border-radius: 0; }
+.form button { border: 1px solid var(--color-text); border-radius: 0; background: var(--color-text); }
+.form button:hover:not(:disabled) { background: var(--color-green-700); }
+.switch { color: var(--color-green-700); }
+.menuButton { border-color: var(--color-text); border-radius: 0; }
+.menuButton:hover { border-color: var(--color-green-700); background: var(--color-green-100); }
+.sideMenu { border-left: 2px solid var(--color-text); background: #fdfdff; }
+.sideMenuNav a { border-color: var(--color-text); border-radius: 0; background: #fdfdff; }
+.sideMenuNav a:hover, .sideMenuNav a:focus-visible { border-color: var(--color-green-700); background: var(--color-green-100); }
+.sideMenuNav a > span:first-child { border-radius: 0; }
+.logoutButton { border-color: var(--color-red-600); border-radius: 0; }
+
+/* Friendly garden companion styling for account screens. */
+.center { background: #eaf3df; }
+.card { border: 1px solid #c7ddbb; border-radius: 26px; background: #fffef9; box-shadow: 0 18px 52px rgb(43 101 55 / 12%); }
+.logoMark { border-radius: 14px; filter: none; }
+.form input { border-color: #d8e7d3; border-radius: 12px; background: #f8fbf5; }
+.form button { border: 0; border-radius: 13px; background: var(--color-green-700); }
+.form button:hover:not(:disabled) { background: var(--color-green-800); }
+.switch { color: var(--color-green-700); }
+.menuButton { border-color: #c7ddbb; border-radius: 14px; background: #fffef9; }
+.menuButton:hover { border-color: var(--color-green-700); background: var(--color-green-100); }
+.sideMenu { border-left: 0; background: #fffef9; }
+.sideMenuNav a { border-color: var(--color-border); border-radius: 16px; background: #f8fcf3; }
+.sideMenuNav a:hover, .sideMenuNav a:focus-visible { border-color: #a9d6ad; background: var(--color-green-100); }
+.sideMenuNav a > span:first-child { border-radius: 10px; }
+.logoutButton { border-color: #f1b2a6; border-radius: 12px; }
+
+/* Sign-in screen shares the diary's soft garden surface and compact controls. */
+.center {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  overflow: hidden;
+  padding: 40px 24px;
+  background:
+    radial-gradient(circle at 15% 16%, rgb(190 227 183 / 62%) 0 104px, transparent 105px),
+    radial-gradient(circle at 86% 86%, rgb(255 230 157 / 48%) 0 142px, transparent 143px),
+    linear-gradient(135deg, #edf8e8 0%, #f8fcf3 50%, #fff9e6 100%);
+}
+.center::before,
+.center::after { position: absolute; z-index: -1; border-radius: 999px; background: rgb(95 154 105 / 13%); content: ""; }
+.center::before { width: 320px; height: 320px; top: -168px; right: -92px; }
+.center::after { width: 220px; height: 220px; bottom: -120px; left: -72px; }
+.card {
+  width: min(100%, 454px);
+  padding: 40px;
+  border: 1px solid rgb(201 223 195 / 95%);
+  border-radius: 24px;
+  background: rgb(255 254 249 / 94%);
+  box-shadow: 0 20px 54px rgb(43 101 55 / 14%);
+  backdrop-filter: blur(12px);
+}
+.logoMark { width: 52px; height: 52px; margin-bottom: 16px; border-radius: 16px; }
+.eyebrow { color: #34724c; font-size: .88rem; font-weight: 900; letter-spacing: -.03em; }
+.card h1 { margin: 7px 0 10px; color: #225f3d; font-size: 2rem; letter-spacing: -.075em; }
+.card > p { margin-bottom: 28px; color: #607b68; font-size: .96rem; line-height: 1.65; }
+.form { gap: 15px; }
+.form label { gap: 8px; color: #315b41; font-size: .86rem; }
+.form input { min-height: 50px; border-color: #d4e5d0; border-radius: 12px; background: #f9fcf6; padding: 13px 14px; }
+.form input:focus { border-color: #4d9660; outline: 3px solid rgb(98 187 123 / 20%); }
+.form button { min-height: 50px; margin-top: 4px; border-radius: 12px; background: #28784c; box-shadow: 0 7px 14px rgb(40 120 76 / 20%); }
+.form button:hover:not(:disabled) { background: #1f6740; }
+.form button:active:not(:disabled) { transform: translateY(1px); }
+.switch { margin-top: 18px; color: #34724c; font-size: .92rem; }
+.error, .status { padding: 10px 12px; border-radius: 10px; font-size: .85rem; }
+.error { background: #fff0ed; }
+.status { background: #eaf7e9; }
+@media (max-width: 520px) {
+  .center { place-items: start center; padding: 28px 16px; }
+  .card { padding: 30px 24px; border-radius: 20px; }
+  .card h1 { font-size: 1.75rem; }
+}
+
+/* Auth is a single, calm entry screen for the diary rather than a floating modal. */
+.center { display: grid; place-items: center; padding: 32px; background: #edf6e9; }
+.center::before, .center::after { display: none; }
+.authShell { display: grid; grid-template-columns: minmax(300px, 1.1fr) minmax(360px, .9fr); width: min(100%, 940px); min-height: 560px; overflow: hidden; border: 1px solid #d6e6d2; border-radius: 22px; background: #fffef9; box-shadow: 0 24px 64px rgb(36 91 57 / 13%); }
+.authIntro { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 58px; background: linear-gradient(145deg, #4d9063 0%, #34784d 100%); color: #fffef9; }
+.authIntro img { width: 72px; height: 72px; margin-bottom: 26px; border-radius: 22px; background: #fffef9; padding: 8px; object-fit: contain; }
+.authIntro p { margin: 0 0 8px; color: #e2f1e4; font-size: .95rem; font-weight: 800; }
+.authIntro h2 { margin: 0; font-size: clamp(2rem, 3.5vw, 2.8rem); letter-spacing: -.09em; line-height: 1.2; }
+.authIntro > span { margin-top: 22px; color: #d9ecdd; font-size: .98rem; line-height: 1.7; }
+.card { width: auto; align-self: center; padding: 52px 48px; border: 0; border-radius: 0; background: #fffef9; box-shadow: none; backdrop-filter: none; }
+.cardBrand { display: flex; align-items: center; gap: 10px; }
+.logoMark { width: 32px; height: 32px; flex: 0 0 32px; margin: 0; border-radius: 9px; }
+.eyebrow { color: #2c7046; font-size: .84rem; }
+.card h1 { margin: 2px 0 9px; color: #244d35; font-size: 1.85rem; letter-spacing: -.075em; }
+.card > p { margin-bottom: 30px; color: #6a8170; font-size: .92rem; line-height: 1.65; }
+.form { gap: 16px; }.form label { color: #345841; font-size: .82rem; }.form input { min-height: 48px; border-color: #d5e3d2; border-radius: 10px; background: #f9fcf7; }.form button { min-height: 48px; margin-top: 4px; border-radius: 10px; background: #34784d; box-shadow: none; }.form button:hover:not(:disabled) { background: #26643c; }.switch { margin-top: 16px; color: #34784d; font-size: .87rem; }
+@media (max-width: 720px) { .center { place-items: start center; padding: 0; }.authShell { grid-template-columns: 1fr; min-height: 100dvh; border: 0; border-radius: 0; }.authIntro { min-height: 240px; padding: 34px 28px; }.authIntro img { width: 48px; height: 48px; margin-bottom: 16px; border-radius: 15px; }.authIntro h2 { font-size: 1.85rem; }.authIntro > span { display: none; }.card { padding: 30px 28px calc(36px + env(safe-area-inset-bottom)); }.card h1 { margin-top: 2px; } }
