@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+
+MealSlot = Literal["breakfast", "lunch", "dinner", "snack"]
 
 
 class StatsRange(BaseModel):
@@ -27,6 +30,17 @@ class StatsDay(BaseModel):
     free: int = Field(ge=0)
 
 
+class StatsPrevious(BaseModel):
+    """The same counts for the window immediately before this one."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total: int = Field(ge=0)
+    clean: int = Field(ge=0)
+    free: int = Field(ge=0)
+    cleanRatio: int = Field(ge=0, le=100)
+
+
 class StatsResponse(BaseModel):
     """Recent-days meal counts and the clean-meal ratio."""
 
@@ -39,3 +53,6 @@ class StatsResponse(BaseModel):
     cleanRatio: int = Field(ge=0, le=100)
     recordedDays: int = Field(ge=0)
     daily: list[StatsDay]
+    topMeal: MealSlot | None
+    previous: StatsPrevious
+    cleanRatioDelta: int = Field(ge=-100, le=100)

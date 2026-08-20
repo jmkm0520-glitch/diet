@@ -6,6 +6,7 @@ import styles from "../app/page.module.css";
 import { fetchApi } from "../services/apiClient";
 import type { DietStats } from "../types/api";
 import { buildDailyBars, donutDash, donutLabel } from "./statsChart";
+import { buildWeeklySummary } from "./weeklySummary";
 
 const RING_RADIUS = 52;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
@@ -173,9 +174,17 @@ export function StatsView() {
             </figure>
           </div>
 
+          <section className={styles.summaryCard} aria-labelledby="summary-title">
+            <h2 id="summary-title">이번 주 식단 요약</h2>
+            <ul>
+              {buildWeeklySummary(stats).map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </section>
+
           <p className={styles.statsFootnote}>
-            {stats.range.days}일 중 {stats.recordedDays}일을 기록했습니다. 기록하지 않은 끼니는
-            집계에 들어가지 않습니다.
+            기록하지 않은 끼니는 집계에 들어가지 않습니다. 위 수치는 저장된 기록만으로 계산했습니다.
           </p>
         </>
       )}

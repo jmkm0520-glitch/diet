@@ -1160,6 +1160,46 @@
   font-size: 0.88rem;
   letter-spacing: -0.04em;
 }
+.summaryCard {
+  margin: 20px 0 0;
+  border: 1px solid #cfe6d8;
+  border-radius: 28px;
+  background: #eef8f2;
+  padding: 30px 32px;
+}
+.summaryCard h2 {
+  margin: 0;
+  color: #24734f;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+}
+.summaryCard ul {
+  display: grid;
+  margin: 18px 0 0;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+}
+.summaryCard li {
+  position: relative;
+  padding-left: 18px;
+  color: #2b2620;
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.55;
+}
+.summaryCard li::before {
+  position: absolute;
+  top: 0.62em;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #2f8f63;
+  content: "";
+}
 .statsFootnote {
   margin: 26px 0 0;
   color: #8a8271;
@@ -1263,6 +1303,13 @@
   }
   .barLabel {
     font-size: 0.8rem;
+  }
+  .summaryCard {
+    border-radius: 22px;
+    padding: 22px 20px;
+  }
+  .summaryCard li {
+    font-size: 1rem;
   }
   .tabNav {
     flex-shrink: 0;

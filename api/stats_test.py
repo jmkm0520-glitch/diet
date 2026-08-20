@@ -13,14 +13,16 @@ from api.stats import (
     build_stats,
     clean_ratio,
     empty_stats,
+    previous_window_bounds,
     requested_days,
+    top_meal,
     window_bounds,
     window_dates,
 )
 
 
-def meal(date: str, type: str) -> dict:
-    return {"date": date, "type": type}
+def meal(date: str, type: str, slot: str = "dinner") -> dict:
+    return {"date": date, "meal": slot, "type": type}
 
 
 def test_window_defaults_to_the_last_seven_days_including_today() -> None:
@@ -165,3 +167,49 @@ def test_recorded_days_is_derived_from_the_daily_breakdown() -> None:
     rows = [meal("2026-08-18", "clean"), meal("2026-08-20", "free")]
 
     assert build_stats(3, "2026-08-18", "2026-08-20", rows)["recordedDays"] == 2
+
+
+def test_previous_window_sits_directly_before_the_current_one() -> None:
+    assert previous_window_bounds("2026-08-14", 7) == ("2026-08-07", "2026-08-13")
+
+
+def test_top_meal_reports_the_most_recorded_slot() -> None:
+    rows = [
+        meal("2026-08-18", "clean", "breakfast"),
+        meal("2026-08-18", "free", "dinner"),
+        meal("2026-08-19", "clean", "dinner"),
+    ]
+
+    assert top_meal(rows) == "dinner"
+
+
+def test_top_meal_breaks_a_tie_by_the_order_meals_happen() -> None:
+    rows = [
+        meal("2026-08-18", "clean", "dinner"),
+        meal("2026-08-18", "clean", "breakfast"),
+    ]
+
+    assert top_meal(rows) == "breakfast"
+
+
+def test_top_meal_is_none_when_nothing_is_recorded() -> None:
+    assert top_meal([]) is None
+    assert top_meal([{"date": "2026-08-18", "meal": "dinner", "type": "brunch"}]) is None
+
+
+def test_compares_the_clean_ratio_against_the_previous_window() -> None:
+    current = [meal("2026-08-18", "clean") for _ in range(3)] + [meal("2026-08-18", "free")]
+    previous = [meal("2026-08-11", "clean")] + [meal("2026-08-11", "free") for _ in range(3)]
+
+    stats = build_stats(7, "2026-08-14", "2026-08-20", current, previous)
+
+    assert stats["cleanRatio"] == 75
+    assert stats["previous"] == {"total": 4, "clean": 1, "free": 3, "cleanRatio": 25}
+    assert stats["cleanRatioDelta"] == 50
+
+
+def test_delta_is_zero_when_the_previous_window_holds_nothing() -> None:
+    stats = build_stats(7, "2026-08-14", "2026-08-20", [meal("2026-08-18", "clean")], [])
+
+    assert stats["previous"]["total"] == 0
+    assert stats["cleanRatioDelta"] == 0

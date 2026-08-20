@@ -55,6 +55,13 @@ export type StatsDay = {
   free: number;
 };
 
+export type StatsPrevious = {
+  total: number;
+  clean: number;
+  free: number;
+  cleanRatio: number;
+};
+
 export type DietStats = {
   range: StatsRange;
   total: number;
@@ -63,4 +70,7 @@ export type DietStats = {
   cleanRatio: number;
   recordedDays: number;
   daily: StatsDay[];
+  topMeal: Meal | null;
+  previous: StatsPrevious;
+  cleanRatioDelta: number;
 };

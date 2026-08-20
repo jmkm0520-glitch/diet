@@ -31,6 +31,7 @@ from api.models.stats import StatsResponse
 
 DEFAULT_DAYS = 7
 MAX_DAYS = 90
+MEAL_SLOTS = ("breakfast", "lunch", "dinner", "snack")
 
 
 def _send_json(handler: BaseHTTPRequestHandler, status: int, payload: dict) -> None:
@@ -68,6 +69,39 @@ def window_bounds(days: int) -> tuple[str, str]:
     return start.isoformat(), end.isoformat()
 
 
+def previous_window_bounds(start: str, days: int) -> tuple[str, str]:
+    """Return the window of the same length ending the day before ``start``."""
+
+    end = date_type.fromisoformat(start) - timedelta(days=1)
+    return (end - timedelta(days=days - 1)).isoformat(), end.isoformat()
+
+
+def top_meal(meal_rows: list[dict]) -> str | None:
+    """Return the most recorded meal slot, or None when nothing is recorded.
+
+    Ties resolve by the order meals happen in a day, so the answer never
+    depends on the order rows came back from the database.
+    """
+
+    counts = {slot: 0 for slot in MEAL_SLOTS}
+    for row in meal_rows:
+        slot = row.get("meal")
+        if slot in counts and row.get("type") in ("clean", "free"):
+            counts[slot] += 1
+    best = max(counts.values())
+    if best == 0:
+        return None
+    return next(slot for slot in MEAL_SLOTS if counts[slot] == best)
+
+
+def count_meals(meal_rows: list[dict]) -> tuple[int, int]:
+    """Return the clean and free totals, ignoring rows with an unknown type."""
+
+    clean = sum(1 for row in meal_rows if row.get("type") == "clean")
+    free = sum(1 for row in meal_rows if row.get("type") == "free")
+    return clean, free
+
+
 def clean_ratio(clean: int, total: int) -> int:
     """Return the clean share as a whole percent, and 0 when nothing is recorded."""
 
@@ -83,7 +117,13 @@ def window_dates(start: str, days: int) -> list[str]:
     return [(first + timedelta(days=offset)).isoformat() for offset in range(days)]
 
 
-def build_stats(days: int, start: str, end: str, meal_rows: list[dict]) -> dict:
+def build_stats(
+    days: int,
+    start: str,
+    end: str,
+    meal_rows: list[dict],
+    previous_rows: list[dict] | None = None,
+) -> dict:
     """Count the meals in one window, both in total and day by day.
 
     Rows carrying an unexpected ``type`` are left out of the counts rather than
@@ -109,14 +149,26 @@ def build_stats(days: int, start: str, end: str, meal_rows: list[dict]) -> dict:
 
     total = clean + free
     daily = [{"date": day, **counts} for day, counts in per_day.items()]
+    previous_clean, previous_free = count_meals(previous_rows or [])
+    previous_total = previous_clean + previous_free
+    previous_ratio = clean_ratio(previous_clean, previous_total)
+    current_ratio = clean_ratio(clean, total)
     payload = {
         "range": {"start": start, "end": end, "days": days},
         "total": total,
         "clean": clean,
         "free": free,
-        "cleanRatio": clean_ratio(clean, total),
+        "cleanRatio": current_ratio,
         "recordedDays": sum(1 for entry in daily if entry["clean"] or entry["free"]),
         "daily": daily,
+        "topMeal": top_meal(meal_rows),
+        "previous": {
+            "total": previous_total,
+            "clean": previous_clean,
+            "free": previous_free,
+            "cleanRatio": previous_ratio,
+        },
+        "cleanRatioDelta": current_ratio - previous_ratio if previous_total else 0,
     }
     return StatsResponse.model_validate(payload).model_dump(mode="json")
 
@@ -142,16 +194,25 @@ class handler(BaseHTTPRequestHandler):
         try:
             member = require_member(self)
             start, end = window_bounds(days)
-            meals = (
+            previous_start, previous_end = previous_window_bounds(start, days)
+            rows = (
                 get_supabase_client()
                 .table("meals")
-                .select("date,type")
+                .select("date,meal,type")
                 .eq("member_id", member.id)
-                .gte("date", start)
+                .gte("date", previous_start)
                 .lte("date", end)
                 .execute()
+            ).data or []
+            current = [row for row in rows if start <= str(row.get("date")) <= end]
+            previous = [
+                row for row in rows if previous_start <= str(row.get("date")) <= previous_end
+            ]
+            _send_json(
+                self,
+                200,
+                success_response(build_stats(days, start, end, current, previous)),
             )
-            _send_json(self, 200, success_response(build_stats(days, start, end, meals.data or [])))
         except AuthenticationRequiredError:
             _send_json(self, 401, auth_required_response())
         except (SupabaseConfigurationError, ValidationError) as error:
