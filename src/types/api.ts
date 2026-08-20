@@ -42,3 +42,18 @@ export type CalendarMonth = {
   month: number;
   days: CalendarDay[];
 };
+
+export type StatsRange = {
+  start: string;
+  end: string;
+  days: number;
+};
+
+export type DietStats = {
+  range: StatsRange;
+  total: number;
+  clean: number;
+  free: number;
+  cleanRatio: number;
+  recordedDays: number;
+};

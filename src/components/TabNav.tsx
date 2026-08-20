@@ -8,12 +8,13 @@ import styles from "../app/page.module.css";
 const tabs = [
   { id: "today", label: "오늘 기록", href: "/" },
   { id: "calendar", label: "캘린더", href: "/calendar" },
+  { id: "stats", label: "통계", href: "/stats" },
 ] as const;
 
 export function TabNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const activeTab = pathname === "/calendar" ? "calendar" : pathname === "/" ? "today" : null;
+  const activeTab = tabs.find((tab) => tab.href === pathname)?.id ?? null;
 
   function preserveSelectedDate(event: MouseEvent<HTMLAnchorElement>, href: string) {
     if (typeof window === "undefined" || event.metaKey || event.ctrlKey || event.shiftKey) return;

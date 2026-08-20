@@ -956,6 +956,99 @@
   white-space: nowrap;
 }
 
+.statsSection {
+  min-height: calc(100svh - 230px);
+  padding: 58px 56px 40px;
+}
+.statsEyebrow {
+  margin: 0;
+  color: #2f8f63;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.statsSection h1 {
+  margin: 10px 0 0;
+  color: #2b2620;
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.08em;
+}
+.statsRange {
+  margin: 10px 0 0;
+  color: #8a8271;
+  font-size: clamp(1rem, 1.4vw, 1.3rem);
+  letter-spacing: -0.05em;
+}
+.statsGrid {
+  display: grid;
+  margin: 34px 0 0;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.statCard {
+  border: 1px solid #e8ddc7;
+  border-radius: 28px;
+  background: #fffaf0;
+  padding: 30px 32px;
+}
+.statCard dt {
+  color: #8a8271;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+.statCard dd {
+  margin: 14px 0 0;
+  color: #2f8f63;
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.07em;
+  line-height: 1;
+}
+.statCard p {
+  margin: 12px 0 0;
+  color: #a2988a;
+  font-size: 0.95rem;
+  letter-spacing: -0.04em;
+}
+.freeStatCard dd {
+  color: #e2624f;
+}
+.statsFootnote {
+  margin: 26px 0 0;
+  color: #8a8271;
+  font-size: 1rem;
+  letter-spacing: -0.04em;
+}
+.statsMessage {
+  margin: 40px 0 0;
+  border: 1px dashed #e8ddc7;
+  border-radius: 28px;
+  background: #fffaf0;
+  padding: 48px 32px;
+  color: #8a8271;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 1.7;
+  text-align: center;
+}
+.statsError {
+  margin: 40px 0 0;
+  border: 1px solid #f0c8bd;
+  border-radius: 28px;
+  background: #fdece6;
+  padding: 40px 32px;
+  color: #e2624f;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 1.7;
+  text-align: center;
+}
+
 @media (max-width: 760px) {
   .main {
     width: 100%;
@@ -982,6 +1075,30 @@
   }
   .headerActions {
     gap: 8px;
+  }
+  .statsSection {
+    min-height: auto;
+    padding: 32px 24px 40px;
+  }
+  .statsGrid {
+    margin-top: 26px;
+    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .statCard {
+    border-radius: 22px;
+    padding: 20px 18px;
+  }
+  .statCard dt {
+    font-size: 0.92rem;
+  }
+  .statCard p {
+    font-size: 0.82rem;
+  }
+  .statsMessage,
+  .statsError {
+    padding: 32px 22px;
+    font-size: 1rem;
   }
   .tabNav {
     flex-shrink: 0;
