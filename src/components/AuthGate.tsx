@@ -58,6 +58,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
   const [error, setError] = useState("");
   const [pendingEmail, setPendingEmail] = useState("");
   const [status, setStatus] = useState("");
+  const [token, setToken] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const sideMenuRef = useRef<HTMLElement>(null);
 
@@ -66,6 +67,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
     const pendingStateTimer = window.setTimeout(() => {
       if (savedPendingEmail) {
         setPendingEmail(savedPendingEmail);
+        setToken("");
         setMode("verify");
       }
     }, 0);
@@ -106,7 +108,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
     const email = String(form.get("email") ?? pendingEmail);
     const payload: Record<string, string> = { email };
     if (mode === "verify") {
-      payload.token = String(form.get("token") ?? "");
+      payload.token = token;
     } else {
       payload.password = String(form.get("password") ?? "");
       if (mode === "signup") payload.display_name = String(form.get("displayName") ?? "");
@@ -123,6 +125,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
         );
         setPendingEmail(email);
         window.sessionStorage.setItem("pendingSignupEmail", email);
+        setToken("");
         setMode("verify");
         setStatus("인증 메일을 보냈습니다. 이메일의 6자리 인증번호를 입력해 주세요.");
         return;
@@ -201,12 +204,23 @@ export function AuthGate({ children }: { children: ReactNode }) {
                 : "식단과 체중 기록을 보려면 로그인해 주세요."}
           </p>
           {/*
-            The token and password inputs occupy the same slot. Without distinct
-            keys React reuses the DOM node between modes, and an uncontrolled
-            input keeps whatever was typed — the password showed up in the
-            verification field.
+            Two things had to change so the verification field starts empty.
+
+            Keys: the token and password inputs share a slot, so without them
+            React reuses the DOM node and an uncontrolled input keeps what was
+            typed.
+
+            The form key: Chrome ties saved credentials to a form. Reusing the
+            same form element after a password was submitted lets it fill the
+            field that takes the password's place, whatever autocomplete says.
+            Remounting the form gives the browser a form it has not seen.
           */}
-          <form className={styles.form} onSubmit={submit}>
+          <form
+            autoComplete="off"
+            className={styles.form}
+            key={mode === "verify" ? "verify-form" : "credentials-form"}
+            onSubmit={submit}
+          >
             {mode === "signup" && (
               <label>
                 이름
@@ -220,7 +234,17 @@ export function AuthGate({ children }: { children: ReactNode }) {
             {mode === "verify" ? (
               <label key="verification-token">
                 6자리 인증번호
-                <input name="token" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required autoComplete="one-time-code" />
+                <input
+                  autoComplete="one-time-code"
+                  inputMode="numeric"
+                  maxLength={6}
+                  name="token"
+                  pattern="[0-9]{6}"
+                  required
+                  type="text"
+                  value={token}
+                  onChange={(event) => setToken(event.target.value.replace(/\D/g, ""))}
+                />
               </label>
             ) : (
               <label key="password">
