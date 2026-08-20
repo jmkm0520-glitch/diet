@@ -8,6 +8,7 @@ directly testable without a database.
 
 from __future__ import annotations
 
+from datetime import date as date_type
 from datetime import timedelta
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
@@ -75,35 +76,47 @@ def clean_ratio(clean: int, total: int) -> int:
     return round(clean * 100 / total)
 
 
-def build_stats(days: int, start: str, end: str, meal_rows: list[dict]) -> dict:
-    """Count the meals in one window.
+def window_dates(start: str, days: int) -> list[str]:
+    """Return every ISO date in the window, so empty days still get a bar."""
 
-    Rows carrying an unexpected ``type`` are left out of the clean and free
-    counts rather than raising, so one malformed record cannot take the whole
-    statistics screen down.
+    first = date_type.fromisoformat(start)
+    return [(first + timedelta(days=offset)).isoformat() for offset in range(days)]
+
+
+def build_stats(days: int, start: str, end: str, meal_rows: list[dict]) -> dict:
+    """Count the meals in one window, both in total and day by day.
+
+    Rows carrying an unexpected ``type`` are left out of the counts rather than
+    raising, so one malformed record cannot take the whole statistics screen
+    down. Days without any record stay in ``daily`` with zeroes so a chart can
+    show the gaps instead of hiding them.
     """
 
+    per_day = {day: {"clean": 0, "free": 0} for day in window_dates(start, days)}
     clean = 0
     free = 0
-    recorded_dates: set[str] = set()
     for row in meal_rows:
         meal_type = row.get("type")
+        if meal_type not in ("clean", "free"):
+            continue
         if meal_type == "clean":
             clean += 1
-        elif meal_type == "free":
-            free += 1
         else:
-            continue
-        recorded_dates.add(str(row.get("date")))
+            free += 1
+        counts = per_day.get(str(row.get("date")))
+        if counts is not None:
+            counts[meal_type] += 1
 
     total = clean + free
+    daily = [{"date": day, **counts} for day, counts in per_day.items()]
     payload = {
         "range": {"start": start, "end": end, "days": days},
         "total": total,
         "clean": clean,
         "free": free,
         "cleanRatio": clean_ratio(clean, total),
-        "recordedDays": len(recorded_dates),
+        "recordedDays": sum(1 for entry in daily if entry["clean"] or entry["free"]),
+        "daily": daily,
     }
     return StatsResponse.model_validate(payload).model_dump(mode="json")
 

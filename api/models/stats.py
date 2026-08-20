@@ -17,6 +17,16 @@ class StatsRange(BaseModel):
     days: int = Field(ge=1, le=366)
 
 
+class StatsDay(BaseModel):
+    """One day inside the window, including days without any record."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    date: date
+    clean: int = Field(ge=0)
+    free: int = Field(ge=0)
+
+
 class StatsResponse(BaseModel):
     """Recent-days meal counts and the clean-meal ratio."""
 
@@ -28,3 +38,4 @@ class StatsResponse(BaseModel):
     free: int = Field(ge=0)
     cleanRatio: int = Field(ge=0, le=100)
     recordedDays: int = Field(ge=0)
+    daily: list[StatsDay]

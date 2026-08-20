@@ -49,6 +49,12 @@ export type StatsRange = {
   days: number;
 };
 
+export type StatsDay = {
+  date: string;
+  clean: number;
+  free: number;
+};
+
 export type DietStats = {
   range: StatsRange;
   total: number;
@@ -56,4 +62,5 @@ export type DietStats = {
   free: number;
   cleanRatio: number;
   recordedDays: number;
+  daily: StatsDay[];
 };

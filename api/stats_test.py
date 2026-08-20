@@ -15,6 +15,7 @@ from api.stats import (
     empty_stats,
     requested_days,
     window_bounds,
+    window_dates,
 )
 
 
@@ -117,3 +118,50 @@ def test_empty_stats_matches_a_window_with_no_records() -> None:
 )
 def test_clean_ratio_rounds_to_a_whole_percent(clean: int, total: int, expected: int) -> None:
     assert clean_ratio(clean, total) == expected
+
+
+def test_window_dates_covers_every_day_from_the_start() -> None:
+    assert window_dates("2026-08-18", 3) == ["2026-08-18", "2026-08-19", "2026-08-20"]
+
+
+def test_daily_breakdown_keeps_one_entry_per_day_in_order() -> None:
+    rows = [
+        meal("2026-08-18", "clean"),
+        meal("2026-08-18", "free"),
+        meal("2026-08-20", "clean"),
+    ]
+
+    daily = build_stats(3, "2026-08-18", "2026-08-20", rows)["daily"]
+
+    assert daily == [
+        {"date": "2026-08-18", "clean": 1, "free": 1},
+        {"date": "2026-08-19", "clean": 0, "free": 0},
+        {"date": "2026-08-20", "clean": 1, "free": 0},
+    ]
+
+
+def test_a_day_without_records_stays_in_the_breakdown_as_zero() -> None:
+    daily = build_stats(7, "2026-08-14", "2026-08-20", [])["daily"]
+
+    assert len(daily) == 7
+    assert all(entry["clean"] == 0 and entry["free"] == 0 for entry in daily)
+
+
+def test_a_row_outside_the_window_counts_in_the_total_but_creates_no_day() -> None:
+    rows = [meal("2026-08-18", "clean"), meal("2026-01-01", "free")]
+
+    stats = build_stats(3, "2026-08-18", "2026-08-20", rows)
+
+    assert stats["total"] == 2
+    assert len(stats["daily"]) == 3
+    assert [entry["date"] for entry in stats["daily"]] == [
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+    ]
+
+
+def test_recorded_days_is_derived_from_the_daily_breakdown() -> None:
+    rows = [meal("2026-08-18", "clean"), meal("2026-08-20", "free")]
+
+    assert build_stats(3, "2026-08-18", "2026-08-20", rows)["recordedDays"] == 2

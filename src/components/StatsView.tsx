@@ -5,6 +5,10 @@ import { useEffect, useState } from "react";
 import styles from "../app/page.module.css";
 import { fetchApi } from "../services/apiClient";
 import type { DietStats } from "../types/api";
+import { buildDailyBars, donutDash, donutLabel } from "./statsChart";
+
+const RING_RADIUS = 52;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 /**
  * Statistics are never computed in the browser, even as a fallback. The server
@@ -105,6 +109,70 @@ export function StatsView() {
               </div>
             ))}
           </dl>
+          <div className={styles.chartRow}>
+            <figure className={styles.donutCard}>
+              <figcaption>클린식 / 자유식 비율</figcaption>
+              <div className={styles.donutWrap}>
+                <svg
+                  className={styles.donut}
+                  viewBox="0 0 120 120"
+                  role="img"
+                  aria-label={donutLabel(stats.clean, stats.free, stats.cleanRatio)}
+                >
+                  <circle className={styles.donutTrack} cx="60" cy="60" r={RING_RADIUS} />
+                  <circle
+                    className={styles.donutValue}
+                    cx="60"
+                    cy="60"
+                    r={RING_RADIUS}
+                    strokeDasharray={donutDash(stats.cleanRatio, RING_CIRCUMFERENCE).join(" ")}
+                    transform="rotate(-90 60 60)"
+                  />
+                </svg>
+                <p className={styles.donutCenter}>
+                  <strong>{stats.cleanRatio}%</strong>
+                  <span>클린식</span>
+                </p>
+              </div>
+              <ul className={styles.chartLegend}>
+                <li>
+                  <i className={styles.cleanSwatch} aria-hidden="true" />
+                  클린식 {stats.clean}회
+                </li>
+                <li>
+                  <i className={styles.freeSwatch} aria-hidden="true" />
+                  자유식 {stats.free}회
+                </li>
+              </ul>
+            </figure>
+
+            <figure className={styles.barCard}>
+              <figcaption>날짜별 기록</figcaption>
+              <ol className={styles.barChart}>
+                {buildDailyBars(stats.daily).map((bar) => (
+                  <li key={bar.date}>
+                    <div
+                      className={styles.barTrack}
+                      role="img"
+                      aria-label={`${bar.label}일 클린식 ${bar.clean}회, 자유식 ${bar.free}회`}
+                    >
+                      <span
+                        className={styles.barFree}
+                        style={{ height: `${bar.freeHeight * 100}%` }}
+                      />
+                      <span
+                        className={styles.barClean}
+                        style={{ height: `${bar.cleanHeight * 100}%` }}
+                      />
+                    </div>
+                    <span className={styles.barLabel}>{bar.label}</span>
+                  </li>
+                ))}
+              </ol>
+              <p className={styles.barHint}>막대가 없는 날은 기록하지 않은 날입니다.</p>
+            </figure>
+          </div>
+
           <p className={styles.statsFootnote}>
             {stats.range.days}일 중 {stats.recordedDays}일을 기록했습니다. 기록하지 않은 끼니는
             집계에 들어가지 않습니다.
