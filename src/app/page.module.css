@@ -3254,3 +3254,10 @@ main.referenceDashboard.referenceDashboard .weightCard .inputError {
   font-size: .58rem;
   line-height: 1.25;
 }
+
+@media (max-width: 640px) {
+  main.referenceDashboard.referenceDashboard .weightCard > div:first-child {
+    width: 100%;
+    text-align: left;
+  }
+}
