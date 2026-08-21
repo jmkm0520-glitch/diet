@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 import { ApiClientError, fetchApi } from "../services/apiClient";
+import { readTargetWeight, saveTargetWeight } from "../services/targetWeight";
 import type { Member } from "../types/auth";
 import styles from "./AuthGate.module.css";
 
@@ -50,6 +51,79 @@ export function SiteMenuButton() {
   );
 }
 
+function TargetWeightMenuItem() {
+  const [targetWeightInput, setTargetWeightInput] = useState("");
+  const [configuredTargetWeight, setConfiguredTargetWeight] = useState<number | null>(null);
+  const [targetWeightError, setTargetWeightError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedTargetWeight = readTargetWeight();
+    if (savedTargetWeight === null) return;
+
+    setTargetWeightInput(String(savedTargetWeight));
+    setConfiguredTargetWeight(savedTargetWeight);
+  }, []);
+
+  function updateTargetWeightInput(value: string) {
+    setTargetWeightInput(value);
+    if (!value.trim()) {
+      setTargetWeightError(null);
+      return;
+    }
+
+    const parsedTargetWeight = Number(value);
+    setTargetWeightError(
+      !Number.isFinite(parsedTargetWeight) || parsedTargetWeight <= 0
+        ? "0보다 큰 숫자를 입력해 주세요."
+        : null,
+    );
+  }
+
+  function handleTargetWeightSave() {
+    const parsedTargetWeight = Number(targetWeightInput);
+    if (!Number.isFinite(parsedTargetWeight) || parsedTargetWeight <= 0) {
+      setTargetWeightError("0보다 큰 숫자를 입력해 주세요.");
+      return;
+    }
+
+    saveTargetWeight(parsedTargetWeight);
+    setConfiguredTargetWeight(parsedTargetWeight);
+    setTargetWeightError(null);
+  }
+
+  return (
+    <section className={styles.targetWeightMenu} aria-labelledby="menu-target-weight-title">
+      <div>
+        <p className={styles.targetWeightMenuEyebrow}>목표 관리</p>
+        <h2 id="menu-target-weight-title">목표 몸무게</h2>
+      </div>
+      <label className={styles.targetWeightMenuLabel} htmlFor="menu-target-weight">
+        목표 체중
+      </label>
+      <div className={styles.targetWeightMenuInputRow}>
+        <input
+          id="menu-target-weight"
+          inputMode="decimal"
+          max="300"
+          min="1"
+          onChange={(event) => updateTargetWeightInput(event.target.value)}
+          placeholder="예: 50"
+          step="0.1"
+          type="number"
+          value={targetWeightInput}
+        />
+        <span>kg</span>
+        <button onClick={handleTargetWeightSave} type="button">
+          {configuredTargetWeight === null ? "설정" : "수정"}
+        </button>
+      </div>
+      {targetWeightError ? (
+        <p className={styles.targetWeightMenuError}>{targetWeightError}</p>
+      ) : null}
+    </section>
+  );
+}
+
 export function AuthGate({ children }: { children: ReactNode }) {
   const [member, setMember] = useState<Member | null>(null);
   const [mode, setMode] = useState<Mode>("login");
@@ -71,11 +145,14 @@ export function AuthGate({ children }: { children: ReactNode }) {
         setMode("verify");
       }
     }, 0);
-    fetchApi<Member>("/api/authentication?action=session").then((authenticated) => {
-      setMember(authenticated);
-    }).catch(() => undefined).finally(() => {
-      setLoading(false);
-    });
+    fetchApi<Member>("/api/authentication?action=session")
+      .then((authenticated) => {
+        setMember(authenticated);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        setLoading(false);
+      });
     return () => window.clearTimeout(pendingStateTimer);
   }, []);
 
@@ -118,9 +195,9 @@ export function AuthGate({ children }: { children: ReactNode }) {
         await fetchApi<{ email: string; verificationRequired: boolean }>(
           "/api/authentication?action=signup",
           {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
           },
         );
         setPendingEmail(email);
@@ -140,7 +217,9 @@ export function AuthGate({ children }: { children: ReactNode }) {
       window.sessionStorage.removeItem("pendingSignupEmail");
     } catch (caught) {
       setError(
-        caught instanceof ApiClientError ? caught.message : "요청을 처리하지 못했습니다. 다시 시도해 주세요.",
+        caught instanceof ApiClientError
+          ? caught.message
+          : "요청을 처리하지 못했습니다. 다시 시도해 주세요.",
       );
     } finally {
       setSubmitting(false);
@@ -161,7 +240,9 @@ export function AuthGate({ children }: { children: ReactNode }) {
       });
       setStatus("인증 메일을 다시 보냈습니다.");
     } catch (caught) {
-      setError(caught instanceof ApiClientError ? caught.message : "인증 메일을 보내지 못했습니다.");
+      setError(
+        caught instanceof ApiClientError ? caught.message : "인증 메일을 보내지 못했습니다.",
+      );
     }
   }
 
@@ -188,8 +269,16 @@ export function AuthGate({ children }: { children: ReactNode }) {
           <section className={styles.authIntro} aria-label="오늘도 가볍게 소개">
             <Image src="/broccoli-logo.png" alt="" width={72} height={72} priority />
             <p>오늘도 가볍게</p>
-            <h2>한 끼씩 기록하는<br />나만의 건강 루틴</h2>
-            <span>식단과 체중의 작은 변화를<br />부담 없이 이어가 보세요.</span>
+            <h2>
+              한 끼씩 기록하는
+              <br />
+              나만의 건강 루틴
+            </h2>
+            <span>
+              식단과 체중의 작은 변화를
+              <br />
+              부담 없이 이어가 보세요.
+            </span>
           </section>
           <section className={styles.card} aria-labelledby="auth-title">
             <h1 id="auth-title">
@@ -202,7 +291,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
                   ? "가입한 이메일로 보낸 인증번호를 입력해 주세요."
                   : "식단과 체중 기록을 보려면 로그인해 주세요."}
             </p>
-          {/*
+            {/*
             Two things had to change so the verification field starts empty.
 
             Keys: the token and password inputs share a slot, so without them
@@ -215,47 +304,77 @@ export function AuthGate({ children }: { children: ReactNode }) {
             Remounting the form gives the browser a form it has not seen.
           */}
             <form
-            autoComplete="off"
-            className={styles.form}
-            key={mode === "verify" ? "verify-form" : "credentials-form"}
-            onSubmit={submit}
+              autoComplete="off"
+              className={styles.form}
+              key={mode === "verify" ? "verify-form" : "credentials-form"}
+              onSubmit={submit}
             >
-            {mode === "signup" && (
+              {mode === "signup" && (
+                <label>
+                  이름
+                  <input name="displayName" maxLength={50} required autoComplete="name" />
+                </label>
+              )}
               <label>
-                이름
-                <input name="displayName" maxLength={50} required autoComplete="name" />
-              </label>
-            )}
-            <label>
-              이메일
-              <input name="email" type="email" required autoComplete="email" value={mode === "verify" ? pendingEmail : undefined} onChange={mode === "verify" ? (event) => setPendingEmail(event.target.value) : undefined} />
-            </label>
-            {mode === "verify" ? (
-              <label key="verification-token">
-                6자리 인증번호
+                이메일
                 <input
-                  autoComplete="one-time-code"
-                  inputMode="numeric"
-                  maxLength={6}
-                  name="token"
-                  pattern="[0-9]{6}"
+                  name="email"
+                  type="email"
                   required
-                  type="text"
-                  value={token}
-                  onChange={(event) => setToken(event.target.value.replace(/\D/g, ""))}
+                  autoComplete="email"
+                  value={mode === "verify" ? pendingEmail : undefined}
+                  onChange={
+                    mode === "verify" ? (event) => setPendingEmail(event.target.value) : undefined
+                  }
                 />
               </label>
-            ) : (
-              <label key="password">
-                비밀번호
-                <input name="password" type="password" minLength={8} maxLength={128} required autoComplete={mode === "signup" ? "new-password" : "current-password"} />
-              </label>
-            )}
-            {status && <p className={styles.status} role="status">{status}</p>}
-            {error && <p className={styles.error} role="alert">{error}</p>}
-            <button type="submit" disabled={submitting}>
-              {submitting ? "처리 중…" : mode === "signup" ? "인증 메일 받기" : mode === "verify" ? "인증하고 가입 완료" : "로그인"}
-            </button>
+              {mode === "verify" ? (
+                <label key="verification-token">
+                  6자리 인증번호
+                  <input
+                    autoComplete="one-time-code"
+                    inputMode="numeric"
+                    maxLength={6}
+                    name="token"
+                    pattern="[0-9]{6}"
+                    required
+                    type="text"
+                    value={token}
+                    onChange={(event) => setToken(event.target.value.replace(/\D/g, ""))}
+                  />
+                </label>
+              ) : (
+                <label key="password">
+                  비밀번호
+                  <input
+                    name="password"
+                    type="password"
+                    minLength={8}
+                    maxLength={128}
+                    required
+                    autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                  />
+                </label>
+              )}
+              {status && (
+                <p className={styles.status} role="status">
+                  {status}
+                </p>
+              )}
+              {error && (
+                <p className={styles.error} role="alert">
+                  {error}
+                </p>
+              )}
+              <button type="submit" disabled={submitting}>
+                {submitting
+                  ? "처리 중…"
+                  : mode === "signup"
+                    ? "인증 메일 받기"
+                    : mode === "verify"
+                      ? "인증하고 가입 완료"
+                      : "로그인"}
+              </button>
             </form>
             {mode === "verify" && (
               <button className={styles.switch} type="button" onClick={resendVerification}>
@@ -263,7 +382,11 @@ export function AuthGate({ children }: { children: ReactNode }) {
               </button>
             )}
             {mode !== "verify" && (
-              <button className={styles.switch} type="button" onClick={() => setMode(mode === "signup" ? "login" : "signup")}>
+              <button
+                className={styles.switch}
+                type="button"
+                onClick={() => setMode(mode === "signup" ? "login" : "signup")}
+              >
                 {mode === "signup" ? "이미 계정이 있나요? 로그인" : "계정이 없나요? 회원가입"}
               </button>
             )}
@@ -279,9 +402,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
   }
 
   return (
-    <SiteMenuContext.Provider
-      value={{ isMenuOpen, openMenu: () => setIsMenuOpen(true) }}
-    >
+    <SiteMenuContext.Provider value={{ isMenuOpen, openMenu: () => setIsMenuOpen(true) }}>
       {isMenuOpen ? (
         <>
           <button
@@ -317,6 +438,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
                 </span>
                 <b aria-hidden="true">›</b>
               </Link>
+              <TargetWeightMenuItem />
             </nav>
             <button className={styles.logoutButton} type="button" onClick={logout}>
               로그아웃
