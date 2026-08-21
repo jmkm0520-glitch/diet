@@ -7847,7 +7847,7 @@ main.referenceDashboard.referenceDashboard .weightCard .cardHint {
 
 /* Date carousel: adjacent days frame the selected day without losing date-picker access. */
 main.referenceDashboard.referenceDashboard .header {
-  min-height: 74px;
+  min-height: 58px;
   padding: 0;
 }
 
@@ -7859,7 +7859,7 @@ main.referenceDashboard.referenceDashboard .dateNavigationRow {
   align-items: center;
   gap: 12px;
   margin: 0;
-  padding: 14px 0;
+  padding: 8px 0;
   border: 0;
   background: transparent;
 }
@@ -8009,7 +8009,7 @@ main.referenceDashboard.referenceDashboard .mealChoices button:focus-visible {
 @media (max-width: 640px) {
   main.referenceDashboard.referenceDashboard .dateNavigationRow {
     gap: 8px;
-    padding: 10px 0;
+    padding: 6px 0;
   }
 
   main.referenceDashboard.referenceDashboard .dateNeighbor {
