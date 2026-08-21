@@ -3212,3 +3212,37 @@ main.referenceDashboard.referenceDashboard .weightCard {
 main.referenceDashboard.referenceDashboard .weightCard .cardHint {
   font-size: .56rem;
 }
+
+/* Weight trend: direct values, subtle plot guides, and a light range fill. */
+.weightGridline {
+  stroke: #dce9d7;
+  stroke-dasharray: 1.5 2.5;
+  stroke-width: .45;
+}
+
+.weightArea {
+  fill: url(#weight-area);
+}
+
+.weightLine {
+  stroke: #317b50;
+  stroke-width: 2;
+}
+
+.weightDot {
+  fill: #fffefb;
+  stroke: #317b50;
+  stroke-width: 1.3;
+}
+
+.weightValueLabel {
+  fill: #2d6c47;
+  font-size: 3.2px;
+  font-weight: 850;
+}
+
+.weightDateLabel {
+  fill: #607b68;
+  font-size: 3.25px;
+  font-weight: 750;
+}
