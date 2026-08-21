@@ -3140,7 +3140,9 @@ main.referenceDashboard.secondaryDashboard > .siteHeader {
 }
 
 .weightChart {
-  height: 176px;
+  display: block;
+  height: auto;
+  aspect-ratio: 100 / 36;
   margin-top: 12px;
 }
 
@@ -3180,7 +3182,7 @@ main.referenceDashboard.secondaryDashboard > .siteHeader {
   .donutCard, .barCard, .weightCardChart, .summaryCard { border-radius: 14px; }
   .donutCard, .barCard, .weightCardChart { padding: 18px 15px; }
   .barChart { min-height: 152px; }
-  .weightChart { height: 154px; }
+  .weightChart { height: auto; }
   .summaryCard { padding: 19px 17px; }
 }
 
@@ -3218,13 +3220,13 @@ main.referenceDashboard.referenceDashboard .weightCard .cardHint {
 
 .weightValueLabel {
   fill: #2d6c47;
-  font-size: 3.45px;
+  font-size: 2.15px;
   font-weight: 800;
 }
 
 .weightDateLabel {
   fill: #607b68;
-  font-size: 3.45px;
+  font-size: 2px;
   font-weight: 700;
 }
 
