@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { getMealCardState, getMealSaveInput, getMealTypeSuggestion } from "./mealCardState.ts";
+import {
+  getMealCardState,
+  getMealSaveInput,
+  getMealTypeSuggestion,
+  toggleMealType,
+} from "./mealCardState.ts";
 
 describe("getMealCardState", () => {
   it("uses the clean card state for clean meals", () => {
@@ -20,12 +25,24 @@ describe("getMealCardState", () => {
     });
   });
 
-  it("uses a neutral state before food is entered", () => {
+  it("uses a neutral state before a type is selected", () => {
     assert.deepEqual(getMealCardState(null), {
       isFree: false,
       isSelected: false,
-      label: "음식 입력 전",
+      label: "분류 선택 전",
     });
+  });
+});
+
+describe("toggleMealType", () => {
+  it("clears a selected type when the same choice is pressed again", () => {
+    assert.equal(toggleMealType("clean", "clean"), null);
+    assert.equal(toggleMealType("free", "free"), null);
+  });
+
+  it("selects a different type", () => {
+    assert.equal(toggleMealType(null, "clean"), "clean");
+    assert.equal(toggleMealType("clean", "free"), "free");
   });
 });
 

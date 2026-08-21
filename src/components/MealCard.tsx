@@ -3,7 +3,12 @@ import { useState } from "react";
 
 import styles from "../app/page.module.css";
 import type { Meal, MealRecord, MealType } from "../types/api";
-import { getMealCardState, getMealSaveInput, getMealTypeSuggestion } from "./mealCardState";
+import {
+  getMealCardState,
+  getMealSaveInput,
+  getMealTypeSuggestion,
+  toggleMealType,
+} from "./mealCardState";
 
 export type MealCardProps = {
   meal: Meal;
@@ -65,7 +70,7 @@ export function MealCard({
   }
 
   function selectMealType(nextType: MealType) {
-    setType(nextType);
+    setType((currentType) => toggleMealType(currentType, nextType));
     startEditing();
   }
 

@@ -4,14 +4,19 @@ import { CLEAN_MEAL_KEYWORDS, FREE_MEAL_OVERRIDE_KEYWORDS } from "./mealKeywords
 export type MealCardState = {
   isFree: boolean;
   isSelected: boolean;
-  label: "음식 입력 전" | "클린식" | "자유식";
+  label: "분류 선택 전" | "클린식" | "자유식";
 };
 
 export function getMealCardState(type: MealType | null): MealCardState {
-  if (type === null) return { isFree: false, isSelected: false, label: "음식 입력 전" };
+  if (type === null) return { isFree: false, isSelected: false, label: "분류 선택 전" };
   return type === "free"
     ? { isFree: true, isSelected: true, label: "자유식" }
     : { isFree: false, isSelected: true, label: "클린식" };
+}
+
+/** Select a meal type once, or clear it by selecting the same type again. */
+export function toggleMealType(currentType: MealType | null, nextType: MealType): MealType | null {
+  return currentType === nextType ? null : nextType;
 }
 
 /** Food and type saved when a meal card is left empty. */
