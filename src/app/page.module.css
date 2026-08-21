@@ -2373,6 +2373,13 @@ main.referenceDashboard.referenceDashboard .mealSaveButton {
   padding: 8px 12px;
 }
 
+main.referenceDashboard.referenceDashboard .savedMealActions .mealSaveButton,
+main.referenceDashboard.referenceDashboard .savedMealActions .mealDeleteButton {
+  font-size: .74rem;
+  font-weight: 800;
+  line-height: normal;
+}
+
 main.referenceDashboard.referenceDashboard .mealEmptyState {
   order: 5;
   width: 100%;
