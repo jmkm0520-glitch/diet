@@ -8000,6 +8000,15 @@ main.referenceDashboard.referenceDashboard .mealChoices button:focus-visible {
   outline-offset: 2px;
 }
 
+/* Editing is a constructive action even when the saved meal is 자유식; red remains delete-only. */
+main.referenceDashboard.referenceDashboard .freeMealCard .mealSaveButtonEdit {
+  background: #2f7950;
+}
+
+main.referenceDashboard.referenceDashboard .freeMealCard .mealSaveButtonEdit:hover:not(:disabled) {
+  background: #1f6740;
+}
+
 @media (prefers-reduced-motion: reduce) {
   main.referenceDashboard.referenceDashboard .mealChoices button {
     transition: none;
