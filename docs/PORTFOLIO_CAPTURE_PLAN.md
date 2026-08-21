@@ -15,7 +15,7 @@
 
 | 파일명 | 화면·데이터 조건 | 증명할 내용 | 연결할 문서 |
 | --- | --- | --- | --- |
-| `after-01-stats.png` | 데스크톱 통계 탭, 최근 7일 기록 존재 | 3개 집계 카드·도넛·막대·날짜/기준선/영역이 보이는 체중 차트 | README Before/After 1, `portfolio.md` 8장 |
+| `after-01-stats.png` | 데스크톱 통계 탭, 최근 7일 기록 존재 | 상단부터 보이는 도넛·막대·날짜/기준선/영역이 보이는 체중 차트 | README Before/After 1, `portfolio.md` 8장 |
 | `after-02-calendar.png` | Before 캘린더와 같은 월 | 월별 기록·날짜별 상태 확인 | `portfolio.md` Flow 3 |
 | `after-03-calendar-detail.png` | 기록 있는 날짜 상세 | 4끼 음식명·클린/자유 라벨·Empty State | `portfolio.md` Flow 3 |
 | `after-04-signup.png` | 회원가입 화면 | `첫 회원 만들기` 대신 `회원가입` 문구 | README Before/After 4 |

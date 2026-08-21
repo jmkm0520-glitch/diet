@@ -83,11 +83,6 @@ export function StatsView() {
 
   const { stats } = state;
   const weightLine = buildWeightLine(stats.daily);
-  const cards = [
-    { key: "total", label: "총 기록", value: `${stats.total}회`, hint: "저장한 끼니 수" },
-    { key: "clean", label: "클린식", value: `${stats.clean}회`, hint: "가볍게 먹은 끼니" },
-    { key: "free", label: "자유식", value: `${stats.free}회`, hint: "자유롭게 먹은 끼니" },
-  ];
 
   return (
     <section className={styles.statsSection} aria-labelledby="stats-title">
@@ -101,19 +96,6 @@ export function StatsView() {
         </p>
       ) : (
         <>
-          <dl className={styles.statsGrid}>
-            {cards.map((card) => (
-              <div
-                className={`${styles.statCard} ${card.key === "free" ? styles.freeStatCard : ""}`}
-                key={card.key}
-                data-stat={card.key}
-              >
-                <dt>{card.label}</dt>
-                <dd>{card.value}</dd>
-                <p>{card.hint}</p>
-              </div>
-            ))}
-          </dl>
           <div className={styles.chartRow}>
             <figure className={styles.donutCard}>
               <figcaption>클린식 / 자유식 비율</figcaption>
