@@ -7967,6 +7967,27 @@ main.referenceDashboard.referenceDashboard .weightCard .weightControl {
   margin: 4px 0 0;
 }
 
+.targetWeightQuickLink {
+  border: 0;
+  border-bottom: 1px dashed rgb(255 255 255 / 58%);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: inherit;
+  padding: 0 0 2px;
+}
+
+.targetWeightQuickLink:hover {
+  border-bottom-style: solid;
+}
+
+.targetWeightQuickLink:focus-visible {
+  border-radius: 3px;
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
 /* Meal type buttons use a filled, high-contrast selected state so a choice is clear at a glance. */
 main.referenceDashboard.referenceDashboard .mealChoices button {
   min-height: 44px;

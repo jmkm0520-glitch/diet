@@ -12,7 +12,11 @@ import {
   useState,
 } from "react";
 import { ApiClientError, fetchApi } from "../services/apiClient";
-import { readTargetWeight, saveTargetWeight } from "../services/targetWeight";
+import {
+  OPEN_TARGET_WEIGHT_MENU_EVENT,
+  readTargetWeight,
+  saveTargetWeight,
+} from "../services/targetWeight";
 import type { Member } from "../types/auth";
 import styles from "./AuthGate.module.css";
 
@@ -129,6 +133,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState("");
   const [token, setToken] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [shouldFocusTargetWeight, setShouldFocusTargetWeight] = useState(false);
   const sideMenuRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -152,6 +157,16 @@ export function AuthGate({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    function openTargetWeightSettings() {
+      setShouldFocusTargetWeight(true);
+      setIsMenuOpen(true);
+    }
+
+    window.addEventListener(OPEN_TARGET_WEIGHT_MENU_EVENT, openTargetWeightSettings);
+    return () => window.removeEventListener(OPEN_TARGET_WEIGHT_MENU_EVENT, openTargetWeightSettings);
+  }, []);
+
+  useEffect(() => {
     if (!isMenuOpen) return;
 
     const previousOverflow = document.body.style.overflow;
@@ -171,6 +186,17 @@ export function AuthGate({ children }: { children: ReactNode }) {
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [isMenuOpen]);
+
+  useEffect(() => {
+    if (!isMenuOpen || !shouldFocusTargetWeight) return;
+
+    const focusTimer = window.setTimeout(() => {
+      document.getElementById("menu-target-weight")?.focus();
+      setShouldFocusTargetWeight(false);
+    }, 0);
+
+    return () => window.clearTimeout(focusTimer);
+  }, [isMenuOpen, shouldFocusTargetWeight]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -247,10 +273,12 @@ export function AuthGate({ children }: { children: ReactNode }) {
     });
     setMember(null);
     setMode("login");
+    setShouldFocusTargetWeight(false);
     setIsMenuOpen(false);
   }
 
   function closeMenu() {
+    setShouldFocusTargetWeight(false);
     setIsMenuOpen(false);
     focusMenuButton();
   }

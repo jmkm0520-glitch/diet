@@ -14,7 +14,11 @@ import {
   readDateFromUrl,
   writeDateToUrl,
 } from "../services/date";
-import { readTargetWeight, TARGET_WEIGHT_UPDATED_EVENT } from "../services/targetWeight";
+import {
+  openTargetWeightMenu,
+  readTargetWeight,
+  TARGET_WEIGHT_UPDATED_EVENT,
+} from "../services/targetWeight";
 import { ApiClientError, fetchApi } from "../services/apiClient";
 import type { DayRecord, Meal, MealRecord, MealType } from "../types/api";
 import {
@@ -412,7 +416,14 @@ export default function Home() {
             <div>
               <dt>목표 체중</dt>
               <dd>
-                {configuredTargetWeight === null ? "메뉴에서 설정" : `${configuredTargetWeight}kg`}
+                <button
+                  aria-label="목표 몸무게 설정 열기"
+                  className={styles.targetWeightQuickLink}
+                  type="button"
+                  onClick={openTargetWeightMenu}
+                >
+                  {configuredTargetWeight === null ? "메뉴에서 설정" : `${configuredTargetWeight}kg`}
+                </button>
               </dd>
             </div>
             <div>
