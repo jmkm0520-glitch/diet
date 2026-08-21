@@ -304,7 +304,7 @@ export default function Home() {
   const freeMealCount = savedMeals.filter((meal) => meal.type === "free").length;
   const currentWeight = dayRecord?.weight?.weight ?? null;
   const remainingWeight = currentWeight !== null && configuredTargetWeight !== null
-    ? Math.max(currentWeight - configuredTargetWeight, 0)
+    ? Math.round((Math.max(currentWeight - configuredTargetWeight, 0) + Number.EPSILON) * 10) / 10
     : null;
 
   useEffect(() => {
