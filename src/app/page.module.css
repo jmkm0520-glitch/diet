@@ -7967,6 +7967,45 @@ main.referenceDashboard.referenceDashboard .weightCard .weightControl {
   margin: 4px 0 0;
 }
 
+/* Meal type buttons use a filled, high-contrast selected state so a choice is clear at a glance. */
+main.referenceDashboard.referenceDashboard .mealChoices button {
+  min-height: 44px;
+  border: 2px solid #c9d9c6;
+  color: #52705a;
+  font-weight: 800;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    color 150ms ease;
+}
+
+main.referenceDashboard.referenceDashboard .mealChoices button.selectedChoice {
+  border-color: #1f7045;
+  background: #28784c;
+  box-shadow: 0 5px 0 #185b35, 0 9px 16px rgb(24 91 53 / 22%);
+  color: #fff;
+  font-weight: 900;
+}
+
+main.referenceDashboard.referenceDashboard .freeMealCard .mealChoices button.selectedChoice {
+  border-color: #c7593d;
+  background: #d96c4b;
+  box-shadow: 0 5px 0 #a94731, 0 9px 16px rgb(169 71 49 / 22%);
+  color: #fff;
+}
+
+main.referenceDashboard.referenceDashboard .mealChoices button:focus-visible {
+  outline: 3px solid rgb(35 113 71 / 34%);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main.referenceDashboard.referenceDashboard .mealChoices button {
+    transition: none;
+  }
+}
+
 @media (max-width: 640px) {
   main.referenceDashboard.referenceDashboard .dateNavigationRow {
     gap: 8px;

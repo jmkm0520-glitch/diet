@@ -52,17 +52,12 @@ export function SiteMenuButton() {
 }
 
 function TargetWeightMenuItem() {
-  const [targetWeightInput, setTargetWeightInput] = useState("");
-  const [configuredTargetWeight, setConfiguredTargetWeight] = useState<number | null>(null);
-  const [targetWeightError, setTargetWeightError] = useState<string | null>(null);
-
-  useEffect(() => {
+  const [targetWeightInput, setTargetWeightInput] = useState(() => {
     const savedTargetWeight = readTargetWeight();
-    if (savedTargetWeight === null) return;
-
-    setTargetWeightInput(String(savedTargetWeight));
-    setConfiguredTargetWeight(savedTargetWeight);
-  }, []);
+    return savedTargetWeight === null ? "" : String(savedTargetWeight);
+  });
+  const [configuredTargetWeight, setConfiguredTargetWeight] = useState(readTargetWeight);
+  const [targetWeightError, setTargetWeightError] = useState<string | null>(null);
 
   function updateTargetWeightInput(value: string) {
     setTargetWeightInput(value);
