@@ -3023,33 +3023,14 @@ main.referenceDashboard.secondaryDashboard > .siteHeader {
   box-shadow: 0 8px 22px rgb(42 95 56 / 5%);
 }
 
-.statCard::after {
-  position: absolute;
-  right: -14px;
-  bottom: -18px;
-  width: 74px;
-  height: 74px;
-  border-radius: 50%;
-  background: #e8f3e5;
-  content: "";
-}
-
 .statCard[data-stat="clean"] {
   border-color: #bfe0c2;
   background: linear-gradient(135deg, #f3fbf1, #fffefb);
 }
 
-.statCard[data-stat="clean"]::after {
-  background: #cfeacb;
-}
-
 .statCard[data-stat="free"] {
   border-color: #f0d8c7;
   background: linear-gradient(135deg, #fffaf5, #fffefb);
-}
-
-.statCard[data-stat="free"]::after {
-  background: #f7e1d1;
 }
 
 .statCard dt,
