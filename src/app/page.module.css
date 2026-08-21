@@ -7992,32 +7992,27 @@ main.referenceDashboard.referenceDashboard .weightCard .weightControl {
   display: none;
 }
 
-/* Meal type buttons use a filled, high-contrast selected state so a choice is clear at a glance. */
+/* Meal type buttons stay quiet; the selected state is shown through border and text color only. */
 main.referenceDashboard.referenceDashboard .mealChoices button {
   min-height: 44px;
-  border: 2px solid #c9d9c6;
+  border: 1px solid #c9d9c6;
   color: #52705a;
   font-weight: 800;
   transition:
-    background-color 150ms ease,
     border-color 150ms ease,
-    box-shadow 150ms ease,
     color 150ms ease;
 }
 
 main.referenceDashboard.referenceDashboard .mealChoices button.selectedChoice {
-  border-color: #1f7045;
-  background: #28784c;
-  box-shadow: 0 5px 0 #185b35, 0 9px 16px rgb(24 91 53 / 22%);
-  color: #fff;
-  font-weight: 900;
+  border-color: #2f7950;
+  background: #fffef9;
+  color: #23663f;
 }
 
 main.referenceDashboard.referenceDashboard .freeMealCard .mealChoices button.selectedChoice {
-  border-color: #c7593d;
-  background: #d96c4b;
-  box-shadow: 0 5px 0 #a94731, 0 9px 16px rgb(169 71 49 / 22%);
-  color: #fff;
+  border-color: #cb7351;
+  background: #fffef9;
+  color: #ad6544;
 }
 
 main.referenceDashboard.referenceDashboard .mealChoices button:focus-visible {
