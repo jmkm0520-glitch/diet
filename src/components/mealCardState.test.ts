@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { getMealCardState, getMealSaveInput } from "./mealCardState.ts";
+import { getMealCardState, getMealSaveInput, getMealTypeSuggestion } from "./mealCardState.ts";
 
 describe("getMealCardState", () => {
   it("uses the clean card state for clean meals", () => {
@@ -47,5 +47,19 @@ describe("getMealSaveInput", () => {
 
   it("falls back to the card default type when none is chosen", () => {
     assert.deepEqual(getMealSaveInput("샐러드", null, "clean"), { food: "샐러드", type: "clean" });
+  });
+});
+
+describe("getMealTypeSuggestion", () => {
+  it("does not offer a suggestion before food is entered", () => {
+    assert.equal(getMealTypeSuggestion("  "), null);
+  });
+
+  it("offers a clean-meal suggestion for a salmon poke", () => {
+    assert.equal(getMealTypeSuggestion("연어 포케"), "clean");
+  });
+
+  it("offers a free-meal suggestion without selecting it", () => {
+    assert.equal(getMealTypeSuggestion("치킨"), "free");
   });
 });

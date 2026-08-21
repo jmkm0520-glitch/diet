@@ -44,6 +44,8 @@ const meals: { meal: Meal; title: string; defaultFood: string; defaultType: Meal
   { meal: "snack", title: "간식", defaultFood: "", defaultType: "clean" },
 ];
 
+const targetWeightStorageKey = "diet-target-weight";
+
 export default function Home() {
   const todayDate = formatLocalDate();
   const [selectedDate, setSelectedDate] = useState(() => formatLocalDate());
@@ -55,6 +57,10 @@ export default function Home() {
   const [weightStatus, setWeightStatus] = useState("");
   const [isSavingWeight, setIsSavingWeight] = useState(false);
   const [isWeightLocked, setIsWeightLocked] = useState(false);
+  const [targetWeightInput, setTargetWeightInput] = useState("");
+  const [configuredTargetWeight, setConfiguredTargetWeight] = useState<number | null>(null);
+  const [targetWeightError, setTargetWeightError] = useState<string | null>(null);
+  const [targetWeightStatus, setTargetWeightStatus] = useState("");
   const [isResettingMeals, setIsResettingMeals] = useState(false);
   const [mealResetVersion, setMealResetVersion] = useState(0);
   const [mealResetError, setMealResetError] = useState<string | null>(null);
@@ -84,6 +90,20 @@ export default function Home() {
     const timeoutId = window.setTimeout(() => selectDate(urlDate), 0);
     return () => window.clearTimeout(timeoutId);
   }, [selectDate]);
+
+  useEffect(() => {
+    const savedTargetWeight = window.localStorage.getItem(targetWeightStorageKey);
+    if (!savedTargetWeight) return;
+
+    const parsed = Number(savedTargetWeight);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      const timeoutId = window.setTimeout(() => {
+        setTargetWeightInput(savedTargetWeight);
+        setConfiguredTargetWeight(parsed);
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
+    }
+  }, []);
 
   function updateWeightInput(value: string) {
     setWeightInput(value);
@@ -115,6 +135,11 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ date: selectedDate, weight: Number(weightInput) }),
       });
+      setDayRecord((current) => ({
+        ...(current ?? readLocalDay(selectedDate)),
+        date: selectedDate,
+        weight: { date: selectedDate, weight: Number(weightInput) },
+      }));
       setIsWeightLocked(true);
       setWeightStatus("체중이 저장되었습니다.");
     } catch (error) {
@@ -140,6 +165,36 @@ export default function Home() {
     setWeightError(null);
     setWeightSaveError(null);
     setWeightStatus("체중 수정 모드입니다.");
+  }
+
+  function updateTargetWeightInput(value: string) {
+    setTargetWeightInput(value);
+    setTargetWeightStatus("");
+    if (!value.trim()) {
+      setTargetWeightError(null);
+      return;
+    }
+
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      setTargetWeightError("0보다 큰 숫자를 입력해 주세요.");
+      return;
+    }
+
+    setTargetWeightError(null);
+  }
+
+  function saveTargetWeight() {
+    const targetWeight = Number(targetWeightInput);
+    if (!targetWeightInput.trim() || !Number.isFinite(targetWeight) || targetWeight <= 0) {
+      setTargetWeightError("0보다 큰 숫자를 입력해 주세요.");
+      return;
+    }
+
+    window.localStorage.setItem(targetWeightStorageKey, String(targetWeight));
+    setConfiguredTargetWeight(targetWeight);
+    setTargetWeightError(null);
+    setTargetWeightStatus("목표 체중이 설정되었습니다.");
   }
 
   async function saveMeal(meal: Meal, food: string, type: MealType) {
@@ -228,6 +283,10 @@ export default function Home() {
   );
   const cleanMealCount = savedMeals.filter((meal) => meal.type === "clean").length;
   const freeMealCount = savedMeals.filter((meal) => meal.type === "free").length;
+  const currentWeight = dayRecord?.weight?.weight ?? null;
+  const remainingWeight = currentWeight !== null && configuredTargetWeight !== null
+    ? Math.max(currentWeight - configuredTargetWeight, 0)
+    : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -375,6 +434,58 @@ export default function Home() {
           {dayLoadError}
         </p>
       ) : null}
+      <section className={styles.targetWeightCard} aria-labelledby="target-weight-title">
+        <div className={styles.targetWeightHeading}>
+          <p className={styles.eyebrow}>목표 체중</p>
+          <h2 id="target-weight-title">목표를 기록해 보세요</h2>
+          <p>목표 체중을 입력하면 남은 감량을 확인할 수 있어요.</p>
+        </div>
+        <div className={styles.targetWeightContent}>
+          <div className={styles.targetWeightInputGroup}>
+            <label htmlFor="target-weight">목표</label>
+            <div className={styles.targetWeightInputRow}>
+              <input
+                id="target-weight"
+                aria-describedby={targetWeightError ? "target-weight-error target-weight-status" : "target-weight-status"}
+                aria-invalid={Boolean(targetWeightError)}
+                inputMode="decimal"
+                min="0.01"
+                step="0.01"
+                type="text"
+                placeholder="50"
+                value={targetWeightInput}
+                onChange={(event) => updateTargetWeightInput(event.target.value)}
+              />
+              <span>kg</span>
+              <button type="button" onClick={saveTargetWeight}>
+                {configuredTargetWeight === null ? "설정" : "수정"}
+              </button>
+            </div>
+            {targetWeightError ? (
+              <p className={styles.targetWeightError} id="target-weight-error" role="alert">
+                {targetWeightError}
+              </p>
+            ) : null}
+            <p className={styles.srOnly} id="target-weight-status" role="status" aria-live="polite">
+              {targetWeightStatus}
+            </p>
+          </div>
+          <dl className={styles.targetWeightSummary}>
+            <div>
+              <dt>현재 체중</dt>
+              <dd>{currentWeight === null ? "-" : `${currentWeight}kg`}</dd>
+            </div>
+            <div>
+              <dt>목표</dt>
+              <dd>{configuredTargetWeight === null ? "-" : `${configuredTargetWeight}kg`}</dd>
+            </div>
+            <div className={styles.remainingWeight}>
+              <dt>남은 감량</dt>
+              <dd>{remainingWeight === null ? "-" : `${remainingWeight}kg`}</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
       <section
         className={styles.mealGrid}
         aria-busy={isLoadingDay || isResettingMeals}

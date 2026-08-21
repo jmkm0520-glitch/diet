@@ -19,6 +19,30 @@ export const EMPTY_FOOD_TYPE: MealType = "clean";
 
 export type MealSaveInput = { food: string; type: MealType };
 
+const FREE_MEAL_KEYWORDS = [
+  "피자",
+  "치킨",
+  "햄버거",
+  "라면",
+  "떡볶이",
+  "마라탕",
+  "케이크",
+  "아이스크림",
+  "도넛",
+  "맥주",
+  "소주",
+];
+
+/**
+ * Offer a lightweight record-keeping suggestion only. The user must still
+ * choose a meal type before saving, so this never classifies a meal by itself.
+ */
+export function getMealTypeSuggestion(foodInput: string): MealType | null {
+  const food = foodInput.trim();
+  if (!food) return null;
+  return FREE_MEAL_KEYWORDS.some((keyword) => food.includes(keyword)) ? "free" : "clean";
+}
+
 /** Fill an empty meal card in as a clean 공복 record instead of blocking the save. */
 export function getMealSaveInput(
   foodInput: string,
