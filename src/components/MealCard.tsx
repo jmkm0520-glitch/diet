@@ -13,6 +13,7 @@ export type MealCardProps = {
   record: MealRecord | null;
   isLoading: boolean;
   onSave: (meal: Meal, food: string, type: MealType) => Promise<void>;
+  onDelete: (meal: Meal) => Promise<void>;
 };
 
 export function MealCard({
@@ -23,6 +24,7 @@ export function MealCard({
   record,
   isLoading,
   onSave,
+  onDelete,
 }: MealCardProps) {
   const food = record?.food ?? defaultFood;
   const initialType = record?.type ?? (food.trim() ? defaultType : null);
@@ -65,6 +67,26 @@ export function MealCard({
   function selectMealType(nextType: MealType) {
     setType(nextType);
     startEditing();
+  }
+
+  async function deleteMeal() {
+    const confirmed = window.confirm(`${title} 식단 기록을 삭제할까요?`);
+    if (!confirmed) return;
+
+    setIsSaving(true);
+    setError(null);
+    setSaveStatus("");
+    try {
+      await onDelete(meal);
+      setFoodInput("");
+      setType(null);
+      setIsLocked(false);
+      setSaveStatus(`${title} 식단 기록을 삭제했습니다.`);
+    } catch {
+      setError("식단 기록을 삭제하지 못했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   const mealTypeChoices = (
@@ -152,15 +174,38 @@ export function MealCard({
               {mealTypeChoices}
             </section>
           ) : mealTypeChoices}
-          <button
-            aria-label={`${title} 식단 ${isLocked ? "수정" : "저장"}`}
-            className={`${styles.mealSaveButton} ${isLocked ? styles.mealSaveButtonEdit : ""}`}
-            disabled={isSaving}
-            type="button"
-            onClick={isLocked ? startEditing : saveMeal}
-          >
-            {isSaving ? "저장 중..." : isLocked ? "수정" : "저장"}
-          </button>
+          {isLocked ? (
+            <div className={styles.savedMealActions}>
+              <button
+                aria-label={`${title} 식단 수정`}
+                className={`${styles.mealSaveButton} ${styles.mealSaveButtonEdit}`}
+                disabled={isSaving}
+                type="button"
+                onClick={startEditing}
+              >
+                수정
+              </button>
+              <button
+                aria-label={`${title} 식단 삭제`}
+                className={styles.mealDeleteButton}
+                disabled={isSaving}
+                type="button"
+                onClick={deleteMeal}
+              >
+                삭제
+              </button>
+            </div>
+          ) : (
+            <button
+              aria-label={`${title} 식단 저장`}
+              className={styles.mealSaveButton}
+              disabled={isSaving}
+              type="button"
+              onClick={saveMeal}
+            >
+              {isSaving ? "저장 중..." : "저장"}
+            </button>
+          )}
         </div>
         {error && (
           <p className={styles.mealInputError} id={`food-error-${meal}`} role="alert">

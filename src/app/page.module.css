@@ -476,6 +476,36 @@ main.referenceDashboard.referenceDashboard .calendarSection .calendarState {
   cursor: wait;
   opacity: 0.65;
 }
+.savedMealActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.savedMealActions .mealSaveButton,
+.mealDeleteButton {
+  width: 100%;
+}
+.mealDeleteButton {
+  min-height: 36px;
+  border: 1px solid #e8bbb2;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #fff8f5;
+  color: var(--color-red-600);
+  font: inherit;
+  font-weight: 800;
+}
+.mealDeleteButton:hover:not(:disabled) {
+  border-color: var(--color-red-600);
+  background: #fff0ec;
+}
+.mealDeleteButton:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.mealDeleteButton:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
 .mealChoices .selectedChoice {
   border-color: #2f8f63;
   background: #e2f5ec;

@@ -17,6 +17,7 @@ import {
 import { ApiClientError, fetchApi } from "../services/apiClient";
 import type { DayRecord, Meal, MealRecord, MealType } from "../types/api";
 import {
+  clearLocalMeal,
   clearLocalMeals,
   readLocalDay,
   saveLocalMeal,
@@ -214,6 +215,24 @@ export default function Home() {
       ...(current ?? readLocalDay(selectedDate)),
       date: selectedDate,
       meals: { ...(current?.meals ?? readLocalDay(selectedDate).meals), [meal]: record },
+    }));
+  }
+
+  async function deleteMeal(meal: Meal) {
+    try {
+      await fetchApi<{ date: string; deleted: number }>(
+        `/api/meal?date=${selectedDate}&meal=${meal}`,
+        { method: "DELETE" },
+      );
+    } catch (error) {
+      if (!isApiNotFound(error)) throw error;
+    }
+
+    const clearedLocalDay = clearLocalMeal(selectedDate, meal);
+    setDayRecord((current) => ({
+      ...(current ?? clearedLocalDay),
+      date: selectedDate,
+      meals: { ...(current?.meals ?? clearedLocalDay.meals), [meal]: null },
     }));
   }
 
@@ -496,6 +515,7 @@ export default function Home() {
             key={`${selectedDate}-${meal.meal}-${isLoadingDay}-${mealResetVersion}`}
             {...meal}
             isLoading={isLoadingDay}
+            onDelete={deleteMeal}
             onSave={saveMeal}
             record={dayRecord?.meals[meal.meal] ?? null}
           />
