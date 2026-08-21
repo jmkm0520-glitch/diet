@@ -373,7 +373,10 @@ export default function Home() {
         >
           <div>
             <p className={styles.eyebrow}>오늘의 체중</p>
-            <h2 id="weight-title">오늘의 몸무게를 저장해 보세요</h2>
+            <h2 id="weight-title">
+              <span className={styles.desktopWeightTitle}>오늘의 몸무게를 저장해 보세요</span>
+              <span className={styles.mobileWeightTitle}>목표 몸무게</span>
+            </h2>
             <p className={styles.cardHint}>목표 체중은 메뉴에서 설정할 수 있어요.</p>
           </div>
           <div className={styles.weightControl}>

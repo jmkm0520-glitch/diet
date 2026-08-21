@@ -7988,6 +7988,10 @@ main.referenceDashboard.referenceDashboard .weightCard .weightControl {
   outline-offset: 3px;
 }
 
+.mobileWeightTitle {
+  display: none;
+}
+
 /* Meal type buttons use a filled, high-contrast selected state so a choice is clear at a glance. */
 main.referenceDashboard.referenceDashboard .mealChoices button {
   min-height: 44px;
@@ -8054,6 +8058,20 @@ main.referenceDashboard.referenceDashboard .freeMealCard .mealSaveButtonEdit:hov
     gap: 12px;
     grid-template-columns: 1fr;
     min-height: 230px;
+  }
+
+  main.referenceDashboard.referenceDashboard .weightCard > div:first-child {
+    text-align: center !important;
+  }
+
+  main.referenceDashboard.referenceDashboard .weightCard .eyebrow,
+  main.referenceDashboard.referenceDashboard .weightCard .desktopWeightTitle,
+  main.referenceDashboard.referenceDashboard .weightCard .cardHint {
+    display: none;
+  }
+
+  main.referenceDashboard.referenceDashboard .weightCard .mobileWeightTitle {
+    display: block;
   }
 
   main.referenceDashboard.referenceDashboard .weightCard .weightControl {
