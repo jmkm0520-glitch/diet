@@ -3255,9 +3255,9 @@ main.referenceDashboard.referenceDashboard .weightCard .inputError {
   line-height: 1.25;
 }
 
-@media (max-width: 640px) {
-  main.referenceDashboard.referenceDashboard .weightCard > div:first-child {
-    width: 100%;
-    text-align: left;
-  }
+main.referenceDashboard.referenceDashboard .weightCard > div:first-child,
+main.referenceDashboard.referenceDashboard .weightCard h2,
+main.referenceDashboard.referenceDashboard .weightCard .cardHint {
+  align-self: stretch;
+  text-align: left !important;
 }
