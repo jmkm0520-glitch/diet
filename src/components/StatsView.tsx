@@ -179,7 +179,7 @@ export function StatsView() {
               </figcaption>
               <svg
                 className={styles.weightChart}
-                viewBox="0 0 100 40"
+                viewBox="0 0 100 46"
                 preserveAspectRatio="none"
                 role="img"
                 aria-label={`최근 ${stats.range.days}일 체중 ${weightLine.points
@@ -189,7 +189,7 @@ export function StatsView() {
                 <polyline
                   className={styles.weightLine}
                   points={weightLine.points
-                    .map((point) => `${point.x * 100},${36 - point.y * 32}`)
+                    .map((point) => `${point.x * 100},${34 - point.y * 28}`)
                     .join(" ")}
                   vectorEffect="non-scaling-stroke"
                 />
@@ -197,10 +197,21 @@ export function StatsView() {
                   <circle
                     className={styles.weightDot}
                     cx={point.x * 100}
-                    cy={36 - point.y * 32}
+                    cy={34 - point.y * 28}
                     key={point.date}
                     r="1.4"
                   />
+                ))}
+                {weightLine.points.map((point) => (
+                  <text
+                    className={styles.weightDateLabel}
+                    x={point.x * 100}
+                    y="44"
+                    key={`${point.date}-label`}
+                    textAnchor={point.x === 0 ? "start" : point.x === 1 ? "end" : "middle"}
+                  >
+                    {point.dateLabel}
+                  </text>
                 ))}
               </svg>
               <p className={styles.weightChartHint}>

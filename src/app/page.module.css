@@ -2950,3 +2950,10 @@ main.referenceDashboard.secondaryDashboard {
 main.referenceDashboard.secondaryDashboard > .siteHeader {
   top: 0;
 }
+
+/* Keep the recorded day visible beneath every point in the weight trend. */
+.weightDateLabel {
+  fill: #66816c;
+  font-size: 3.6px;
+  font-weight: 700;
+}
