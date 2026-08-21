@@ -129,8 +129,8 @@ HIGH로 분류한 3건을 개선 대상으로 확정했습니다.
 }
 ```
 
-화면은 집계 카드 4개, 도넛 차트(클린/자유 비율), 날짜별 누적 막대, 체중 꺾은선, 그리고 주간 요약을
-보여줍니다.
+화면은 총 기록·클린식·자유식 **3개** 집계 카드, 클린식 비율을 직접 표시한 도넛 차트, 날짜별 누적 막대,
+기준선·영역 채움·날짜 레이블을 갖춘 체중 꺾은선, 그리고 주간 요약을 보여줍니다.
 
 **설계에서 정한 것**
 
@@ -369,5 +369,6 @@ Supabase Dashboard의 Confirm signup 이메일 템플릿에 `{{ .Token }}`을 �
 - [`docs/manual-test-checklist.md`](./docs/manual-test-checklist.md) — 수동 테스트 절차
 - [`docs/PORTFOLIO_CAPTURE_PLAN.md`](./docs/PORTFOLIO_CAPTURE_PLAN.md) — Before/After·반응형 촬영 목록
 - [`docs/UI_UX_DESIGN_SPEC.md`](./docs/UI_UX_DESIGN_SPEC.md) — 구현 기준 UI/UX 상태·디자인 시스템 명세
+- [`docs/PORTFOLIO_READINESS.md`](./docs/PORTFOLIO_READINESS.md) — 제출 전 완료 항목·남은 증거 점검
 - [`docs/SECURITY_AND_RECOVERY.md`](./docs/SECURITY_AND_RECOVERY.md) — 보안·백업·복구
 - [`docs/learning/`](./docs/learning/) — 코드 학습 자료

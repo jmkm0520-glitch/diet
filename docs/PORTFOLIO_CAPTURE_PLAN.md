@@ -15,7 +15,7 @@
 
 | 파일명 | 화면·데이터 조건 | 증명할 내용 | 연결할 문서 |
 | --- | --- | --- | --- |
-| `after-01-stats.png` | 데스크톱 통계 탭, 최근 7일 기록 존재 | 집계 카드·도넛·막대·체중 차트 | README Before/After 1, `portfolio.md` 8장 |
+| `after-01-stats.png` | 데스크톱 통계 탭, 최근 7일 기록 존재 | 3개 집계 카드·도넛·막대·날짜/기준선/영역이 보이는 체중 차트 | README Before/After 1, `portfolio.md` 8장 |
 | `after-02-calendar.png` | Before 캘린더와 같은 월 | 월별 기록·날짜별 상태 확인 | `portfolio.md` Flow 3 |
 | `after-03-calendar-detail.png` | 기록 있는 날짜 상세 | 4끼 음식명·클린/자유 라벨·Empty State | `portfolio.md` Flow 3 |
 | `after-04-signup.png` | 회원가입 화면 | `첫 회원 만들기` 대신 `회원가입` 문구 | README Before/After 4 |
@@ -24,6 +24,7 @@
 | `after-07-goal-weight.png` | 현재 55kg, 목표 50.2kg | 목표 설정·`수정` 버튼·남은 감량 `4.8kg` | `RECENT_FEATURES.md` |
 | `after-08-meal-assist.png` | `연어 포케`, `햄버거`, `공복` 각각 | 키워드 기반 제안과 사용자의 최종 선택 | `RECENT_FEATURES.md` |
 | `after-09-mobile-today.png` | 390px 오늘 기록, 저장된 식사 | 목표 카드·입력창·수정/삭제 버튼이 잘리지 않음 | `manual-test-checklist.md` Test 12 |
+| `after-10-weight-error.png` | 체중 값이 유효하지 않은 오늘 기록 | 오류 문구가 보여도 체중 입력 행·저장 버튼의 위치가 유지됨 | `manual-test-checklist.md` Test 12 |
 
 ## Before / After 짝
 
