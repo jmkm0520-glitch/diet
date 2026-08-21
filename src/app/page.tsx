@@ -28,16 +28,6 @@ function isApiNotFound(error: unknown): boolean {
   return error instanceof ApiClientError && error.status === 404;
 }
 
-function CalendarIcon() {
-  return (
-    <svg aria-hidden="true" className={styles.calendarIcon} viewBox="0 0 24 24">
-      <rect x="3.5" y="5" width="17" height="15.5" rx="3" />
-      <path d="M7.5 3.5v4M16.5 3.5v4M3.5 10h17" />
-      <path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01" />
-    </svg>
-  );
-}
-
 const meals: { meal: Meal; title: string; defaultFood: string; defaultType: MealType }[] = [
   { meal: "breakfast", title: "아침", defaultFood: "", defaultType: "clean" },
   { meal: "lunch", title: "점심", defaultFood: "", defaultType: "clean" },
@@ -293,6 +283,17 @@ export default function Home() {
     day: "numeric",
     weekday: "long",
   }).format(new Date(`${selectedDate}T12:00:00`));
+  const formatCompactDate = (value: string) => {
+    const [, month, day] = value.split("-");
+    return `${Number(month)}.${Number(day)}`;
+  };
+  const adjacentDate = (days: number) => {
+    const date = new Date(`${selectedDate}T12:00:00`);
+    date.setDate(date.getDate() + days);
+    return formatLocalDate(date);
+  };
+  const previousDate = adjacentDate(-1);
+  const nextDate = adjacentDate(1);
   const isViewingToday = selectedDate === todayDate;
   const hasSavedMeals = Boolean(
     dayRecord && Object.values(dayRecord.meals).some((meal) => meal !== null),
@@ -363,42 +364,46 @@ export default function Home() {
       <div className={styles.dashboard}>
       <section className={styles.header}>
         <p>오늘의 기록</p>
-        <h1>{dateTitle}</h1>
-        <div className={styles.dateNavigationRow}>
-          <span>날짜를 선택하거나 이전 기록을 확인해 보세요.</span>
-          <div className={styles.dateControls} aria-label="날짜 이동">
-            <button type="button" aria-label="하루 전 기록" onClick={() => shiftDate(-1)}>
-              ‹
-            </button>
-            <label className={styles.datePicker}>
-              <CalendarIcon />
-              <span className={styles.srOnly}>날짜 선택</span>
-              <input
-                aria-label="기록 날짜 선택"
-                max={todayDate}
-                type="date"
-                value={selectedDate}
-                onChange={(event) => selectDate(event.target.value)}
-                onClick={(event) => {
-                  const input = event.currentTarget;
-                  if (typeof input.showPicker !== "function") return;
-                  try {
-                    input.showPicker();
-                  } catch {
-                    // 브라우저가 달력 열기를 거부하면 포커스만 준 기본 동작을 남긴다.
-                  }
-                }}
-              />
-            </label>
-            <button
-              type="button"
-              aria-label="다음 날 기록"
-              disabled={isViewingToday}
-              onClick={() => shiftDate(1)}
-            >
-              ›
-            </button>
-          </div>
+        <h1 className={styles.srOnly}>{dateTitle}</h1>
+        <div className={styles.dateNavigationRow} aria-label="날짜 이동">
+          <button
+            className={styles.dateNeighbor}
+            type="button"
+            aria-label={`${formatCompactDate(previousDate)} 기록 보기`}
+            onClick={() => shiftDate(-1)}
+          >
+            {formatCompactDate(previousDate)}
+          </button>
+          <label className={`${styles.datePicker} ${styles.currentDate}`}>
+            <span>{formatCompactDate(selectedDate)}</span>
+            {isViewingToday ? <strong>오늘</strong> : null}
+            <span className={styles.srOnly}>날짜 선택</span>
+            <input
+              aria-label="기록 날짜 선택"
+              max={todayDate}
+              type="date"
+              value={selectedDate}
+              onChange={(event) => selectDate(event.target.value)}
+              onClick={(event) => {
+                const input = event.currentTarget;
+                if (typeof input.showPicker !== "function") return;
+                try {
+                  input.showPicker();
+                } catch {
+                  // 브라우저가 달력 열기를 거부하면 포커스만 준 기본 동작을 남긴다.
+                }
+              }}
+            />
+          </label>
+          <button
+            className={styles.dateNeighbor}
+            type="button"
+            aria-label={`${formatCompactDate(nextDate)} 기록 보기`}
+            disabled={isViewingToday}
+            onClick={() => shiftDate(1)}
+          >
+            {formatCompactDate(nextDate)}
+          </button>
         </div>
       </section>
       <section
