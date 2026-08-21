@@ -188,7 +188,7 @@ export function StatsView() {
               </figcaption>
               <svg
                 className={styles.weightChart}
-                viewBox="0 0 100 54"
+                viewBox="0 0 100 66"
                 preserveAspectRatio="none"
                 role="img"
                 aria-label={`최근 ${stats.range.days}일 체중 ${weightLine.points
@@ -201,7 +201,7 @@ export function StatsView() {
                     <stop offset="100%" stopColor="#78b98b" stopOpacity="0.02" />
                   </linearGradient>
                 </defs>
-                {[12, 26, 40].map((y) => (
+                {[20, 32, 44].map((y) => (
                   <line
                     className={styles.weightGridline}
                     key={y}
@@ -214,17 +214,17 @@ export function StatsView() {
                 <polygon
                   className={styles.weightArea}
                   points={[
-                    `${weightLine.points[0].x * 100},40`,
+                    `${weightLine.points[0].x * 100},46`,
                     ...weightLine.points.map(
-                      (point) => `${point.x * 100},${40 - point.y * 28}`,
+                      (point) => `${point.x * 100},${46 - point.y * 27}`,
                     ),
-                    `${weightLine.points.at(-1)!.x * 100},40`,
+                    `${weightLine.points.at(-1)!.x * 100},46`,
                   ].join(" ")}
                 />
                 <polyline
                   className={styles.weightLine}
                   points={weightLine.points
-                    .map((point) => `${point.x * 100},${40 - point.y * 28}`)
+                    .map((point) => `${point.x * 100},${46 - point.y * 27}`)
                     .join(" ")}
                   vectorEffect="non-scaling-stroke"
                 />
@@ -232,18 +232,18 @@ export function StatsView() {
                   <circle
                     className={styles.weightDot}
                     cx={point.x * 100}
-                    cy={40 - point.y * 28}
+                    cy={46 - point.y * 27}
                     key={point.date}
                     r="1.4"
                   />
                 ))}
                 {weightLine.points.map((point) => {
-                  const y = 40 - point.y * 28;
+                  const y = 46 - point.y * 27;
                   return (
                     <text
                       className={styles.weightValueLabel}
                       x={point.x * 100}
-                      y={Math.max(6, y - 4)}
+                      y={Math.max(9, y - 7.5)}
                       key={`${point.date}-weight`}
                       textAnchor={point.x === 0 ? "start" : point.x === 1 ? "end" : "middle"}
                     >
@@ -255,7 +255,7 @@ export function StatsView() {
                   <text
                     className={styles.weightDateLabel}
                     x={point.x * 100}
-                    y="52"
+                    y="61"
                     key={`${point.date}-label`}
                     textAnchor={point.x === 0 ? "start" : point.x === 1 ? "end" : "middle"}
                   >
