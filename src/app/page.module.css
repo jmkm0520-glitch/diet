@@ -3202,3 +3202,13 @@ main.referenceDashboard.secondaryDashboard > .siteHeader {
   .weightChart { height: 128px; }
   .summaryCard { padding: 19px 17px; }
 }
+
+/* Give the weight prompt enough breathing room for its helper message. */
+main.referenceDashboard.referenceDashboard .weightCard {
+  min-height: 92px;
+  padding-block: 17px;
+}
+
+main.referenceDashboard.referenceDashboard .weightCard .cardHint {
+  font-size: .56rem;
+}
