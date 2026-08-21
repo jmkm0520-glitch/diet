@@ -8072,4 +8072,20 @@ main.referenceDashboard.referenceDashboard .freeMealCard .mealSaveButtonEdit:hov
   main.referenceDashboard.referenceDashboard .weightCard .weightControl {
     justify-self: stretch;
   }
+
+  main.referenceDashboard.referenceDashboard .weightCard .weightInputRow {
+    min-height: 52px;
+  }
+
+  main.referenceDashboard.referenceDashboard .weightCard .weightInputRow input {
+    min-height: 52px;
+    width: min(100%, 180px);
+    padding: 10px 14px;
+    font-size: 1.2rem;
+  }
+
+  main.referenceDashboard.referenceDashboard .weightCard .weightInputRow button {
+    min-height: 52px;
+    padding-inline: 14px;
+  }
 }
