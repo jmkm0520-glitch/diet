@@ -28,6 +28,7 @@ export type MealSaveInput = { food: string; type: MealType };
 export function getMealTypeSuggestion(foodInput: string): MealType | null {
   const food = foodInput.trim();
   if (!food) return null;
+  if (food === EMPTY_FOOD) return EMPTY_FOOD_TYPE;
   if (FREE_MEAL_OVERRIDE_KEYWORDS.some((keyword) => food.includes(keyword))) return "free";
   return CLEAN_MEAL_KEYWORDS.some((keyword) => food.includes(keyword)) ? "clean" : "free";
 }
