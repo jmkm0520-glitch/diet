@@ -1,4 +1,5 @@
 import type { MealType } from "../types/api";
+import { CLEAN_MEAL_KEYWORDS, FREE_MEAL_OVERRIDE_KEYWORDS } from "./mealKeywords";
 
 export type MealCardState = {
   isFree: boolean;
@@ -19,28 +20,16 @@ export const EMPTY_FOOD_TYPE: MealType = "clean";
 
 export type MealSaveInput = { food: string; type: MealType };
 
-const FREE_MEAL_KEYWORDS = [
-  "피자",
-  "치킨",
-  "햄버거",
-  "라면",
-  "떡볶이",
-  "마라탕",
-  "케이크",
-  "아이스크림",
-  "도넛",
-  "맥주",
-  "소주",
-];
-
 /**
- * Offer a lightweight record-keeping suggestion only. The user must still
- * choose a meal type before saving, so this never classifies a meal by itself.
+ * Offer a conservative keyword-based suggestion only. A food is clean only
+ * when it matches the explicit allowlist; every other food is suggested as
+ * free. The user must still choose before saving.
  */
 export function getMealTypeSuggestion(foodInput: string): MealType | null {
   const food = foodInput.trim();
   if (!food) return null;
-  return FREE_MEAL_KEYWORDS.some((keyword) => food.includes(keyword)) ? "free" : "clean";
+  if (FREE_MEAL_OVERRIDE_KEYWORDS.some((keyword) => food.includes(keyword))) return "free";
+  return CLEAN_MEAL_KEYWORDS.some((keyword) => food.includes(keyword)) ? "clean" : "free";
 }
 
 /** Fill an empty meal card in as a clean 공복 record instead of blocking the save. */

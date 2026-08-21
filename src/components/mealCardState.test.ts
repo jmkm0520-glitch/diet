@@ -55,8 +55,16 @@ describe("getMealTypeSuggestion", () => {
     assert.equal(getMealTypeSuggestion("  "), null);
   });
 
-  it("offers a clean-meal suggestion for a salmon poke", () => {
+  it("offers a clean-meal suggestion for a salmon poke on the allowlist", () => {
     assert.equal(getMealTypeSuggestion("연어 포케"), "clean");
+  });
+
+  it("offers a free-meal suggestion for food outside the clean allowlist", () => {
+    assert.equal(getMealTypeSuggestion("김치찌개"), "free");
+  });
+
+  it("prioritizes free-meal terms over a clean keyword", () => {
+    assert.equal(getMealTypeSuggestion("연어 크림 파스타"), "free");
   });
 
   it("offers a free-meal suggestion without selecting it", () => {
