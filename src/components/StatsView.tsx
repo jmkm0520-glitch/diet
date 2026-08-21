@@ -27,6 +27,18 @@ function formatRange(range: DietStats["range"]): string {
   return `${label(range.start)} ~ ${label(range.end)}`;
 }
 
+function StatsHeading({ range }: { range?: DietStats["range"] }) {
+  return (
+    <header className={styles.statsHeader}>
+      <div>
+        <p className={styles.statsEyebrow}>최근 7일 리포트</p>
+        <h1 id="stats-title">식단 통계</h1>
+      </div>
+      {range ? <p className={styles.statsRange}>{formatRange(range)}</p> : null}
+    </header>
+  );
+}
+
 export function StatsView() {
   const [state, setState] = useState<LoadState>({ status: "loading" });
 
@@ -48,8 +60,7 @@ export function StatsView() {
   if (state.status === "loading") {
     return (
       <section className={styles.statsSection} aria-busy="true" aria-labelledby="stats-title">
-        <p className={styles.statsEyebrow}>최근 7일</p>
-        <h1 id="stats-title">식단 통계</h1>
+        <StatsHeading />
         <p className={styles.statsMessage} role="status" aria-live="polite">
           통계를 불러오고 있습니다...
         </p>
@@ -60,8 +71,7 @@ export function StatsView() {
   if (state.status === "failed") {
     return (
       <section className={styles.statsSection} aria-labelledby="stats-title">
-        <p className={styles.statsEyebrow}>최근 7일</p>
-        <h1 id="stats-title">식단 통계</h1>
+        <StatsHeading />
         <p className={styles.statsError} role="alert">
           식단 기록을 불러오지 못했습니다.
           <br />
@@ -81,9 +91,7 @@ export function StatsView() {
 
   return (
     <section className={styles.statsSection} aria-labelledby="stats-title">
-      <p className={styles.statsEyebrow}>최근 7일</p>
-      <h1 id="stats-title">식단 통계</h1>
-      <p className={styles.statsRange}>{formatRange(stats.range)}</p>
+      <StatsHeading range={stats.range} />
 
       {stats.total === 0 ? (
         <p className={styles.statsMessage}>
@@ -98,6 +106,7 @@ export function StatsView() {
               <div
                 className={`${styles.statCard} ${card.key === "free" ? styles.freeStatCard : ""}`}
                 key={card.key}
+                data-stat={card.key}
               >
                 <dt>{card.label}</dt>
                 <dd>{card.value}</dd>
