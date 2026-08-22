@@ -399,7 +399,7 @@ export default function Home() {
               aria-expanded={isWeightEditorOpen}
               aria-haspopup="dialog"
               aria-label={`오늘의 체중 ${currentWeight === null ? "입력" : `${currentWeight}kg 수정`}`}
-              className={styles.weightDisplay}
+              className={`${styles.weightDisplay}${currentWeight === null ? ` ${styles.weightRecordButton}` : ""}`}
               type="button"
               onClick={openWeightEditor}
             >

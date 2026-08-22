@@ -7975,6 +7975,19 @@ main.referenceDashboard.referenceDashboard .weightCard .weightControl {
   transform: scale(0.98);
 }
 
+.weightRecordButton {
+  min-height: 52px;
+  border: 1px solid rgb(255 255 255 / 78%);
+  border-radius: 999px;
+  background: #fff;
+  color: #2f7950;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  padding: 0 24px;
+  text-align: center;
+}
+
 .weightEditorToast {
   position: fixed;
   z-index: 30;
