@@ -472,11 +472,11 @@ export default function Home() {
             <div>
               <dt>남은 감량</dt>
               <dd>
-                {remainingWeight === null
-                  ? configuredTargetWeight === null
+                {currentWeight === null
+                  ? "-"
+                  : remainingWeight === null
                     ? "목표 체중을 설정해 주세요"
-                    : "오늘 체중을 저장해 주세요"
-                  : `${remainingWeight}kg`}
+                    : `${remainingWeight}kg`}
               </dd>
             </div>
           </dl>
