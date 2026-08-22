@@ -7989,11 +7989,12 @@ main.referenceDashboard.referenceDashboard .weightCard .weightControl {
 }
 
 .weightEditorToast {
-  position: fixed;
+  position: absolute;
   z-index: 30;
-  right: auto;
-  bottom: max(16px, calc(12px + env(safe-area-inset-bottom)));
-  left: 50%;
+  top: calc(100% + 12px);
+  right: 0;
+  bottom: auto;
+  left: auto;
   width: min(320px, calc(100vw - 48px));
   border: 1px solid #d6e8d6;
   border-radius: 18px;
@@ -8001,8 +8002,20 @@ main.referenceDashboard.referenceDashboard .weightCard .weightControl {
   box-shadow: 0 14px 30px rgb(28 71 45 / 25%);
   color: #264b34;
   padding: 16px;
-  animation: weight-editor-toast-in 180ms ease-out forwards;
-  transform: translate(-50%, 16px);
+  animation: weight-editor-pop-in 160ms ease-out forwards;
+  transform: translateY(-6px);
+}
+
+@keyframes weight-editor-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes weight-editor-toast-in {
@@ -8252,6 +8265,16 @@ main.referenceDashboard.referenceDashboard .freeMealCard .mealSaveButtonEdit:hov
     text-align: center;
   }
 
+  .weightEditorToast {
+    position: fixed;
+    top: auto;
+    right: auto;
+    bottom: max(16px, calc(12px + env(safe-area-inset-bottom)));
+    left: 50%;
+    animation: weight-editor-toast-in 180ms ease-out forwards;
+    transform: translate(-50%, 16px);
+  }
+
   .weightEditorActions button {
     min-height: 44px;
   }
@@ -8264,6 +8287,12 @@ main.referenceDashboard.referenceDashboard .freeMealCard .mealSaveButtonEdit:hov
 
   .weightEditorToast {
     animation: none;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .weightEditorToast {
     transform: translate(-50%, 0);
   }
 }

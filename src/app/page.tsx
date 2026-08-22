@@ -403,7 +403,7 @@ export default function Home() {
               type="button"
               onClick={openWeightEditor}
             >
-              {currentWeight === null ? "기록하기" : <>{currentWeight}<span>kg</span></>}
+              {currentWeight === null ? "기록하기" : <>{currentWeight}{" "}<span>kg</span></>}
             </button>
             {isWeightEditorOpen ? (
               <form
