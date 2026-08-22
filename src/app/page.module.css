@@ -7950,8 +7950,8 @@ main.referenceDashboard.referenceDashboard .weightCard .weightControl {
   color: #fff;
   cursor: pointer;
   font: inherit;
-  font-size: clamp(2.15rem, 4vw, 3.45rem);
-  font-weight: 900;
+  font-size: clamp(1.9rem, 3.5vw, 2.9rem);
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.07em;
   line-height: 1;
