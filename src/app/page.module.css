@@ -7975,6 +7975,19 @@ main.referenceDashboard.referenceDashboard .weightCard .weightControl {
   transform: scale(0.98);
 }
 
+.weightRecordButton {
+  min-width: 104px;
+  min-height: 44px;
+  border: 1px solid rgb(255 255 255 / 78%);
+  border-radius: 999px;
+  background: #fff;
+  color: #2f7950;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  padding: 11px 18px;
+}
+
 .weightEditorToast {
   position: fixed;
   z-index: 30;
@@ -8124,6 +8137,12 @@ main.referenceDashboard.referenceDashboard .weightCard .weightControl {
   font-weight: 800;
   letter-spacing: -0.03em;
   margin: 4px 0 0;
+}
+
+.remainingWeightPrompt {
+  font-size: 0.68rem !important;
+  letter-spacing: -0.05em !important;
+  white-space: nowrap;
 }
 
 .targetWeightQuickLink {

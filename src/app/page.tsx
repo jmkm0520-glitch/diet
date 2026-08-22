@@ -282,6 +282,7 @@ export default function Home() {
     currentWeight !== null && configuredTargetWeight !== null
       ? Math.round((Math.max(currentWeight - configuredTargetWeight, 0) + Number.EPSILON) * 10) / 10
       : null;
+  const needsTodayWeight = currentWeight === null && configuredTargetWeight !== null;
 
   useEffect(() => {
     let cancelled = false;
@@ -399,11 +400,11 @@ export default function Home() {
               aria-expanded={isWeightEditorOpen}
               aria-haspopup="dialog"
               aria-label={`오늘의 체중 ${currentWeight === null ? "입력" : `${currentWeight}kg 수정`}`}
-              className={styles.weightDisplay}
+              className={`${styles.weightDisplay}${currentWeight === null ? ` ${styles.weightRecordButton}` : ""}`}
               type="button"
               onClick={openWeightEditor}
             >
-              {currentWeight === null ? <>--.-<span>kg</span></> : <>{currentWeight}<span>kg</span></>}
+              {currentWeight === null ? "기록하기" : <>{currentWeight}<span>kg</span></>}
             </button>
             {isWeightEditorOpen ? (
               <form
@@ -458,7 +459,7 @@ export default function Home() {
           <dl className={styles.weightProgress}>
             <div>
               <dt>목표 체중</dt>
-              <dd>
+              <dd className={needsTodayWeight ? styles.remainingWeightPrompt : undefined}>
                 <button
                   aria-label="목표 몸무게 설정 열기"
                   className={styles.targetWeightQuickLink}
