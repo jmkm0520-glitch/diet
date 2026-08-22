@@ -535,17 +535,6 @@ export default function Home() {
               : "이 날짜에는 기록된 식단이 없습니다."}
           </p>
         ) : null}
-        {!isViewingToday ? (
-          <div className={styles.todayFooter}>
-            <button
-              aria-label="오늘 날짜로 돌아가기"
-              type="button"
-              onClick={() => selectDate(todayDate)}
-            >
-              오늘로 돌아가기 <span aria-hidden="true">›</span>
-            </button>
-          </div>
-        ) : null}
         <div className={styles.mealResetRow}>
           {mealResetError ? (
             <p aria-live="polite" className={styles.mealResetError}>
@@ -566,6 +555,17 @@ export default function Home() {
             </p>
           ) : null}
         </div>
+        {!isViewingToday ? (
+          <div className={styles.todayFooter}>
+            <button
+              aria-label="오늘 날짜로 돌아가기"
+              type="button"
+              onClick={() => selectDate(todayDate)}
+            >
+              오늘로 돌아가기 <span aria-hidden="true">›</span>
+            </button>
+          </div>
+        ) : null}
       </div>
     </main>
   );

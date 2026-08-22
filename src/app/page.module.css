@@ -8238,3 +8238,31 @@ main.referenceDashboard.referenceDashboard .freeMealCard .mealSaveButtonEdit:hov
     transition: none;
   }
 }
+
+/* Keep the return action as the final scrollable element on the daily record view. */
+main.referenceDashboard.referenceDashboard .dashboard > .todayFooter {
+  position: static;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding: 0 0 20px;
+  pointer-events: auto;
+}
+
+main.referenceDashboard.referenceDashboard .dashboard > .mealResetRow {
+  padding-bottom: 14px;
+}
+
+/* Calendar uses the same scroll boundary: the return action ends the page. */
+main.referenceDashboard.referenceDashboard .calendarSection {
+  padding-bottom: 20px;
+}
+
+main.referenceDashboard.referenceDashboard .calendarSection .todayFooter {
+  position: static;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding: 0 0 20px;
+  pointer-events: auto;
+}
