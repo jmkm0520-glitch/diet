@@ -7936,6 +7936,149 @@ main.referenceDashboard.referenceDashboard .weightCard > div:first-child {
 main.referenceDashboard.referenceDashboard .weightCard .weightControl {
   align-self: center;
   margin-left: 0;
+  min-width: 0;
+  min-height: 0;
+  padding-top: 0;
+  position: relative;
+}
+
+/* The saved weight is the primary action; editing stays tucked into a compact popover. */
+.weightDisplay {
+  min-width: 156px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: clamp(2.15rem, 4vw, 3.45rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.07em;
+  line-height: 1;
+  padding: 8px 0;
+  text-align: right;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.weightDisplay span {
+  font-size: 0.5em;
+  letter-spacing: -0.04em;
+  margin-left: 4px;
+}
+
+.weightDisplay:hover,
+.weightDisplay:focus-visible {
+  opacity: 0.82;
+}
+
+.weightDisplay:active {
+  transform: scale(0.98);
+}
+
+.weightEditorToast {
+  position: absolute;
+  z-index: 15;
+  top: calc(100% + 12px);
+  right: 0;
+  width: min(320px, calc(100vw - 48px));
+  border: 1px solid #d6e8d6;
+  border-radius: 18px;
+  background: #fffef9;
+  box-shadow: 0 14px 30px rgb(28 71 45 / 25%);
+  color: #264b34;
+  padding: 16px;
+}
+
+.weightEditorToast > p:first-child {
+  margin: 0 0 12px;
+  color: #1f5e3c;
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.weightEditorToast label {
+  display: block;
+  margin-bottom: 6px;
+  color: #496653;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.weightEditorInputRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.weightEditorInputRow input {
+  min-width: 0;
+  flex: 1;
+  min-height: 44px;
+  border: 1px solid #b8cfba;
+  border-radius: 10px;
+  background: #fff;
+  padding: 8px 10px;
+  color: #1f3526;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.weightEditorInputRow span {
+  color: #496653;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.weightEditorToast .inputError {
+  min-height: 0;
+  margin: 7px 0 0;
+  color: #b54d3d;
+  font-size: 0.72rem;
+}
+
+.weightEditorActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.weightEditorActions button {
+  min-height: 40px;
+  border: 1px solid #b8cfba;
+  border-radius: 10px;
+  background: #fff;
+  padding: 8px 13px;
+  color: #315d40;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.weightEditorActions button[type="submit"] {
+  border-color: #2f7950;
+  background: #2f7950;
+  color: #fff;
+}
+
+.weightEditorActions button:hover:not(:disabled),
+.weightEditorActions button:focus-visible:not(:disabled) {
+  background: #edf6ed;
+}
+
+.weightEditorActions button[type="submit"]:hover:not(:disabled),
+.weightEditorActions button[type="submit"]:focus-visible:not(:disabled) {
+  background: #1f6740;
+}
+
+.weightEditorActions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
 }
 
 .weightProgress {
@@ -8073,19 +8216,25 @@ main.referenceDashboard.referenceDashboard .freeMealCard .mealSaveButtonEdit:hov
     justify-self: stretch;
   }
 
-  main.referenceDashboard.referenceDashboard .weightCard .weightInputRow {
+  .weightDisplay {
+    display: block;
+    margin: 0 auto;
     min-height: 52px;
+    text-align: center;
   }
 
-  main.referenceDashboard.referenceDashboard .weightCard .weightInputRow input {
-    min-height: 52px;
-    width: min(100%, 180px);
-    padding: 10px 14px;
-    font-size: 1.2rem;
+  .weightEditorToast {
+    right: 50%;
+    transform: translateX(50%);
   }
 
-  main.referenceDashboard.referenceDashboard .weightCard .weightInputRow button {
-    min-height: 52px;
-    padding-inline: 14px;
+  .weightEditorActions button {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weightDisplay {
+    transition: none;
   }
 }

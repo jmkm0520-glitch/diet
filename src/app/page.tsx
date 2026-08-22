@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./page.module.css";
 import Link from "next/link";
 import Image from "next/image";
@@ -50,13 +50,14 @@ export default function Home() {
   const [weightSaveError, setWeightSaveError] = useState<string | null>(null);
   const [weightStatus, setWeightStatus] = useState("");
   const [isSavingWeight, setIsSavingWeight] = useState(false);
-  const [isWeightLocked, setIsWeightLocked] = useState(false);
+  const [isWeightEditorOpen, setIsWeightEditorOpen] = useState(false);
   const [configuredTargetWeight, setConfiguredTargetWeight] = useState<number | null>(null);
   const [isResettingMeals, setIsResettingMeals] = useState(false);
   const [mealResetVersion, setMealResetVersion] = useState(0);
   const [mealResetError, setMealResetError] = useState<string | null>(null);
   const [dayLoadError, setDayLoadError] = useState<string | null>(null);
   const [mealResetStatus, setMealResetStatus] = useState("");
+  const weightInputRef = useRef<HTMLInputElement>(null);
 
   const selectDate = useCallback(
     (nextDate: string) => {
@@ -66,7 +67,7 @@ export default function Home() {
       writeDateToUrl(safeDate);
       setDayRecord(null);
       setIsLoadingDay(true);
-      setIsWeightLocked(false);
+      setIsWeightEditorOpen(false);
       setWeightSaveError(null);
       setWeightStatus("");
       setMealResetError(null);
@@ -88,6 +89,12 @@ export default function Home() {
     window.addEventListener(TARGET_WEIGHT_UPDATED_EVENT, syncTargetWeight);
     return () => window.removeEventListener(TARGET_WEIGHT_UPDATED_EVENT, syncTargetWeight);
   }, []);
+
+  useEffect(() => {
+    if (!isWeightEditorOpen) return;
+    const timeoutId = window.setTimeout(() => weightInputRef.current?.focus(), 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [isWeightEditorOpen]);
 
   function updateWeightInput(value: string) {
     setWeightInput(value);
@@ -124,8 +131,8 @@ export default function Home() {
         date: selectedDate,
         weight: { date: selectedDate, weight: Number(weightInput) },
       }));
-      setIsWeightLocked(true);
       setWeightStatus("체중이 저장되었습니다.");
+      setIsWeightEditorOpen(false);
     } catch (error) {
       if (isApiNotFound(error)) {
         const record = saveLocalWeight(selectedDate, Number(weightInput));
@@ -134,8 +141,8 @@ export default function Home() {
           date: selectedDate,
           weight: record,
         }));
-        setIsWeightLocked(true);
         setWeightStatus("체중이 저장되었습니다.");
+        setIsWeightEditorOpen(false);
       } else {
         setWeightSaveError("체중 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
       }
@@ -144,11 +151,19 @@ export default function Home() {
     }
   }
 
-  function unlockWeightInput() {
-    setIsWeightLocked(false);
+  function openWeightEditor() {
+    setWeightInput(currentWeight === null ? "" : String(currentWeight));
     setWeightError(null);
     setWeightSaveError(null);
-    setWeightStatus("체중 수정 모드입니다.");
+    setWeightStatus("");
+    setIsWeightEditorOpen(true);
+  }
+
+  function cancelWeightEditor() {
+    setWeightInput(currentWeight === null ? "" : String(currentWeight));
+    setWeightError(null);
+    setWeightSaveError(null);
+    setIsWeightEditorOpen(false);
   }
 
   async function saveMeal(meal: Meal, food: string, type: MealType) {
@@ -279,7 +294,7 @@ export default function Home() {
           setWeightError(null);
           setWeightSaveError(null);
           setWeightStatus("");
-          setIsWeightLocked(Boolean(record.weight));
+          setIsWeightEditorOpen(false);
           setIsLoadingDay(false);
         }
       })
@@ -292,7 +307,7 @@ export default function Home() {
           setWeightError(null);
           setWeightSaveError(null);
           setWeightStatus("");
-          setIsWeightLocked(Boolean(localDay?.weight));
+          setIsWeightEditorOpen(false);
           setIsLoadingDay(false);
         }
       });
@@ -380,36 +395,61 @@ export default function Home() {
             <p className={styles.cardHint}>목표 체중은 메뉴에서 설정할 수 있어요.</p>
           </div>
           <div className={styles.weightControl}>
-            <div className={styles.weightInputRow}>
-              <input
-                aria-describedby={
-                  weightError || weightSaveError ? "weight-error weight-status" : "weight-status"
-                }
-                aria-invalid={Boolean(weightError || weightSaveError)}
-                aria-label="오늘의 체중"
-                inputMode="decimal"
-                min="0.01"
-                step="0.01"
-                type="text"
-                placeholder="60.5"
-                value={weightInput}
-                disabled={isWeightLocked}
-                onChange={(event) => updateWeightInput(event.target.value)}
-              />
-              <span>kg</span>
-              <button
-                aria-label={`오늘의 체중 ${isWeightLocked ? "수정" : "저장"}`}
-                type="button"
-                disabled={isSavingWeight}
-                onClick={isWeightLocked ? unlockWeightInput : saveWeight}
+            <button
+              aria-expanded={isWeightEditorOpen}
+              aria-haspopup="dialog"
+              aria-label={`오늘의 체중 ${currentWeight === null ? "입력" : `${currentWeight}kg 수정`}`}
+              className={styles.weightDisplay}
+              type="button"
+              onClick={openWeightEditor}
+            >
+              {currentWeight === null ? "체중 입력" : <>{currentWeight}<span>kg</span></>}
+            </button>
+            {isWeightEditorOpen ? (
+              <form
+                aria-labelledby="weight-editor-title"
+                className={styles.weightEditorToast}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") cancelWeightEditor();
+                }}
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void saveWeight();
+                }}
+                role="dialog"
               >
-                {isSavingWeight ? "저장 중..." : isWeightLocked ? "수정" : "저장"}
-              </button>
-            </div>
-            {weightError || weightSaveError ? (
-              <p className={styles.inputError} id="weight-error" role="alert">
-                {weightError ?? weightSaveError}
-              </p>
+                <p id="weight-editor-title">오늘의 몸무게</p>
+                <label htmlFor="today-weight-input">몸무게 (kg)</label>
+                <div className={styles.weightEditorInputRow}>
+                  <input
+                    aria-describedby={weightError || weightSaveError ? "weight-error" : undefined}
+                    aria-invalid={Boolean(weightError || weightSaveError)}
+                    id="today-weight-input"
+                    inputMode="decimal"
+                    min="0.01"
+                    placeholder="60.5"
+                    ref={weightInputRef}
+                    step="0.01"
+                    type="text"
+                    value={weightInput}
+                    onChange={(event) => updateWeightInput(event.target.value)}
+                  />
+                  <span>kg</span>
+                </div>
+                {weightError || weightSaveError ? (
+                  <p className={styles.inputError} id="weight-error" role="alert">
+                    {weightError ?? weightSaveError}
+                  </p>
+                ) : null}
+                <div className={styles.weightEditorActions}>
+                  <button type="button" disabled={isSavingWeight} onClick={cancelWeightEditor}>
+                    취소
+                  </button>
+                  <button type="submit" disabled={isSavingWeight}>
+                    {isSavingWeight ? "저장 중..." : "확인"}
+                  </button>
+                </div>
+              </form>
             ) : null}
             <p className={styles.srOnly} id="weight-status" role="status" aria-live="polite">
               {weightStatus}
