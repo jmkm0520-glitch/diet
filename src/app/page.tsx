@@ -403,7 +403,7 @@ export default function Home() {
               type="button"
               onClick={openWeightEditor}
             >
-              {currentWeight === null ? "체중 입력" : <>{currentWeight}<span>kg</span></>}
+              {currentWeight === null ? <>--.-<span>kg</span></> : <>{currentWeight}<span>kg</span></>}
             </button>
             {isWeightEditorOpen ? (
               <form
