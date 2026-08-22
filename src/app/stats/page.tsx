@@ -2,11 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 
 import styles from "../page.module.css";
-import { CalendarView } from "../../components/CalendarView";
+import { StatsView } from "../../components/StatsView";
 import { TabNav } from "../../components/TabNav";
 import { SiteMenuButton } from "../../components/AuthGate";
 
-export default function CalendarPage() {
+export default function StatsPage() {
   return (
     <main className={`${styles.main} ${styles.referenceDashboard}`}>
       <header className={styles.siteHeader}>
@@ -26,7 +26,7 @@ export default function CalendarPage() {
           <SiteMenuButton />
         </div>
       </header>
-      <CalendarView />
+      <StatsView />
     </main>
   );
 }

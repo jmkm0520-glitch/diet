@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MealCard } from "../components/MealCard";
 import { TabNav } from "../components/TabNav";
+import { SiteMenuButton } from "../components/AuthGate";
 import {
   formatLocalDate,
   isFutureLocalDate,
@@ -57,6 +58,7 @@ export default function Home() {
   const [isResettingMeals, setIsResettingMeals] = useState(false);
   const [mealResetVersion, setMealResetVersion] = useState(0);
   const [mealResetError, setMealResetError] = useState<string | null>(null);
+  const [dayLoadError, setDayLoadError] = useState<string | null>(null);
   const [mealResetStatus, setMealResetStatus] = useState("");
 
   const selectDate = useCallback(
@@ -126,7 +128,7 @@ export default function Home() {
         setIsWeightLocked(true);
         setWeightStatus("체중이 저장되었습니다.");
       } else {
-        setWeightSaveError("체중을 저장하지 못했어요. 입력값은 유지했으니 다시 저장해 주세요.");
+        setWeightSaveError("체중 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
       }
     } finally {
       setIsSavingWeight(false);
@@ -199,6 +201,19 @@ export default function Home() {
     selectDate(isFutureLocalDate(nextDate) ? todayDate : nextDate);
   }
 
+  function shiftMonth(months: number) {
+    const current = new Date(`${selectedDate}T12:00:00`);
+    const target = new Date(current.getFullYear(), current.getMonth() + months, 1);
+    const lastDayOfTargetMonth = new Date(
+      target.getFullYear(),
+      target.getMonth() + 1,
+      0,
+    ).getDate();
+    target.setDate(Math.min(current.getDate(), lastDayOfTargetMonth));
+    const nextDate = formatLocalDate(target);
+    selectDate(isFutureLocalDate(nextDate) ? todayDate : nextDate);
+  }
+
   const dateTitle = new Intl.DateTimeFormat("ko-KR", {
     month: "long",
     day: "numeric",
@@ -208,12 +223,18 @@ export default function Home() {
   const hasSavedMeals = Boolean(
     dayRecord && Object.values(dayRecord.meals).some((meal) => meal !== null),
   );
+  const savedMeals = Object.values(dayRecord?.meals ?? {}).filter(
+    (meal): meal is MealRecord => meal !== null,
+  );
+  const cleanMealCount = savedMeals.filter((meal) => meal.type === "clean").length;
+  const freeMealCount = savedMeals.filter((meal) => meal.type === "free").length;
 
   useEffect(() => {
     let cancelled = false;
     fetchApi<DayRecord>(`/api/day?date=${selectedDate}`)
       .then((record) => {
         if (!cancelled) {
+          setDayLoadError(null);
           setDayRecord(record);
           setWeightInput(record.weight ? String(record.weight.weight) : "");
           setWeightError(null);
@@ -226,6 +247,7 @@ export default function Home() {
       .catch((error) => {
         if (!cancelled) {
           const localDay = isApiNotFound(error) ? readLocalDay(selectedDate) : null;
+          setDayLoadError(localDay ? null : "식단 기록을 불러오지 못했습니다.");
           setDayRecord(localDay);
           setWeightInput(localDay?.weight ? String(localDay.weight.weight) : "");
           setWeightError(null);
@@ -242,7 +264,7 @@ export default function Home() {
   }, [selectedDate]);
 
   return (
-    <main className={styles.main}>
+    <main className={`${styles.main} ${styles.referenceDashboard}`}>
       <header className={styles.siteHeader}>
         <Link className={styles.brand} href="/" aria-label="오늘도 가볍게 홈">
           <Image
@@ -255,34 +277,50 @@ export default function Home() {
           />
           <span>오늘도 가볍게</span>
         </Link>
-        <TabNav />
+        <div className={styles.headerActions}>
+          <TabNav />
+          <SiteMenuButton />
+        </div>
       </header>
+      <div className={styles.dashboard}>
       <section className={styles.header}>
+        <p>오늘의 기록</p>
         <h1>{dateTitle}</h1>
-        <p>식단과 체중을 기록해 오늘을 완성하세요.</p>
-        <div className={styles.dateControls} aria-label="날짜 이동">
-          <button type="button" aria-label="이전 날짜" onClick={() => shiftDate(-1)}>
-            ‹
-          </button>
-          <label className={styles.datePicker}>
-            <CalendarIcon />
-            <span className={styles.srOnly}>날짜 선택</span>
-            <input
-              aria-label="기록 날짜 선택"
-              max={todayDate}
-              type="date"
-              value={selectedDate}
-              onChange={(event) => selectDate(event.target.value)}
-            />
-          </label>
-          <button
-            type="button"
-            aria-label="다음 날짜"
-            disabled={selectedDate >= todayDate}
-            onClick={() => shiftDate(1)}
-          >
-            ›
-          </button>
+        <div className={styles.dateNavigationRow}>
+          <span>날짜를 선택하거나 이전 기록을 확인해 보세요.</span>
+          <div className={styles.dateControls} aria-label="날짜 이동">
+            <button type="button" aria-label="하루 전 기록" onClick={() => shiftDate(-1)}>
+              ‹
+            </button>
+            <label className={styles.datePicker}>
+              <CalendarIcon />
+              <span className={styles.srOnly}>날짜 선택</span>
+              <input
+                aria-label="기록 날짜 선택"
+                max={todayDate}
+                type="date"
+                value={selectedDate}
+                onChange={(event) => selectDate(event.target.value)}
+                onClick={(event) => {
+                  const input = event.currentTarget;
+                  if (typeof input.showPicker !== "function") return;
+                  try {
+                    input.showPicker();
+                  } catch {
+                    // 브라우저가 달력 열기를 거부하면 포커스만 준 기본 동작을 남긴다.
+                  }
+                }}
+              />
+            </label>
+            <button
+              type="button"
+              aria-label="다음 날 기록"
+              disabled={isViewingToday}
+              onClick={() => shiftDate(1)}
+            >
+              ›
+            </button>
+          </div>
         </div>
       </section>
       <section
@@ -332,6 +370,11 @@ export default function Home() {
           </p>
         </div>
       </section>
+      {dayLoadError ? (
+        <p className={styles.dayLoadError} role="alert">
+          {dayLoadError}
+        </p>
+      ) : null}
       <section
         className={styles.mealGrid}
         aria-busy={isLoadingDay || isResettingMeals}
@@ -347,6 +390,30 @@ export default function Home() {
           />
         ))}
       </section>
+      <section className={styles.summaryStrip} aria-label="오늘의 식단 요약">
+        <div className={styles.summaryMetric}>
+          <span aria-hidden="true" className={styles.summaryLeaf} />
+          <p>식단 기록</p>
+          <strong>{savedMeals.length}<small>/4</small></strong>
+        </div>
+        <div className={styles.summaryMetric}>
+          <span aria-hidden="true" className={styles.summaryGrain} />
+          <p>클린식</p>
+          <strong>{cleanMealCount}<small>회</small></strong>
+        </div>
+        <div className={styles.summaryMetric}>
+          <span aria-hidden="true" className={styles.summaryDrop} />
+          <p>자유식</p>
+          <strong>{freeMealCount}<small>회</small></strong>
+        </div>
+      </section>
+      {!isLoadingDay && !dayLoadError && !hasSavedMeals ? (
+        <p className={styles.mealEmptyState}>
+          {isViewingToday
+            ? "아직 오늘 기록한 식단이 없어요. 첫 식단을 기록해보세요."
+            : "이 날짜에는 기록된 식단이 없습니다."}
+        </p>
+      ) : null}
       {!isViewingToday ? (
         <div className={styles.todayFooter}>
           <button
@@ -377,6 +444,7 @@ export default function Home() {
             {mealResetStatus}
           </p>
         ) : null}
+      </div>
       </div>
     </main>
   );

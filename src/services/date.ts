@@ -33,7 +33,7 @@ export function writeDateToUrl(date: string): void {
   window.history.replaceState(null, "", url);
 }
 
-/** Remove the selected date from the current page URL when a detail panel closes. */
+/** Remove the selected date from the current page URL. */
 export function clearDateFromUrl(): void {
   if (typeof window === "undefined") return;
   const url = new URL(window.location.href);

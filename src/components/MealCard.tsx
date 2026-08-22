@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import styles from "../app/page.module.css";
 import type { Meal, MealRecord, MealType } from "../types/api";
-import { getMealCardState } from "./mealCardState";
+import { getMealCardState, getMealSaveInput } from "./mealCardState";
 
 export type MealCardProps = {
   meal: Meal;
@@ -33,10 +33,10 @@ export function MealCard({
   const [isSaving, setIsSaving] = useState(false);
   const [isLocked, setIsLocked] = useState(() => Boolean(record));
   const { isFree, isSelected, label } = getMealCardState(type);
+  const editModeStatus = `${title} 식단 수정 모드입니다.`;
 
   async function saveMeal() {
-    const inputFood = foodInput.trim() || "공복";
-    const selectedType = type ?? defaultType;
+    const { food: inputFood, type: selectedType } = getMealSaveInput(foodInput, type, defaultType);
     setIsSaving(true);
     setError(null);
     setSaveStatus("");
@@ -47,16 +47,18 @@ export function MealCard({
       setIsLocked(true);
       setSaveStatus(`${title} 식단이 저장되었습니다.`);
     } catch {
-      setError("식단을 저장하지 못했어요. 입력 내용은 유지했으니 다시 저장해 주세요.");
+      setError("식단 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setIsSaving(false);
     }
   }
 
-  function unlockMeal() {
+  /** Enter edit mode, whether the user pressed 수정 or just touched a field. */
+  function startEditing() {
+    if (!isLocked) return;
     setIsLocked(false);
     setError(null);
-    setSaveStatus(`${title} 식단 수정 모드입니다.`);
+    setSaveStatus(editModeStatus);
   }
 
   return (
@@ -70,9 +72,10 @@ export function MealCard({
           {title}
           {isSelected ? (
             <Image
+              aria-hidden="true"
               className={styles.mealEmoji}
               src={isFree ? "/free.png" : "/clean.png"}
-              alt={`${label} 이모티콘`}
+              alt=""
               width={35}
               height={35}
             />
@@ -93,7 +96,7 @@ export function MealCard({
           aria-invalid={Boolean(error)}
           aria-label={`${title} 음식 내용`}
           className={styles.foodInput}
-          disabled={isLoading || isSaving || isLocked}
+          disabled={isLoading || isSaving}
           id={`food-${meal}`}
           maxLength={500}
           name="food"
@@ -103,10 +106,11 @@ export function MealCard({
           onChange={(event) => {
             const nextFood = event.target.value;
             setFoodInput(nextFood);
-            if (!nextFood.trim() && !record) setType(null);
+            if (!nextFood.trim()) setType(null);
             if (nextFood.trim() && type === null) setType(defaultType);
             setError(null);
-            setSaveStatus("");
+            setSaveStatus(isLocked ? editModeStatus : "");
+            setIsLocked(false);
           }}
         />
         <div className={styles.mealActions}>
@@ -115,10 +119,11 @@ export function MealCard({
               aria-label={`${title} 클린식 선택`}
               aria-pressed={type === "clean"}
               className={type === "clean" ? styles.selectedChoice : ""}
-              disabled={isSaving || isLocked}
+              disabled={isSaving}
               type="button"
               onClick={() => {
-                setType("clean");
+                setType((current) => (current === "clean" ? null : "clean"));
+                startEditing();
               }}
             >
               클린식
@@ -127,10 +132,11 @@ export function MealCard({
               aria-label={`${title} 자유식 선택`}
               aria-pressed={isFree}
               className={isFree ? styles.selectedChoice : ""}
-              disabled={isSaving || isLocked}
+              disabled={isSaving}
               type="button"
               onClick={() => {
-                setType("free");
+                setType((current) => (current === "free" ? null : "free"));
+                startEditing();
               }}
             >
               자유식
@@ -138,10 +144,10 @@ export function MealCard({
           </div>
           <button
             aria-label={`${title} 식단 ${isLocked ? "수정" : "저장"}`}
-            className={styles.mealSaveButton}
+            className={`${styles.mealSaveButton} ${isLocked ? styles.mealSaveButtonEdit : ""}`}
             disabled={isSaving}
             type="button"
-            onClick={isLocked ? unlockMeal : saveMeal}
+            onClick={isLocked ? startEditing : saveMeal}
           >
             {isSaving ? "저장 중..." : isLocked ? "수정" : "저장"}
           </button>

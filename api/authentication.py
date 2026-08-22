@@ -17,6 +17,7 @@ from api.lib.auth import (
     session_from_auth_response,
     set_session_cookies,
 )
+from api.lib.http import status_for_error_code
 from api.lib.logging import log_internal_error
 from api.lib.request import RequestBodyTooLargeError, UnsupportedMediaTypeError, read_json_body
 from api.lib.response import (
@@ -143,6 +144,24 @@ def _login(handler) -> None:
         _send(handler, 500, internal_error_response())
 
 
+def is_duplicate_signup(error: Exception) -> bool:
+    """Detect the unique-constraint conflict raised when the email is taken.
+
+    Supabase answers a repeat sign-up on a known address with a success, so the
+    clash only surfaces when the signup claim is written. Without this branch it
+    reaches the caller as a bare 500, which tells the person nothing.
+    """
+
+    code = str(getattr(error, "code", "") or "")
+    if code in {"23505", "409"}:
+        return True
+    text = str(error).lower()
+    return any(
+        marker in text
+        for marker in ("23505", "duplicate key", "already registered", "email_already_registered")
+    )
+
+
 def _signup(handler) -> None:
     request = _validated_body(handler, SignupRequest)
     if request is None:
@@ -167,6 +186,17 @@ def _signup(handler) -> None:
             success_response({"email": str(request.email), "verificationRequired": True}),
         )
     except Exception as error:
+        if is_duplicate_signup(error):
+            _send(
+                handler,
+                status_for_error_code("MEMBER_EXISTS"),
+                error_response(
+                    "MEMBER_EXISTS",
+                    "이미 가입에 사용된 이메일입니다. 로그인하거나, 인증이 끝나지 않았다면 "
+                    "인증 메일을 다시 받아 주세요.",
+                ),
+            )
+            return
         log_internal_error("auth.signup", error)
         _send(handler, 500, internal_error_response())
 

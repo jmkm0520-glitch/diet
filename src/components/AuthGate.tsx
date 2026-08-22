@@ -1,12 +1,54 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, ReactNode, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  FormEvent,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { ApiClientError, fetchApi } from "../services/apiClient";
 import type { Member } from "../types/auth";
 import styles from "./AuthGate.module.css";
 
 type Mode = "login" | "signup" | "verify";
+
+type SiteMenuContextValue = { isMenuOpen: boolean; openMenu: () => void };
+
+const SiteMenuContext = createContext<SiteMenuContextValue | null>(null);
+
+const MENU_BUTTON_ID = "site-menu-button";
+
+/** Return focus to the header button after the side menu closes. */
+function focusMenuButton() {
+  window.setTimeout(() => document.getElementById(MENU_BUTTON_ID)?.focus(), 0);
+}
+
+/** Hamburger button for the site header. Renders nothing until a member is signed in. */
+export function SiteMenuButton() {
+  const menu = useContext(SiteMenuContext);
+  if (!menu) return null;
+
+  return (
+    <button
+      aria-controls="account-side-menu"
+      aria-expanded={menu.isMenuOpen}
+      aria-label="메뉴 열기"
+      className={styles.menuButton}
+      id={MENU_BUTTON_ID}
+      type="button"
+      onClick={menu.openMenu}
+    >
+      <span aria-hidden="true" />
+      <span aria-hidden="true" />
+      <span aria-hidden="true" />
+    </button>
+  );
+}
 
 export function AuthGate({ children }: { children: ReactNode }) {
   const [member, setMember] = useState<Member | null>(null);
@@ -16,8 +58,8 @@ export function AuthGate({ children }: { children: ReactNode }) {
   const [error, setError] = useState("");
   const [pendingEmail, setPendingEmail] = useState("");
   const [status, setStatus] = useState("");
+  const [token, setToken] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const sideMenuRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -25,6 +67,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
     const pendingStateTimer = window.setTimeout(() => {
       if (savedPendingEmail) {
         setPendingEmail(savedPendingEmail);
+        setToken("");
         setMode("verify");
       }
     }, 0);
@@ -46,7 +89,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
     function closeOnEscape(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
       setIsMenuOpen(false);
-      window.setTimeout(() => menuButtonRef.current?.focus(), 0);
+      focusMenuButton();
     }
 
     document.addEventListener("keydown", closeOnEscape);
@@ -65,7 +108,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
     const email = String(form.get("email") ?? pendingEmail);
     const payload: Record<string, string> = { email };
     if (mode === "verify") {
-      payload.token = String(form.get("token") ?? "");
+      payload.token = token;
     } else {
       payload.password = String(form.get("password") ?? "");
       if (mode === "signup") payload.display_name = String(form.get("displayName") ?? "");
@@ -82,6 +125,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
         );
         setPendingEmail(email);
         window.sessionStorage.setItem("pendingSignupEmail", email);
+        setToken("");
         setMode("verify");
         setStatus("인증 메일을 보냈습니다. 이메일의 6자리 인증번호를 입력해 주세요.");
         return;
@@ -132,7 +176,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   function closeMenu() {
     setIsMenuOpen(false);
-    window.setTimeout(() => menuButtonRef.current?.focus(), 0);
+    focusMenuButton();
   }
 
   if (loading) return <main className={styles.center}>로그인 상태를 확인하고 있어요.</main>;
@@ -140,19 +184,42 @@ export function AuthGate({ children }: { children: ReactNode }) {
   if (!member) {
     return (
       <main className={styles.center}>
-        <section className={styles.card} aria-labelledby="auth-title">
-          <span className={styles.eyebrow}>오늘도 가볍게</span>
-          <h1 id="auth-title">
-            {mode === "signup" ? "첫 회원 만들기" : mode === "verify" ? "이메일 인증" : "로그인"}
-          </h1>
-          <p>
-            {mode === "signup"
-              ? "이메일 인증을 완료하면 나만의 식단과 체중 기록을 시작할 수 있습니다."
-              : mode === "verify"
-                ? "가입한 이메일로 보낸 인증번호를 입력해 주세요."
-                : "식단과 체중 기록을 보려면 로그인해 주세요."}
-          </p>
-          <form className={styles.form} onSubmit={submit}>
+        <div className={styles.authShell}>
+          <section className={styles.authIntro} aria-label="오늘도 가볍게 소개">
+            <Image src="/broccoli-logo.png" alt="" width={72} height={72} priority />
+            <p>오늘도 가볍게</p>
+            <h2>한 끼씩 기록하는<br />나만의 건강 루틴</h2>
+            <span>식단과 체중의 작은 변화를<br />부담 없이 이어가 보세요.</span>
+          </section>
+          <section className={styles.card} aria-labelledby="auth-title">
+            <h1 id="auth-title">
+              {mode === "signup" ? "회원가입" : mode === "verify" ? "이메일 인증" : "로그인"}
+            </h1>
+            <p>
+              {mode === "signup"
+                ? "이메일 인증을 완료하면 나만의 식단과 체중 기록을 시작할 수 있습니다."
+                : mode === "verify"
+                  ? "가입한 이메일로 보낸 인증번호를 입력해 주세요."
+                  : "식단과 체중 기록을 보려면 로그인해 주세요."}
+            </p>
+          {/*
+            Two things had to change so the verification field starts empty.
+
+            Keys: the token and password inputs share a slot, so without them
+            React reuses the DOM node and an uncontrolled input keeps what was
+            typed.
+
+            The form key: Chrome ties saved credentials to a form. Reusing the
+            same form element after a password was submitted lets it fill the
+            field that takes the password's place, whatever autocomplete says.
+            Remounting the form gives the browser a form it has not seen.
+          */}
+            <form
+            autoComplete="off"
+            className={styles.form}
+            key={mode === "verify" ? "verify-form" : "credentials-form"}
+            onSubmit={submit}
+            >
             {mode === "signup" && (
               <label>
                 이름
@@ -164,12 +231,22 @@ export function AuthGate({ children }: { children: ReactNode }) {
               <input name="email" type="email" required autoComplete="email" value={mode === "verify" ? pendingEmail : undefined} onChange={mode === "verify" ? (event) => setPendingEmail(event.target.value) : undefined} />
             </label>
             {mode === "verify" ? (
-              <label>
+              <label key="verification-token">
                 6자리 인증번호
-                <input name="token" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required autoComplete="one-time-code" />
+                <input
+                  autoComplete="one-time-code"
+                  inputMode="numeric"
+                  maxLength={6}
+                  name="token"
+                  pattern="[0-9]{6}"
+                  required
+                  type="text"
+                  value={token}
+                  onChange={(event) => setToken(event.target.value.replace(/\D/g, ""))}
+                />
               </label>
             ) : (
-              <label>
+              <label key="password">
                 비밀번호
                 <input name="password" type="password" minLength={8} maxLength={128} required autoComplete={mode === "signup" ? "new-password" : "current-password"} />
               </label>
@@ -179,42 +256,32 @@ export function AuthGate({ children }: { children: ReactNode }) {
             <button type="submit" disabled={submitting}>
               {submitting ? "처리 중…" : mode === "signup" ? "인증 메일 받기" : mode === "verify" ? "인증하고 가입 완료" : "로그인"}
             </button>
-          </form>
-          {mode === "verify" && (
-            <button className={styles.switch} type="button" onClick={resendVerification}>
-              인증 메일 다시 보내기
-            </button>
-          )}
-          {mode !== "verify" && (
-            <button className={styles.switch} type="button" onClick={() => setMode(mode === "signup" ? "login" : "signup")}>
-              {mode === "signup" ? "이미 계정이 있나요? 로그인" : "계정이 없나요? 회원가입"}
-            </button>
-          )}
-          {mode === "verify" && (
-            <button className={styles.switch} type="button" onClick={() => setMode("login")}>
-              로그인으로 돌아가기
-            </button>
-          )}
-        </section>
+            </form>
+            {mode === "verify" && (
+              <button className={styles.switch} type="button" onClick={resendVerification}>
+                인증 메일 다시 보내기
+              </button>
+            )}
+            {mode !== "verify" && (
+              <button className={styles.switch} type="button" onClick={() => setMode(mode === "signup" ? "login" : "signup")}>
+                {mode === "signup" ? "이미 계정이 있나요? 로그인" : "계정이 없나요? 회원가입"}
+              </button>
+            )}
+            {mode === "verify" && (
+              <button className={styles.switch} type="button" onClick={() => setMode("login")}>
+                로그인으로 돌아가기
+              </button>
+            )}
+          </section>
+        </div>
       </main>
     );
   }
 
   return (
-    <>
-      <button
-        aria-controls="account-side-menu"
-        aria-expanded={isMenuOpen}
-        aria-label="메뉴 열기"
-        className={styles.menuButton}
-        ref={menuButtonRef}
-        type="button"
-        onClick={() => setIsMenuOpen(true)}
-      >
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-        <span aria-hidden="true" />
-      </button>
+    <SiteMenuContext.Provider
+      value={{ isMenuOpen, openMenu: () => setIsMenuOpen(true) }}
+    >
       {isMenuOpen ? (
         <>
           <button
@@ -258,6 +325,6 @@ export function AuthGate({ children }: { children: ReactNode }) {
         </>
       ) : null}
       {children}
-    </>
+    </SiteMenuContext.Provider>
   );
 }

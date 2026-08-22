@@ -1,19 +1,19 @@
 :root {
   color-scheme: light;
-  --color-ivory-50: #fffdf8;
-  --color-ivory-100: #faf8f0;
-  --color-ivory-200: #f5f1e8;
-  --color-ivory-300: #f2f3ec;
-  --color-green-100: #e7f3eb;
-  --color-green-500: #70c69a;
-  --color-green-700: #2f7351;
-  --color-green-800: #2f6b4f;
-  --color-red-100: #faebe7;
-  --color-red-400: #ef8c7f;
-  --color-red-600: #bb5548;
-  --color-text: #1f2a24;
-  --color-text-muted: #72766c;
-  --color-border: #dedbd1;
+  --color-ivory-50: #fffef9;
+  --color-ivory-100: #f5f8ed;
+  --color-ivory-200: #e5edd6;
+  --color-ivory-300: #d4e0c1;
+  --color-green-100: #daf4df;
+  --color-green-500: #62bb7b;
+  --color-green-700: #26864d;
+  --color-green-800: #166338;
+  --color-red-100: #ffe7df;
+  --color-red-400: #f5a293;
+  --color-red-600: #df705f;
+  --color-text: #254331;
+  --color-text-muted: #6d8372;
+  --color-border: #d9e5cf;
   --layout-content-max: 960px;
   --space-1: 4px;
   --space-2: 8px;
@@ -23,20 +23,30 @@
   --space-6: 24px;
   --space-7: 28px;
   --border-width-thin: 1px;
-  --border-radius-card: 18px;
-  --shadow-card: 0 8px 24px rgb(36 59 45 / 7%);
+  --border-radius-card: 14px;
+  --shadow-card: 0 12px 32px rgb(23 34 30 / 7%);
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.82rem;
   --font-size-base: 1rem;
   --font-size-title: 1.5rem;
   --breakpoint-mobile: 640px;
-  font-family: Arial, Helvetica, sans-serif;
-  background: var(--color-ivory-100);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  background: #eaf3df;
   color: var(--color-text);
 }
 
 * {
   box-sizing: border-box;
+}
+
+:where(button, a, input) {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease,
+    transform 120ms ease;
 }
 
 html,
@@ -46,5 +56,5 @@ body {
 }
 
 body {
-  background: var(--color-ivory-100);
+  background: #eaf3df;
 }
