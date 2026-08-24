@@ -1,210 +1,242 @@
-# 로그인과 회원별 데이터 보호 집중하기
+# 로그인과 회원별 데이터 보호 이해하기
 
 [← 학습 가이드 목차](./README.md) · [이전: 데이터베이스 집중하기](./05-database.md)
 
 ## 이 문서에서 답할 질문
 
-> 여러 사람이 같은 앱을 사용할 때 서버는 요청을 보낸 사람이 누구인지 어떻게 확인하고, 그 사람의
-> 기록만 돌려주는가?
+> 여러 사람이 같은 앱을 사용할 때, 서버는 요청을 보낸 사용자를 어떻게 확인하고 그 사람의 기록만
+> 안전하게 보여 줄까?
 
-앞 문서에서는 `members`, `weights`, `meals`가 `member_id`로 연결되는 구조를 살펴봤다. 이제 서버가
-어떤 회원 ID를 사용해야 하는지 결정하는 과정을 한 개념씩 알아본다.
+앞 문서에서는 `members`, `weights`, `meals` 테이블이 `member_id`로 연결되는 구조를 확인했다. 이
+문서에서는 서버가 요청마다 올바른 회원 ID를 결정하고, 다른 회원의 기록에 접근하지 못하게 막는
+과정을 설명한다.
 
-## 먼저 기억할 한 문장
+## 핵심 요약
 
-> 이 프로젝트에서 로그인의 중심 목적은 요청을 보낸 사용자를 확인하고, 그 사용자가 자신의 식단과
-> 체중 기록에만 접근하게 하는 것이다.
+> 로그인은 단순히 앱 화면에 들어가기 위한 절차가 아니다. 서버가 요청자를 확인하고, 그 사용자가
+> 자신의 식단과 체중 기록에만 접근하도록 제한하는 출발점이다.
 
-로그인 버튼을 누르는 것은 시작일 뿐이다. 이후 요청에서도 같은 사용자인지 확인하고, 그 사람이
-접근할 수 있는 기록을 구분해야 한다. 먼저 이 목적을 이해한 뒤 필요한 개념을 하나씩 알아본다.
+## 1. 왜 로그인이 필요한가?
 
-## 전체 흐름에서 로그인 확인의 위치
+한 사람이 혼자 쓰는 앱이라면 모든 기록을 같은 사용자 데이터로 취급해도 문제가 드러나지 않을 수
+있다. 하지만 여러 사람이 함께 쓰는 앱에서는 상황이 달라진다. 서버가 요청자를 구분하지 못하면 한
+회원의 체중이나 식단을 다른 회원에게 보여 주거나, 다른 회원의 기록을 수정하는 문제가 생길 수 있다.
 
-```text
-AuthGate가 로그인 상태 확인 요청
-→ Python 로그인 API가 입력을 검사
-→ Supabase Auth가 계정 또는 로그인 후 발급한 증명값을 확인
-→ Python API가 public.members 회원을 확인
-→ 검증된 member_id로 식단·체중 query
-→ 해당 회원의 결과만 응답
-```
+따라서 서버는 식단 조회나 체중 저장처럼 로그인이 필요한 요청을 처리할 때마다 다음 두 가지를
+판단해야 한다.
 
-이제 이 흐름을 구성하는 개념을 필요한 순서대로 하나씩 살펴본다.
+1. 이 요청을 보낸 사용자는 누구인가?
+2. 확인된 사용자는 어떤 데이터에 접근할 수 있는가?
 
-## 1. 인증은 “누구인가”를 확인한다
+첫 번째 질문에 답하는 과정이 **인증** (Authentication)이고, 두 번째 질문에 답하는 과정이
+**인가** (Authorization)다. 로그인할 때 사용자를 한 번 확인하는 것만으로는 부족하다. 식단 조회,
+체중 저장, 달력 이동처럼 로그인 뒤에 이어지는 요청에서도 같은 사용자인지 확인하고 접근 범위를
+제한해야 한다.
 
-**인증** (Authentication)은 요청을 보낸 사람이 자신이 주장하는 계정의 실제 사용자임을 확인하는
+프론트엔드에서 로그인 화면을 보여 주거나 서비스 화면을 숨기는 것은 사용자 경험을 위한 처리다.
+실제 데이터 보호는 서버가 요청마다 인증과 인가를 수행할 때 이루어진다.
+
+## 2. 로그인 흐름
+
+이 프로젝트에서 사용자가 로그인한 뒤 자신의 기록을 받아 보기까지의 전체 흐름은 다음과 같다.
+
+1. 사용자가 이메일과 비밀번호를 입력한다.
+2. [`AuthGate`](../../src/components/AuthGate.tsx)가 입력값을 Python 인증 API로 보낸다.
+3. Python API가 입력 형식을 검사하고 Supabase Auth에 로그인을 요청한다.
+4. Supabase Auth가 계정을 확인하고 로그인 상태를 이어 가는 데 필요한 토큰을 발급한다.
+5. Python API가 같은 사용자 ID를 가진 `public.members` 회원을 확인한다.
+6. Python API가 토큰을 HttpOnly 쿠키에 저장하도록 응답하고, 브라우저가 쿠키를 보관한다.
+7. 이후 브라우저는 식단이나 체중 API를 호출할 때 쿠키를 자동으로 함께 보낸다.
+8. Python API가 토큰과 회원을 다시 확인한 뒤, 검증된 `member_id`로 데이터를 조회한다.
+9. 서버는 해당 회원의 기록만 브라우저에 반환한다.
+
+3~5단계는 요청자가 누구인지 확인하는 인증 과정이다. 8~9단계는 확인된 회원이 자신의 데이터에만
+접근하도록 제한하는 인가 과정이다. 다음 절부터 각 개념을 이 순서대로 살펴본다.
+
+## 3. 인증: 요청을 보낸 사용자를 확인한다
+
+**인증** (Authentication)은 요청을 보낸 사람이 자신이 주장하는 계정의 실제 사용자인지 확인하는
 과정이다.
 
-로그인할 때는 Supabase Auth가 이메일과 비밀번호를 확인한다. 로그인 이후의 데이터 요청에서는
-Supabase Auth가 로그인 성공 후 발급한 증명값이 유효한 사용자를 가리키는지 확인한다.
+로그인할 때는 Supabase Auth가 이메일과 비밀번호를 확인한다. 로그인 이후에는 비밀번호를 요청마다
+다시 보내지 않는다. 대신 로그인 성공 시 발급받은 토큰을 보내고, Supabase Auth가 그 토큰이 유효한
+사용자를 가리키는지 확인한다.
 
 ```text
-로그인 시: 이메일 + 비밀번호 → Supabase Auth → 계정 사용자 확인
-요청 시: 로그인 후 발급받은 증명값 → Supabase Auth → 같은 사용자 확인
+로그인할 때: 이메일 + 비밀번호 → Supabase Auth → 계정 사용자 확인
+로그인한 뒤: 발급받은 토큰 → Supabase Auth → 같은 사용자 확인
 ```
 
-비밀번호를 아는지 또는 로그인 후 받은 증명값이 유효한지를 확인해 “누구인가”에 답하는 단계다. 이
-증명값의 정확한 이름과 역할은 로그인 상태와 세션을 먼저 이해한 뒤 살펴본다.
+인증에 성공하면 서버는 요청자의 사용자 ID를 알 수 있다. 하지만 사용자 ID를 확인했다고 해서 모든
+데이터에 접근할 수 있는 것은 아니다. 접근 범위는 인가 과정에서 따로 결정한다.
 
-## 2. 인가는 “무엇을 할 수 있는가”를 판단한다
+## 4. 인가: 접근할 수 있는 데이터를 결정한다
 
-**인가** (Authorization)는 인증된 사용자가 어떤 기능과 데이터에 접근할 수 있는지 판단하는 과정이다.
+**인가** (Authorization)는 인증된 사용자가 어떤 기능이나 데이터에 접근할 수 있는지 판단하는
+과정이다.
 
-이 프로젝트에서는 로그인한 사용자를 확인하는 것만으로 끝나지 않는다.
+이 프로젝트의 서버는 다음 순서로 회원별 접근 범위를 제한한다.
 
-1. 같은 ID의 `public.members` 행이 있는지 확인한다.
-2. 그 회원 ID를 체중·식단 query의 `member_id` 조건으로 사용한다.
-3. 다른 회원의 ID를 요청 body나 URL에서 받아 신뢰하지 않는다.
+1. Supabase Auth가 확인한 사용자와 같은 ID의 `public.members` 행이 있는지 찾는다.
+2. 확인된 회원의 ID를 체중·식단 쿼리의 `member_id` 조건으로 사용한다.
+3. 조회하거나 저장한 결과가 해당 회원의 기록으로 제한되도록 한다.
 
-즉, Supabase Auth 사용자이면서 이 앱의 회원이어야 하고 자신의 기록만 다룰 수 있다.
+브라우저가 요청 본문이나 URL로 보낸 회원 ID는 신뢰하지 않는다. 사용자가 그 값을 다른 회원의 ID로
+바꿀 수 있기 때문이다. Python API가 인증 결과와 `members` 행을 바탕으로 `member_id`를 직접
+결정한다.
 
-React의 [`AuthGate`](../../src/components/AuthGate.tsx)가 로그인 화면 대신 앱 화면을 보여주는 것은
-사용자 경험을 위한 프론트엔드 판단이다. 화면을 숨겼다는 사실만으로 서버 권한이 생기지는 않는다.
-Python API가 모든 보호된 요청에서 인증과 인가를 다시 수행해야 한다.
+[`AuthGate`](../../src/components/AuthGate.tsx)가 로그인 여부에 따라 화면을 나누는 것은 프론트엔드의
+화면 제어일 뿐이다. 실제 인증과 인가는 백엔드(Python API)에서 처리한다. 백엔드는 식단 조회나 체중
+저장처럼 로그인이 필요한 요청을 받을 때마다 사용자를 확인하고, 그 사용자의 데이터만 조회하거나
+변경하도록 제한한다.
 
-## 3. 로그인 상태가 계속 이어져야 한다
+## 5. 로그인 상태는 왜 이어져야 하는가?
 
-로그인 버튼을 누른 순간에만 사용자를 확인해서는 앱을 사용할 수 없다. 사용자가 달력으로 이동하고
-체중을 저장할 때마다 이메일과 비밀번호를 다시 입력하게 할 수는 없기 때문이다.
+로그인 버튼을 누른 순간에만 사용자를 확인해서는 앱을 계속 사용할 수 없다. 사용자가 달력으로
+이동하거나 식단과 체중을 저장할 때마다 이메일과 비밀번호를 다시 입력하게 할 수는 없기 때문이다.
 
-앱은 다음 요청에서도 “앞에서 로그인한 같은 사용자”라는 상태를 이어갈 방법이 필요하다. 이 지속되는
-로그인 상태를 이해한 뒤에 세션을 보면 쉽다.
+앱은 여러 요청 사이에서도 `앞에서 로그인한 같은 사용자`라는 상태를 유지해야 한다. 이 상태를
+**로그인 상태**라고 한다. 로그인 상태가 어떻게 이어지는지 이해하려면 세션과 토큰을 차례로 구분해야
+한다.
 
-## 4. 세션은 로그인 상태가 이어지는 관계다
+## 6. 세션: 로그인 상태가 이어지는 관계
 
-**세션** (Session)은 사용자가 로그인한 뒤 로그아웃하거나 만료·폐기될 때까지 인증 상태가 이어지는
-기간과 관계를 뜻한다. 로그인 상태를 이어 가는 특정 값 하나를 가리키는 이름이 아니다.
+**세션** (Session)은 로그인한 뒤 로그아웃하거나 세션이 만료·폐기될 때까지 로그인 상태가 이어지는
+기간과 관계를 뜻한다. 세션은 쿠키나 토큰 같은 값 하나를 가리키는 말이 아니다.
 
-이 프로젝트는 애플리케이션 전용 `sessions` table이나 Python 메모리에 로그인 상태를 직접 저장하지
-않는다. Supabase Auth의 세션을 사용한다. Supabase Auth는 `auth.sessions`를 관리하고 브라우저가
-로그인 상태를 이어 가는 데 필요한 값을 발급한다.
+이 프로젝트는 애플리케이션 전용 `sessions` 테이블이나 Python 메모리에 로그인 상태를 따로 저장하지
+않는다. 대신 Supabase Auth가 관리하는 세션을 사용한다. Supabase Auth는 `auth.sessions`를 관리하고,
+브라우저가 로그인 상태를 이어 갈 수 있도록 필요한 토큰을 발급한다.
 
 ```text
 로그인 성공
-→ Supabase Auth session 생성
-→ 앱이 로그인 유지에 필요한 값을 보관
-→ 이후 요청에서 사용자 확인
-→ logout·만료·폐기까지 로그인 상태 유지
+→ Supabase Auth 세션 생성
+→ 브라우저가 로그인 유지에 필요한 토큰 보관
+→ 이후 요청에서 같은 사용자 확인
+→ 로그아웃·만료·폐기까지 로그인 상태 유지
 ```
 
-세션은 로그인 상태가 이어지는 전체 관계를 가리킨다. 이제 그 관계를 이어 가기 위해 서버가 발급하는
-값부터 살펴보자.
+## 7. 토큰: 이후 요청에서 사용하는 자격 증명
 
-## 5. 토큰은 서버가 발급한 자격 증명이다
-
-**토큰** (Token)은 서버가 “앞에서 로그인을 마친 사용자”임을 이후 요청에서 증명할 수 있도록 발급하는
-값이다. 사용자는 로그인할 때 비밀번호를 증명하고 token을 받은 뒤, 매 데이터 요청마다 비밀번호 대신
-token을 사용한다.
+**토큰** (Token)은 로그인한 사용자임을 이후 요청에서 증명할 수 있도록 서버가 발급하는 값이다.
+사용자는 로그인할 때 이메일과 비밀번호로 본인임을 증명하고 토큰을 받는다. 이후 요청에서는 비밀번호
+대신 토큰을 사용한다.
 
 ```text
-이메일·비밀번호로 한 번 로그인
-→ 제한된 수명과 목적의 token 발급
-→ 이후 요청은 token으로 사용자 확인
+이메일과 비밀번호로 로그인
+→ 제한된 수명과 목적을 가진 토큰 발급
+→ 이후 요청에서 토큰으로 사용자 확인
 ```
 
-token을 가진 사람은 그 token으로 허용된 작업을 할 수 있으므로 비밀번호처럼 노출되지 않도록
-보호해야 한다. 값의 이름에 `token`이 들어 있다는 사실만으로 유효해지는 것도 아니다. 서버는 발급한
-곳과 유효 기간 등을 확인해야 한다.
+토큰을 가진 사람은 그 토큰에 허용된 작업을 할 수 있다. 따라서 토큰도 비밀번호처럼 외부에 노출되지
+않도록 보호해야 한다. 이름에 `token`이 들어 있다고 해서 무조건 유효한 것도 아니다. 서버는 토큰의
+발급자, 유효 기간, 현재 세션 상태 등을 확인해야 한다.
 
-`token`은 역할을 설명하는 넓은 말이다. 모든 token이 같은 목적을 가지거나 같은 내부 모양을 사용하지
-않는다. 먼저 이 프로젝트가 사용하는 두 token의 역할부터 구분한다.
+토큰은 자격 증명 역할을 하는 여러 값을 묶어 부르는 말이다. 모든 토큰의 목적이나 내부 형식이 같은
+것은 아니다. 이 프로젝트의 Supabase 세션은 두 종류의 토큰을 사용한다.
 
-## 6. Access token과 Refresh token의 역할은 다르다
+## 8. 세션에서 사용하는 두 토큰
 
-Supabase session은 목적이 다른 token 두 개를 앱에 전달한다.
+Supabase Auth는 로그인에 성공하면 **Access token**과 **Refresh token**을 함께 발급한다. 두 토큰은
+같은 세션을 유지하는 데 쓰이지만 사용하는 시점과 목적이 다르다.
 
-### Access token
+### 8.1 Access token이란?
 
-**Access token**은 보호된 API가 현재 사용자를 확인할 때 쓰는 비교적 짧은 수명의 자격 증명이다. 체중과
-식단을 조회하거나 저장하는 요청처럼 보호된 데이터 요청마다 사용한다.
+**Access token**은 식단 조회나 체중 저장처럼 로그인이 필요한 API 요청에서 현재 사용자를 확인하는
+자격 증명이다. 이러한 요청을 보낼 때마다 서버로 전달된다. 비교적 수명이 짧아서 유출되었을 때
+악용할 수 있는 기간을 제한한다.
 
-### Refresh token
+### 8.2 Refresh token이란?
 
-**Refresh token**은 Access token이 만료되었을 때 새로운 Access token과 Refresh token 쌍을 받는 데
-사용한다. Access token보다 오래 유지되며 보호된 데이터 요청마다 보내지 않고 로그인 상태를 갱신할
-때만 사용한다.
+**Refresh token**은 Access token이 만료되었을 때 새 Access token과 Refresh token을 발급받는 데
+사용한다. Access token보다 오래 유지되며, 일반 데이터 요청마다 보내는 대신 세션을 갱신할 때만
+사용한다.
 
 | 구분 | Access token | Refresh token |
 | --- | --- | --- |
-| 주목적 | 보호된 API에서 사용자 확인 | 만료된 Access token 갱신 |
-| 사용 빈도 | 보호된 데이터 요청마다 | 갱신이 필요할 때 |
+| 사용하는 때 | 로그인이 필요한 데이터 API를 요청할 때 | Access token을 갱신할 때 |
+| 하는 일 | 현재 사용자 확인 | 새로운 토큰 쌍 발급 요청 |
 | 수명 | 비교적 짧음 | 비교적 긺 |
 
+### 8.3 두 토큰을 사용하는 흐름
+
 ```text
-평소 데이터 요청 → Access token으로 사용자 확인
-Access token 만료 → Refresh token으로 새 token 발급 → 데이터 요청 다시 시도
+평소 데이터 요청
+→ Access token으로 사용자 확인
+
+Access token 만료
+→ Refresh token으로 새 토큰 쌍 발급
+→ 새 Access token으로 사용자 확인
 ```
 
-token의 수명과 Supabase session의 실제 유효성은 같은 개념이 아니다. token이 브라우저에 남아 있어도
-이미 사용되었거나 폐기되었거나 session이 유효하지 않으면 사용할 수 없다.
+토큰이 브라우저에 남아 있다는 사실만으로 세션이 유효하다고 단정할 수는 없다. 이미 사용되었거나
+폐기된 Refresh token일 수 있고, Supabase Auth의 세션 자체가 끝났을 수도 있다. 서버는 토큰을 사용할
+때마다 실제 유효성을 확인해야 한다.
 
-이제 브라우저가 두 token을 어디에 보관하고 요청에 어떻게 실어 보내는지 살펴보자.
+## 9. 쿠키: 토큰을 저장하고 전송하는 수단
 
-## 7. 쿠키는 브라우저의 저장·전송 수단이다
-
-**쿠키** (Cookie)는 서버가 HTTP 응답의 `Set-Cookie` header로 브라우저에 저장시키는 작은 값이다.
-브라우저는 이후 조건에 맞는 요청에 쿠키를 자동으로 포함한다.
+**쿠키** (Cookie)는 서버가 HTTP 응답의 `Set-Cookie` 헤더를 통해 브라우저에 저장하는 작은 값이다.
+브라우저는 이후 조건에 맞는 요청을 보낼 때 쿠키를 자동으로 포함한다.
 
 ```http
 Set-Cookie: 이름=값; Path=/; HttpOnly; SameSite=Lax
 ```
 
-쿠키는 값을 보관하고 전송하는 수단이다. 쿠키 자체가 사용자의 신원을 증명하는 것은 아니다. 이
-프로젝트는 앞에서 배운 Access token과 Refresh token을 각각 쿠키에 넣어 보관하고 전송한다.
+쿠키는 값을 저장하고 전송하는 수단일 뿐, 쿠키 자체가 사용자의 신원을 증명하지는 않는다. 이
+프로젝트는 Access token과 Refresh token을 각각 쿠키에 담는다.
 
-현재 [`set_session_cookies()`](../../api/lib/auth.py)는 두 쿠키를 만든다.
+현재 [`set_session_cookies()`](../../api/lib/auth.py)는 다음 두 쿠키를 만든다.
 
-| 쿠키 | 담는 값 | 현재 수명 |
+| 쿠키 이름 | 저장하는 값 | 현재 수명 |
 | --- | --- | --- |
-| `diet_access_token` | Access token | Supabase session의 `expires_in`과 맞춤 |
+| `diet_access_token` | Access token | Supabase 세션의 `expires_in`과 동일 |
 | `diet_refresh_token` | Refresh token | 최대 2,592,000초, 즉 30일 |
 
-두 쿠키의 공통 속성은 다음과 같다.
+두 쿠키에는 다음 속성이 공통으로 적용된다.
 
-- `Path=/`: 앱의 모든 경로 요청에 사용할 수 있다.
-- `HttpOnly`: 브라우저 JavaScript가 `document.cookie`로 값을 읽지 못한다.
-- `SameSite=Lax`: 대부분의 외부 사이트발 상태 변경 요청에는 쿠키 전송을 제한한다.
-- `Secure`: `X-Forwarded-Proto`가 HTTPS일 때 붙어 HTTPS 연결에서만 전송한다.
+- `Path=/`: 앱의 모든 경로로 보내는 요청에 사용할 수 있다.
+- `HttpOnly`: 브라우저 JavaScript가 `document.cookie`로 값을 읽지 못하게 한다.
+- `SameSite=Lax`: 외부 사이트에서 시작된 대부분의 상태 변경 요청에는 쿠키 전송을 제한한다.
+- `Secure`: `X-Forwarded-Proto`가 HTTPS일 때 적용하며, HTTPS 연결에서만 쿠키를 전송한다.
 
-운영 Vercel 요청은 HTTPS이므로 `Secure`를 사용하고, 로컬 HTTP 개발에서는 이 속성을 붙이지 않는다.
-코드에 `Domain` 속성이 없으므로 기본적으로 쿠키를 설정한 host에 한정된다.
+Vercel 운영 환경은 HTTPS를 사용하므로 `Secure` 속성이 붙는다. 로컬 HTTP 개발 환경에서는 이 속성을
+붙이지 않는다. 코드에 `Domain` 속성을 지정하지 않았으므로 쿠키는 기본적으로 쿠키를 설정한 호스트에
+한정된다.
 
-`HttpOnly`여도 브라우저가 쿠키를 전송하지 않는 것은 아니다. JavaScript가 token 문자열을 직접 읽지는
-못하지만, [`fetchApi()`](../../src/services/apiClient.ts)의 `credentials: "same-origin"` 요청에는
-브라우저가 같은 출처의 쿠키를 자동으로 포함한다.
+`HttpOnly`는 JavaScript가 토큰 문자열을 직접 읽지 못하게 할 뿐, 브라우저의 쿠키 전송까지 막지는
+않는다. [`fetchApi()`](../../src/services/apiClient.ts)는 `credentials: "same-origin"`을 사용하므로
+브라우저가 같은 출처의 API 요청에 쿠키를 자동으로 포함한다.
 
-지금까지 Access token이 무엇이고 브라우저가 어디에 보관하는지 살펴봤다. 마지막으로 Access token
-문자열이 어떤 형식으로 만들어지는지 알아보자.
+## 10. JWT: Access token의 표현 형식
 
-## 8. JWT는 Access token을 표현하는 형식이다
+토큰은 역할을 나타내는 넓은 개념이고, JWT는 토큰을 표현하는 형식 중 하나다. 이 프로젝트에서
+Supabase Auth가 발급하는 Access token은 JWT 형식이다.
 
-### JWT를 왜 사용하는가?
+### 10.1 JWT를 사용하는 이유
 
-아무 정보도 드러나지 않는 임의의 문자열 token은 그 문자열이 누구를 가리키고 언제까지 유효한지
-서버의 저장소에서 따로 찾아야 한다. JWT는 사용자, 발급자, 만료 시각 같은 정보를 token 안에 담고
-서명을 붙인다. JWT를 받은 쪽은 어떤 정보를 확인해야 하는지 알 수 있고, 신뢰하는 발급자의 서명을
-검증해 내용이 바뀌었는지 확인할 수 있다.
+아무 정보도 담지 않은 임의의 문자열 토큰은 누구의 토큰인지, 언제 만료되는지 서버 저장소에서 따로
+조회해야 한다. JWT는 사용자, 발급자, 만료 시각 같은 정보를 토큰 안에 담고 서명을 붙인다. 토큰을
+받은 서버는 발급자의 서명을 검증해 내용이 발급 뒤에 바뀌지 않았는지 확인할 수 있다.
 
-JWT에 정보가 들어 있다는 사실만으로 로그인과 권한 확인이 모두 끝나는 것은 아니다. 이 프로젝트도
-Supabase Auth의 확인과 `members` 조회를 추가로 수행한다.
+JWT 안에 사용자 정보가 있다고 해서 인증과 인가가 모두 끝나는 것은 아니다. 이 프로젝트도 Supabase
+Auth의 토큰 확인과 `members` 조회를 추가로 수행한다.
 
-### JWT라는 이름부터 이해하기
+### 10.2 JWT라는 이름의 의미
 
-이 프로젝트에서 사용하는 **JWT** (JSON Web Token)는 정보를 담고 그 정보가 바뀌었는지 확인할 수
-있도록 서명한 token 형식이다. 이름을 나누어 보면 다음과 같다.
+**JWT** (JSON Web Token)는 정보를 담고, 그 정보가 바뀌지 않았음을 검증할 수 있도록 서명한 토큰
+형식이다.
 
-- **JSON**: 이름과 값을 짝지어 정보를 표현하는 형식
-- **Web**: URL과 HTTP header 같은 웹 통신에서 전달하기 쉽도록 간결한 문자로 표현한다는 뜻
-- **Token**: 이후 요청에서 자격을 증명하는 값
+- **JSON**: 이름과 값을 짝지어 정보를 표현하는 형식이다.
+- **Web**: URL이나 HTTP 헤더로 전달하기 쉽도록 간결한 문자열로 표현한다.
+- **Token**: 이후 요청에서 자격을 증명하는 값이다.
 
-JWT는 잠긴 비밀 상자보다 `내용을 볼 수 있는 출입증`에 가깝다. 출입증에는 사용자와 유효 기간 같은
-정보가 적혀 있고, 서명은 그 정보가 발급 후 바뀌지 않았는지 확인하는 위조 방지 표시 역할을 한다.
+JWT는 내용을 감춘 비밀 상자와 다르다. 사용자와 유효 기간 같은 정보는 읽을 수 있고, 서명은 그
+정보가 발급 뒤에 바뀌지 않았는지 확인하는 위조 방지 표시 역할을 한다.
 
-### JWT는 점으로 구분된 세 부분이다
+### 10.3 JWT의 세 부분
 
-이 프로젝트의 Supabase Access token처럼 서명된 JWT는 점(`.`) 두 개로 구분된 긴 문자열이다. 실제
-값은 훨씬 길지만 모양만 단순화하면 다음과 같다.
+이 프로젝트의 Supabase Access token처럼 서명된 JWT는 점(`.`) 두 개로 나뉜 긴 문자열이다. 실제
+값은 훨씬 길지만 구조를 단순하게 표현하면 다음과 같다.
 
 ```text
 aaaaa.bbbbb.ccccc
@@ -212,21 +244,19 @@ aaaaa.bbbbb.ccccc
 header payload signature
 ```
 
-- `header`: 머리말이다. JWT 종류와 서명에 사용할 방식 같은 정보를 담는다.
-- `payload`: 전달할 내용이다. 사용자 ID, 발급자, 만료 시각 같은 Claim을 담는다.
-- `signature`: 서명이다. 신뢰하는 발급자가 만들었는지, header와 payload가 발급 후 바뀌지 않았는지
-  확인할 때 사용한다.
+- `header`: JWT 종류와 서명 방식 같은 정보를 담는다.
+- `payload`: 사용자 ID, 발급자, 만료 시각 같은 Claim을 담는다.
+- `signature`: 신뢰하는 발급자가 만든 토큰인지, header와 payload가 바뀌지 않았는지 확인하는 데
+  사용한다.
 
-점 사이의 문자열은 사람이 읽기 편한 원래 JSON 모습이 아니다. JSON을 웹에서 전달하기 쉬운 문자로
-바꾸는 **인코딩** (Encoding)을 거친 값이다. 인코딩은 정보의 표현 방법을 바꾸는 것이지 내용을 비밀로
-숨기는 암호화가 아니다. 인코딩한 내용을 원래 형태로 되돌려 읽는 과정을 **디코딩** (Decoding)이라고
-한다.
+점 사이의 문자열은 원래 JSON을 웹에서 전달하기 쉬운 문자로 바꾼 값이다. 이 과정을
+**인코딩** (Encoding)이라고 한다. 인코딩은 표현 방법을 바꾸는 것이며 내용을 숨기는 암호화가 아니다.
+인코딩한 값을 원래 표현으로 되돌리는 과정은 **디코딩** (Decoding)이라고 한다.
 
-### Claim은 JWT가 전달하는 정보 항목이다
+### 10.4 Claim이란?
 
-`Claim`은 영어로 주장이라는 뜻이다. JWT에서는 token 발급자가 사용자나 token에 관해 전달하는 정보
-한 항목을 가리킨다. 다음은 개념을 보여 주기 위한 단순한 payload 예시이며 실제 token의 값은 로그인
-사용자와 발급 시각에 따라 달라진다.
+**Claim**은 토큰 발급자가 사용자나 토큰에 관해 전달하는 정보 항목이다. 다음은 개념을 설명하기 위해
+단순화한 payload 예시다. 실제 값은 로그인 사용자와 발급 시각에 따라 달라진다.
 
 ```json
 {
@@ -236,257 +266,249 @@ header payload signature
 }
 ```
 
-| Claim | 뜻 | 확인할 내용 |
+| Claim | 의미 | 확인할 내용 |
 | --- | --- | --- |
-| `sub` | Subject, token이 가리키는 대상 | 어느 사용자의 token인가? |
-| `iss` | Issuer, token을 발급한 곳 | 신뢰하는 Supabase Auth가 발급했는가? |
+| `sub` | Subject, 토큰이 가리키는 대상 | 어느 사용자의 토큰인가? |
+| `iss` | Issuer, 토큰을 발급한 곳 | 신뢰하는 Supabase Auth가 발급했는가? |
 | `exp` | Expiration Time, 만료 시각 | 아직 사용할 수 있는가? |
 
-Claim 이름과 숫자를 외울 필요는 없다. 지금은 payload에 `누구의 token인지`, `누가 발급했는지`, `언제
-만료되는지` 같은 정보가 들어갈 수 있다는 점만 이해하면 된다.
+Claim 이름과 숫자를 외울 필요는 없다. payload에는 `누구의 토큰인지`, `누가 발급했는지`, `언제
+만료되는지` 같은 정보가 들어갈 수 있다는 점을 이해하면 된다.
 
-### 읽을 수 있다는 것과 신뢰할 수 있다는 것은 다르다
+### 10.5 JWT의 내용을 읽는 것과 신뢰하는 것은 다르다
 
-JWT 문자열을 가진 사람은 header와 payload를 decode해 읽을 수 있다. 따라서 비밀번호나
-`SUPABASE_SERVICE_ROLE_KEY` 같은 비밀값을 넣으면 안 된다.
+JWT 문자열을 가진 사람은 header와 payload를 디코딩해 읽을 수 있다. 따라서 비밀번호나
+`SUPABASE_SERVICE_ROLE_KEY` 같은 비밀값을 payload에 넣으면 안 된다.
 
-하지만 payload를 읽었다고 해서 그 내용을 바로 믿을 수 있는 것은 아니다. 누군가 payload의 사용자
-ID나 만료 시각을 바꿔 가짜 JWT 모양을 만들 수 있기 때문이다. 신뢰하려면 다음 확인이 필요하다.
+payload를 읽었다고 해서 그 내용을 곧바로 믿을 수도 없다. 누군가 사용자 ID나 만료 시각을 바꿔
+가짜 JWT 모양의 문자열을 만들 수 있기 때문이다. 서버는 적어도 다음 내용을 확인해야 한다.
 
-1. 신뢰하는 발급자의 키로 signature가 올바른지 확인한다.
-2. `iss`가 신뢰하는 발급자를 가리키는지 확인한다.
-3. `exp`가 지나 token이 만료되지 않았는지 확인한다.
+1. 신뢰하는 발급자의 키로 만든 올바른 signature인가?
+2. `iss`가 신뢰하는 발급자를 가리키는가?
+3. `exp`가 지나지 않았는가?
 
-payload를 바꾸면 원래 signature와 맞지 않게 된다. 따라서 signature 검증은 `내용을 읽는 과정`이
-아니라 `발급 후 내용이 바뀌지 않았는지 확인하는 과정`이다.
+payload가 바뀌면 원래 signature와 맞지 않는다. signature 검증은 내용을 읽는 과정이 아니라, 발급
+뒤에 내용이 변조되지 않았는지 확인하는 과정이다.
 
-실제 Access token은 로그인 자격 증명이므로 임의의 온라인 decoder, 문서, 채팅이나 로그에 붙여 넣지
-않는다.
+실제 Access token은 로그인 자격 증명이다. 임의의 온라인 디코더, 문서, 채팅, 로그에 실제 토큰을
+붙여 넣지 않는다.
 
-### 이 프로젝트에서는 JWT를 어떻게 확인하는가?
+### 10.6 이 프로젝트에서 JWT를 확인하는 방법
 
-이 프로젝트는 JWT를 직접 만들거나 브라우저에서 payload를 읽어 권한을 결정하지 않는다.
+이 프로젝트는 JWT를 직접 만들지 않으며, 브라우저에서 payload만 읽어 권한을 결정하지도 않는다.
 
-```text
 1. 로그인에 성공하면 Supabase Auth가 JWT 형식의 Access token을 발급한다.
-2. Python API가 전체 token 문자열을 diet_access_token HttpOnly 쿠키에 넣는다.
-3. 브라우저가 다음 API 요청에 쿠키를 자동으로 함께 보낸다.
-4. require_member()가 쿠키에서 Access token을 읽는다.
-5. require_member()가 전체 token을 Supabase Auth의 get_user(token)에 전달한다.
-6. Supabase Auth가 유효한 사용자를 확인해 결과를 돌려준다.
-7. Python API가 같은 사용자 ID의 members 행까지 확인한다.
-```
+2. Python API가 전체 토큰 문자열을 `diet_access_token` HttpOnly 쿠키에 넣는다.
+3. 브라우저가 이후 API 요청에 쿠키를 자동으로 포함한다.
+4. [`require_member()`](../../api/lib/auth.py)가 쿠키에서 Access token을 읽는다.
+5. `require_member()`가 전체 토큰을 Supabase Auth의 `get_user(token)`에 전달한다.
+6. Supabase Auth가 토큰을 확인하고 유효한 사용자 정보를 반환한다.
+7. Python API가 같은 사용자 ID의 `members` 행을 확인한다.
 
-즉, Python API는 JWT를 점으로 나누어 payload만 읽고 사용자를 믿지 않는다.
-[`require_member()`](../../api/lib/auth.py)는 Supabase Auth가 확인한 사용자와 이 앱의 `members` 행을
-차례대로 확인한다. JWT가 유효해도 `members` 행이 없으면 이 앱의 회원으로 허용하지 않는다.
+Python API는 JWT를 점으로 나누어 payload만 읽은 뒤 사용자를 믿지 않는다. JWT가 유효하더라도 같은
+ID의 `members` 행이 없으면 이 앱의 회원으로 허용하지 않는다.
 
-## 이제 개념의 관계를 한 번에 연결하기
+## 11. 개념 관계 정리
 
-각 개념을 따로 살펴본 뒤 연결하면 다음과 같다.
+지금까지 설명한 개념은 다음처럼 연결된다.
 
 ```text
-인증: 누구인지 확인
-인가: 확인된 사람이 무엇을 할 수 있는지 판단
+로그인
+→ 인증: 요청자가 누구인지 확인
+→ 인가: 확인된 사용자의 접근 범위 결정
 
-세션: 로그인 상태가 이어지는 관계
-├─ Access token: API 사용자 확인용 자격 증명
-└─ Refresh token: session 갱신용 자격 증명
+세션: 로그인 상태가 여러 요청 사이에서 이어지는 관계
+├─ Access token: 식단·체중 API에서 사용자를 확인하는 자격 증명
+└─ Refresh token: 만료된 Access token을 갱신하는 자격 증명
 
-쿠키: 두 token을 브라우저에 저장하고 자동 전송하는 수단
-JWT: Access token의 정보를 표현하는 형식
+쿠키: 두 토큰을 브라우저에 저장하고 요청에 자동으로 포함하는 수단
+JWT: Access token을 표현하는 형식
 ```
 
-“쿠키 기반인가, JWT 기반인가?”를 반드시 둘 중 하나로만 고를 필요는 없다. 이 프로젝트는 JWT access
-token을 HttpOnly 쿠키로 보관·전송하면서 Supabase Auth session을 사용한다.
+따라서 “쿠키 기반인가, JWT 기반인가?”를 반드시 둘 중 하나로만 나눌 필요는 없다. 이 프로젝트는
+Supabase Auth 세션을 사용하고, JWT 형식의 Access token을 HttpOnly 쿠키에 저장해 전송한다.
 
-## 회원가입과 이메일 확인 흐름
+## 12. 회원가입과 이메일 확인 흐름
 
-회원가입은 이메일을 실제로 소유한 사용자인지 확인한 뒤 앱 회원을 만든다.
+회원가입은 사용자가 입력한 이메일을 실제로 사용할 수 있는지 확인한 뒤 앱 회원을 만드는 과정이다.
 
-```text
-1. AuthGate
-   이름·이메일·비밀번호 제출
-   ↓ POST /api/authentication?action=signup
-2. Python API
-   Pydantic으로 이메일·비밀번호·이름 검증
-   ↓
-3. Supabase Auth sign_up()
-   미확인 auth.users 생성, 확인 메일 발송
-   ↓
-4. reserve_member_signup DB 함수
-   member_signup_claims에 표시 이름·이메일 임시 보관
-   ↓
-5. 사용자
-   이메일의 6자리 번호 입력
-   ↓ POST ...?action=verify_email
-6. Supabase Auth verify_otp()
-   이메일 확인, session과 token pair 발급
-   ↓
-7. complete_verified_member_signup DB 함수
-   이메일 확인 상태 재검사, public.members 생성
-   ↓
-8. Python API
-   두 token은 HttpOnly cookie로 설정
-   안전한 회원 프로필만 JSON으로 반환
-```
+1. 사용자가 [`AuthGate`](../../src/components/AuthGate.tsx)에 이름, 이메일, 비밀번호를 입력한다.
+2. `AuthGate`가 `POST /api/authentication?action=signup`을 호출한다.
+3. Python API가 Pydantic으로 이름, 이메일, 비밀번호를 검사한다.
+4. Supabase Auth의 `sign_up()`이 미확인 `auth.users` 사용자를 만들고 확인 메일을 보낸다.
+5. `reserve_member_signup` DB 함수가 표시 이름과 이메일을 `member_signup_claims`에 임시로 보관한다.
+6. 사용자가 이메일로 받은 6자리 인증번호를 입력한다.
+7. `AuthGate`가 `POST /api/authentication?action=verify_email`을 호출한다.
+8. Supabase Auth의 `verify_otp()`가 인증번호를 확인하고 세션과 토큰 쌍을 발급한다.
+9. `complete_verified_member_signup` DB 함수가 이메일 확인 상태를 다시 검사하고
+   `public.members` 행을 만든다.
+10. Python API가 두 토큰을 HttpOnly 쿠키로 설정하고, 공개해도 안전한 회원 프로필만 JSON으로
+    반환한다.
 
-[`AuthGate`](../../src/components/AuthGate.tsx)는 인증 화면을 새로고침해도 이어갈 수 있도록 가입 대기
-이메일만 `sessionStorage`에 저장한다. access token과 refresh token은 `sessionStorage`나
-`localStorage`에 저장하지 않는다.
+`AuthGate`는 인증번호 입력 화면을 새로고침 뒤에도 유지하기 위해 가입 중인 이메일만
+`sessionStorage`에 저장한다. Access token과 Refresh token은 `sessionStorage`나 `localStorage`에
+저장하지 않는다.
 
-## 일반 로그인 흐름
+## 13. 이메일과 비밀번호로 로그인하는 흐름
 
-1. `AuthGate`가 이메일과 비밀번호를 `POST ...?action=login`으로 보낸다.
+이미 가입을 마친 회원의 로그인은 다음 순서로 진행된다.
+
+1. `AuthGate`가 이메일과 비밀번호를 `POST /api/authentication?action=login`으로 보낸다.
 2. [`CredentialsRequest`](../../api/models/auth.py)가 이메일 형식과 8~128자 비밀번호 길이를 검사한다.
 3. Python API가 Supabase Auth의 `sign_in_with_password()`를 호출한다.
-4. Supabase Auth가 계정을 확인하고 session의 access/refresh token을 돌려준다.
+4. Supabase Auth가 계정을 확인하고 세션의 Access token과 Refresh token을 반환한다.
 5. Python API가 같은 사용자 ID의 `members` 행을 확인한다.
-6. 가입 대기 상태에서 이메일 확인을 마친 회원이라면 필요한 회원 완료 DB 함수를 실행할 수 있다.
-7. Python API가 두 token을 HttpOnly cookie로 설정한다.
-8. 응답 JSON에는 `id`, `email`, `displayName`만 담고 token은 넣지 않는다.
-9. `AuthGate`가 회원 프로필을 React state에 저장하고 앱 화면을 보여준다.
+6. 이메일 확인을 마쳤지만 가입 완료 처리가 남은 회원이라면 필요한 회원 완료 DB 함수를 실행한다.
+7. Python API가 두 토큰을 HttpOnly 쿠키로 설정한다.
+8. 응답 JSON에는 `id`, `email`, `displayName`만 담고 토큰은 포함하지 않는다.
+9. `AuthGate`가 회원 프로필을 React 상태에 저장하고 서비스 화면을 보여 준다.
 
-잘못된 이메일과 잘못된 비밀번호에는 모두 `INVALID_CREDENTIALS`를 사용해 계정 존재 여부를 자세히
-노출하지 않는다.
+잘못된 이메일과 잘못된 비밀번호에는 모두 `INVALID_CREDENTIALS` 오류를 사용한다. 두 경우를 구분해
+알려 주지 않으므로 해당 이메일의 계정이 실제로 존재하는지 자세히 노출하지 않는다.
 
-## 앱 진입과 세션 확인·갱신 흐름
+## 14. 앱 진입 시 세션을 확인하고 갱신하는 흐름
 
-앱을 열면 `AuthGate`는 먼저 `GET /api/authentication?action=session`을 호출한다.
+앱을 열면 `AuthGate`가 `GET /api/authentication?action=session`을 호출해 현재 로그인 상태를 확인한다.
 
-```text
-access cookie가 있는가?
-└─ require_member()로 Auth 사용자와 members 확인
-   ├─ 성공 → 현재 회원 프로필 반환
-   └─ 실패 → refresh cookie 확인
-              ├─ 없음 → 두 cookie 만료 + 401
-              └─ 있음 → Supabase Auth refresh_session()
-                         ├─ 성공 → 새 access로 회원 재확인
-                         │          + 두 cookie 교체 + 회원 반환
-                         └─ 실패 → 두 cookie 만료 + 401
-```
+1. Access token 쿠키가 있으면 `require_member()`로 Supabase Auth 사용자와 `members` 회원을 확인한다.
+2. 확인에 성공하면 현재 회원 프로필을 반환한다.
+3. Access token 확인에 실패하면 Refresh token 쿠키가 있는지 찾는다.
+4. Refresh token도 없으면 두 쿠키를 만료시키고 HTTP `401`을 반환한다.
+5. Refresh token이 있으면 Supabase Auth의 `refresh_session()`으로 새 토큰 쌍을 요청한다.
+6. 갱신에 성공하면 새 Access token으로 회원을 다시 확인하고 두 쿠키를 교체한다.
+7. 갱신이나 회원 확인에 실패하면 두 쿠키를 만료시키고 HTTP `401`을 반환한다.
 
-현재 자동 갱신은 이 session endpoint를 호출할 때 수행한다. `/api/day`, `/api/weight` 같은 일반 데이터
-API가 `401`을 반환했을 때 프론트엔드가 session을 갱신하고 원래 요청을 자동 재시도하는 기능은 없다.
+현재 자동 갱신은 이 세션 엔드포인트를 호출할 때만 수행한다. `/api/day`, `/api/weight` 같은 일반
+데이터 API가 `401`을 반환했을 때, 프론트엔드가 세션을 갱신하고 원래 요청을 자동으로 다시 보내는
+기능은 없다.
 
-## 인증된 데이터 요청 흐름
+## 15. 인증된 사용자가 데이터를 요청하는 흐름
 
-로그인 후 체중을 저장할 때는 다음 경계를 다시 통과한다.
+로그인한 회원이 체중을 저장할 때는 다음 경계를 다시 통과한다.
 
-```text
-fetchApi("/api/weight", credentials="same-origin")
-→ 브라우저가 diet_access_token cookie 자동 첨부
-→ Python API의 require_member()
-→ Supabase Auth get_user(access_token)
-→ public.members에서 같은 ID 확인
-→ 검증된 member.id를 weight payload의 member_id로 추가
-→ Supabase PostgreSQL에 해당 회원 기록 저장
-```
+1. `fetchApi("/api/weight", { credentials: "same-origin" })`가 API 요청을 보낸다.
+2. 브라우저가 `diet_access_token` 쿠키를 자동으로 포함한다.
+3. Python API의 `require_member()`가 쿠키에서 Access token을 읽는다.
+4. Supabase Auth의 `get_user(access_token)`이 사용자를 확인한다.
+5. Python API가 `public.members`에서 같은 ID의 회원을 확인한다.
+6. 검증된 `member.id`를 체중 데이터의 `member_id`에 넣는다.
+7. Supabase PostgreSQL이 해당 회원의 기록으로 저장한다.
 
-브라우저가 `member_id`를 골라 보내지 않는다. Python API가 검증된 사용자와 회원에서 ID를 결정한다.
-cookie가 없거나 token·회원 확인에 실패하면 보호된 API는 HTTP `401`과 `AUTH_REQUIRED`를 반환한다.
+브라우저는 `member_id`를 선택해서 보내지 않는다. Python API가 확인된 사용자와 회원 정보를 바탕으로
+ID를 결정한다. 쿠키가 없거나 토큰·회원 확인에 실패하면 로그인이 필요한 데이터 API는 HTTP `401`과
+`AUTH_REQUIRED`를 반환한다.
 
-## 이 프로젝트에서 인가는 어디에서 이루어지는가?
+## 16. 이 프로젝트의 실제 인가 경계
 
-데이터 table에는 RLS가 켜져 있지만 Python API는 RLS를 우회할 수 있는 service role로 Supabase에
-접근한다. 브라우저의 사용자 JWT를 table query에 직접 적용해 RLS 정책이 회원 행을 고르는 구조가
-아니다.
+개인 데이터 테이블에는 RLS가 켜져 있지만, Python API는 RLS를 우회할 수 있는 `service role`로
+Supabase에 접근한다. 브라우저의 사용자 JWT를 테이블 쿼리에 직접 적용해 RLS 정책이 회원 행을
+선택하는 구조가 아니다.
 
-따라서 현재 실제 인가 경계는 다음 두 가지가 함께 있어야 한다.
+따라서 다음 두 조건이 함께 지켜져야 회원별 데이터가 분리된다.
 
-1. 모든 보호된 endpoint가 `require_member()`로 사용자와 앱 회원을 확인한다.
-2. 모든 개인 데이터 query가 검증된 `member.id`를 조건이나 저장 payload에 사용한다.
+1. 모든 보호된 엔드포인트가 `require_member()`로 Supabase Auth 사용자와 앱 회원을 확인한다.
+2. 모든 개인 데이터 쿼리와 저장 데이터가 검증된 `member.id`를 조건으로 사용한다.
 
-service role key는 Python 서버의 환경 변수에만 두고 브라우저로 보내지 않는다.
+`service role` key는 Python 서버의 환경 변수에만 보관하며 브라우저로 보내지 않는다.
 
-## 로그아웃 흐름과 현재 범위
+## 17. 로그아웃 흐름과 현재 범위
+
+현재 로그아웃은 다음 순서로 동작한다.
 
 1. `AuthGate`가 `POST /api/authentication?action=logout`을 호출한다.
-2. Python API가 두 cookie에 `Max-Age=0`을 설정한다.
-3. 브라우저가 cookie를 제거한다.
-4. `AuthGate`가 React state의 회원을 `null`로 바꾸고 로그인 화면을 표시한다.
+2. Python API가 두 인증 쿠키에 `Max-Age=0`을 설정한다.
+3. 브라우저가 `diet_access_token`과 `diet_refresh_token` 쿠키를 제거한다.
+4. `AuthGate`가 React 상태의 회원을 `null`로 바꾸고 로그인 화면을 보여 준다.
 
-현재 logout endpoint는 Supabase Auth의 server-side `sign_out()`이나 모든 기기의 session 폐기를
-호출하지 않는다. 즉, **현재 기기의 브라우저가 보관한 token을 제거하는 로그아웃**이다. token이
-별도로 유출되었다고 가정했을 때 그것까지 즉시 폐기하는 전역 로그아웃과는 범위가 다르다.
+현재 로그아웃 엔드포인트는 Supabase Auth의 서버 측 `sign_out()`을 호출하거나 모든 기기의 세션을
+폐기하지 않는다. 즉, 현재 기기의 브라우저가 보관한 토큰을 제거하는 범위의 로그아웃이다. 토큰이
+별도로 유출되었을 때 그 토큰까지 즉시 폐기하는 전역 로그아웃과는 다르다.
 
-## 쿠키 보안 속성이 줄이는 위험
+## 18. 쿠키 보안 속성과 남아 있는 위험
 
-### HttpOnly
+쿠키의 보안 속성은 특정 공격의 위험을 줄이지만, 한 가지 속성이 모든 문제를 해결하지는 않는다.
 
-JavaScript가 cookie의 token 문자열을 직접 읽지 못하게 해 XSS가 발생했을 때 token을 그대로 훔치는
-위험을 줄인다. 그러나 악성 JavaScript가 사용자의 브라우저에서 요청을 실행하는 것까지 모두 막는
-설정은 아니므로 XSS 예방 자체도 필요하다.
+### 18.1 HttpOnly
 
-### SameSite=Lax
+`HttpOnly`는 JavaScript가 쿠키의 토큰 문자열을 직접 읽지 못하게 한다. XSS가 발생했을 때 토큰 문자열
+자체를 훔치는 위험을 줄일 수 있다. 그러나 악성 JavaScript가 사용자의 브라우저에서 요청을 보내는
+행위까지 막지는 못하므로 XSS 취약점 자체도 예방해야 한다.
 
-대부분의 외부 사이트발 `POST`, `PUT`, `DELETE` 요청에 cookie가 붙는 것을 제한해 CSRF 위험을
-줄인다. 모든 브라우저·요청 상황의 CSRF를 해결하는 단독 방어는 아니다. 현재 별도의 CSRF token이나
-Origin 검증은 구현되어 있지 않다.
+### 18.2 SameSite=Lax
 
-### Secure와 HTTPS
+`SameSite=Lax`는 외부 사이트에서 시작된 대부분의 `POST`, `PUT`, `DELETE` 요청에 쿠키가 포함되는
+것을 제한해 CSRF 위험을 줄인다. 하지만 모든 브라우저와 요청 상황의 CSRF를 단독으로 막는 설정은
+아니다. 현재 별도의 CSRF token이나 `Origin` 검증은 구현되어 있지 않다.
 
-`Secure` cookie는 HTTPS 연결에서만 전송된다. HTTPS는 브라우저와 Vercel 사이를 이동하는 token이
-네트워크에서 그대로 노출될 위험을 줄인다. `Secure`만으로 token 탈취 가능성이 모두 사라지는 것은
-아니다.
+### 18.3 Secure와 HTTPS
 
-## 자주 생기는 오해
+`Secure` 쿠키는 HTTPS 연결에서만 전송된다. HTTPS는 브라우저와 Vercel 사이를 오가는 토큰이
+네트워크에서 그대로 노출될 위험을 줄인다. `Secure` 속성만으로 토큰 탈취 가능성이 모두 사라지는
+것은 아니다.
 
-### 로그인, 세션, 쿠키, 토큰, JWT는 같은 말인가?
+## 19. 자주 하는 오해
 
-아니다. 로그인은 인증 동작, 세션은 이어지는 로그인 상태, 쿠키는 브라우저 저장·전송 수단, token은
-자격 증명, JWT는 token 형식 중 하나다.
+### 19.1 로그인, 세션, 쿠키, 토큰, JWT는 같은 말인가?
 
-### JWT를 쓰면 쿠키를 쓰지 않는가?
+아니다. 로그인은 사용자를 인증하는 동작이고, 세션은 로그인 상태가 이어지는 관계다. 토큰은 이후
+요청에서 사용하는 자격 증명이고, 쿠키는 값을 저장하고 전송하는 수단이다. JWT는 토큰을 표현하는
+형식 중 하나다.
 
-아니다. JWT를 어디에 보관하고 어떻게 보낼지는 별도 선택이다. 이 프로젝트는 JWT access token을
-HttpOnly cookie에 넣는다.
+### 19.2 JWT를 사용하면 쿠키를 사용하지 않는가?
 
-### JWT payload는 암호화된 비밀 공간인가?
+아니다. JWT를 어디에 저장하고 어떻게 보낼지는 별도의 선택이다. 이 프로젝트는 JWT 형식의 Access
+token을 HttpOnly 쿠키에 저장한다.
 
-아니다. payload는 decode해 읽을 수 있다. 서명은 변조 여부를 검증하지만 내용을 숨기지 않는다.
+### 19.3 JWT payload는 암호화된 비밀 공간인가?
 
-### Refresh token도 JWT인가?
+아니다. payload는 디코딩해 읽을 수 있다. signature는 변조 여부를 확인하지만 내용을 숨기지는
+않는다.
 
-Supabase Auth에서는 아니다. access token은 JWT이고 refresh token은 session 갱신용 고유 문자열이다.
+### 19.4 Refresh token도 JWT인가?
 
-### HttpOnly면 모든 XSS와 CSRF가 해결되는가?
+Supabase Auth에서는 아니다. Access token은 JWT이고, Refresh token은 세션 갱신에 사용하는 고유
+문자열이다.
 
-아니다. JavaScript의 token 문자열 접근을 막는 한 가지 보호다. XSS 예방과 CSRF 방어에는 다른
-보호도 함께 필요하다.
+### 19.5 HttpOnly면 모든 XSS와 CSRF 문제가 해결되는가?
 
-### React state에 member가 있으면 서버 권한도 생기는가?
+아니다. `HttpOnly`는 JavaScript가 토큰 문자열을 직접 읽지 못하게 하는 한 가지 보호 장치다. XSS
+예방과 CSRF 방어에는 다른 보호도 함께 필요하다.
 
-아니다. 프론트엔드 state는 바꿀 수 있다. 서버는 요청마다 token과 `members`를 확인하고 자신의
-`member_id`에만 접근하도록 제한한다.
+### 19.6 React 상태에 회원 정보가 있으면 서버 권한도 생기는가?
 
-### 로그아웃하면 모든 기기의 Supabase session이 즉시 폐기되는가?
+아니다. 프론트엔드 상태는 사용자가 바꿀 수 있다. 서버는 요청마다 토큰과 `members` 회원을 확인하고,
+검증된 `member_id`에 해당하는 데이터만 다루도록 제한한다.
 
-현재 구현에서는 아니다. 이 브라우저의 cookie를 만료할 뿐 Supabase server-side 전역 로그아웃을
+### 19.7 로그아웃하면 모든 기기의 Supabase 세션이 즉시 폐기되는가?
+
+현재 구현에서는 아니다. 현재 브라우저의 쿠키를 만료할 뿐, Supabase Auth의 서버 측 전역 로그아웃은
 호출하지 않는다.
 
-## 이해 확인
+## 20. 이해 확인
 
-1. 인증과 인가는 각각 어떤 질문에 답하는가?
-2. 세션과 token은 어떤 점에서 다른가?
-3. Access token과 Refresh token은 각각 언제 사용하는가?
-4. 쿠키는 token과 어떤 점에서 다른가?
-5. token과 JWT는 어떤 관계인가?
-6. JWT의 header, payload, signature는 각각 어떤 역할을 하는가?
-7. JWT의 payload를 읽는 것만으로 사용자를 믿을 수 없는 이유는 무엇인가?
-8. `require_member()`는 cookie 존재 확인 외에 무엇을 확인하는가?
-9. 현재 로그아웃이 처리하는 범위와 처리하지 않는 범위는 무엇인가?
+1. 여러 회원이 사용하는 앱에서 로그인이 필요한 이유는 무엇인가?
+2. 인증과 인가는 각각 어떤 질문에 답하는가?
+3. 로그인 상태와 세션은 어떤 관계인가?
+4. 세션과 토큰은 무엇이 다른가?
+5. Access token과 Refresh token은 각각 언제 사용하는가?
+6. 쿠키는 토큰과 무엇이 다른가?
+7. 토큰과 JWT는 어떤 관계인가?
+8. JWT의 header, payload, signature는 각각 어떤 역할을 하는가?
+9. JWT payload를 읽는 것만으로 사용자를 신뢰할 수 없는 이유는 무엇인가?
+10. `require_member()`는 쿠키의 존재 여부 외에 무엇을 확인하는가?
+11. 현재 로그아웃이 처리하는 범위와 처리하지 않는 범위는 무엇인가?
 
-답하기 어렵다면 **인증 → 인가 → 로그인 상태 → 세션 → token → Access·Refresh token → 쿠키 →
-JWT** 순서로 한 항목씩 다시 읽는다.
+답하기 어렵다면 **로그인이 필요한 이유 → 인증 → 인가 → 로그인 상태 → 세션 → 토큰 → Access
+token과 Refresh token → 쿠키 → JWT** 순서로 다시 읽어 본다.
 
-## 파일을 어디서부터 읽으면 될까?
+## 21. 관련 코드를 읽는 순서
 
-1. [`src/components/AuthGate.tsx`](../../src/components/AuthGate.tsx): 인증 화면과 앱 진입 session 확인
-2. [`api/authentication.py`](../../api/authentication.py): 가입·로그인·확인·갱신·로그아웃 처리 순서
+1. [`src/components/AuthGate.tsx`](../../src/components/AuthGate.tsx): 인증 화면과 앱 진입 시 세션 확인
+2. [`api/authentication.py`](../../api/authentication.py): 회원가입, 로그인, 이메일 확인, 세션 갱신,
+   로그아웃 처리
 3. [`api/models/auth.py`](../../api/models/auth.py): 인증 요청 입력 규칙
-4. [`api/lib/auth.py`](../../api/lib/auth.py): cookie 발급·삭제와 `require_member()`
-5. [`api/lib/supabase_client.py`](../../api/lib/supabase_client.py): 서버 전용 Supabase client
+4. [`api/lib/auth.py`](../../api/lib/auth.py): 쿠키 발급·삭제와 `require_member()`
+5. [`api/lib/supabase_client.py`](../../api/lib/supabase_client.py): 서버 전용 Supabase 클라이언트
 6. [`202608130003_enable_multi_member_signup.sql`](../../supabase/migrations/202608130003_enable_multi_member_signup.sql):
    현재 다중 회원 가입 DB 함수
 
@@ -500,6 +522,5 @@ JWT** 순서로 한 항목씩 다시 읽는다.
 
 ## 다음 문서
 
-다음 [인프라와 배포 집중하기](./07-infrastructure-and-deployment.md)에서는 가비아에서 관리하는
-도메인·DNS 레코드가 Vercel로 연결되는 과정, Vercel과 Supabase의 실행 역할, HTTPS와 환경 변수를
-확대한다.
+다음 [인프라와 배포 집중하기](./07-infrastructure-and-deployment.md)에서는 가비아에서 관리하는 도메인과
+DNS 레코드가 Vercel로 연결되는 과정, Vercel과 Supabase의 역할, HTTPS와 환경 변수를 설명한다.
