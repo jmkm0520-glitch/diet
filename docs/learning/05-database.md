@@ -69,7 +69,7 @@ Supabase가 제공하는 PostgreSQL에 데이터를 저장하고, Python Supabas
 | `user-b` | `2026-08-17` | 72.1 | `2026-08-17 10:20+00` |
 
 - **데이터베이스** (Database): 여러 schema와 table, 규칙을 담는 전체 저장 공간이다.
-- **스키마** (Schema): table을 용도별로 묶는 이름 공간이다. `public.weights`의 `public`이 schema다.
+- **스키마** (Schema): 데이터베이스 안에서 관련 table을 용도별로 묶는 이름 공간이다.
 - **테이블** (Table): 같은 종류의 데이터를 표 형태로 모은다. `weights`는 체중 기록 table이다.
 - **레코드·행** (Record / Row): 기록 한 건이다. 위 표의 가로 한 줄이 한 회원의 하루 체중이다.
 - **열** (Column): 각 기록이 공통으로 가지는 항목이다. `date`, `weight` 등이 column이다.
@@ -77,7 +77,46 @@ Supabase가 제공하는 PostgreSQL에 데이터를 저장하고, Python Supabas
   `numeric(6, 2)`를 사용한다.
 - **NULL**: 값이 아직 없거나 알 수 없음을 나타낸다. 숫자 `0`이나 빈 문자열 `""`과 다르다.
 
-SQL에서는 `public.weights`처럼 `schema.table` 형태로 정확한 대상을 표현할 수 있다.
+### 스키마를 조금 더 자세히 보기
+
+하나의 PostgreSQL 데이터베이스 안에는 여러 schema가 있을 수 있다. 먼저 데이터베이스를 큰 건물,
+schema를 용도에 따라 나눈 공간이라고 생각해 보자. 각 공간 안에는 그 용도에 맞는 table이 들어간다.
+
+Supabase 프로젝트에는 여러 schema가 있다. 처음에는 다음 세 가지의 역할만 구분하면 된다.
+
+```text
+Supabase의 PostgreSQL 데이터베이스
+├─ auth schema       ← 로그인 사용자와 인증 정보
+├─ public schema     ← 이 프로젝트가 만든 회원·체중·식단 데이터
+└─ storage schema    ← Supabase Storage가 파일을 관리하기 위한 정보
+```
+
+| 스키마 | 누가 관리하는가? | 무엇을 담는가? | 이 프로젝트에서 사용하는가? |
+| --- | --- | --- | --- |
+| `auth` | Supabase Auth | 로그인 사용자, 인증 방법, 로그인 유지 정보 | 로그인 사용자 원본인 `auth.users`를 사용한다. |
+| `public` | 프로젝트 개발자 | 앱에서 직접 만든 table과 함수 | `members`, `weights`, `meals`, `member_signup_claims`를 사용한다. |
+| `storage` | Supabase Storage | file을 묶는 저장 공간과 file의 이름·경로 같은 관리 정보 | 현재 사용하지 않는다. |
+
+`public`은 PostgreSQL이 기본으로 사용하는 schema 이름이다. table을 만들 때 schema를 따로 지정하지
+않으면 일반적으로 `public` schema에 만들어진다. 여기서 `public`은 “누구나 이 데이터에 접근할 수
+있다”는 뜻이 아니다. 실제 접근 가능 여부는 권한과 **행 단위 보안** (Row Level Security, RLS) 같은
+별도의 규칙으로 결정된다.
+
+SQL에서는 다음처럼 `schema.table` 형태로 대상을 정확하게 표현할 수 있다.
+
+```text
+public.weights
+public  = schema 이름
+weights = table 이름
+```
+
+따라서 `public.members`는 `public` schema 안의 `members` table이고, `auth.users`는 `auth` schema
+안의 `users` table이다.
+
+`storage` schema에는 file 자체가 아니라 file을 관리하기 위한 정보가 저장된다. 실제 file 작업은
+Supabase Storage API를 통해 수행한다. 이 프로젝트에는 Supabase Storage를 사용하는 코드가 없으며,
+[`localDayStorage.ts`](../../src/services/localDayStorage.ts)의 브라우저 **로컬 스토리지**
+(Local Storage)는 Supabase의 `storage` schema와 다른 개념이다.
 
 ## 이 프로젝트의 핵심 테이블 지도
 
@@ -139,9 +178,9 @@ public.members
 - `meals.id`는 식단 행의 UUID PK이며 값이 없으면 `gen_random_uuid()`가 기본값을 만든다.
 - `member_signup_claims.user_id`는 가입 대기 행의 PK다.
 
-현재 `weights`는 처음에는 `date`가 PK였지만 다중 회원 구조로 변경하면서 그 PK를 제거했다. 지금은
-별도의 PK 없이 `(member_id, date)` UNIQUE가 회원별 하루 체중 슬롯을 구분한다. 일반적으로 table마다
-안정적인 PK를 두는 것이 권장되지만, 여기서는 현재 마이그레이션의 실제 상태를 기준으로 이해한다.
+이 프로젝트의 `weights` table에는 별도의 PK가 없다. 대신 `(member_id, date)` UNIQUE가 같은 회원의
+같은 날짜에 체중 행이 중복되지 않도록 막는다. 이 제약은 행을 대표하는 PK가 아니라, 프로젝트에서
+중복되면 안 되는 값의 조합을 정한 UNIQUE 규칙이다.
 
 ### FOREIGN KEY: 다른 테이블과의 관계
 
@@ -312,12 +351,28 @@ PostgreSQL은 PK와 UNIQUE를 만들 때 이를 검사할 고유 인덱스도 �
 
 ### 트랜잭션: 여러 변경을 한 작업으로 묶기
 
-일부 마이그레이션은 `BEGIN`으로 시작하고 `COMMIT`으로 끝난다. **트랜잭션** (Transaction)은 그 사이의
-여러 작업을 하나의 단위로 묶는다. 모두 성공하면 반영하고 중간에 실패하면 일부만 적용된 어정쩡한
-상태를 피할 수 있다.
+**트랜잭션** (Transaction)은 여러 데이터베이스 작업을 하나의 작업 단위로 묶는 방법이다. 묶인
+작업은 전부 성공하면 함께 반영하고, 하나라도 실패하면 전부 취소한다.
 
-`member_id` 추가, UNIQUE 변경, 권한 설정처럼 서로 의존하는 여러 변경을 한 구조 변경으로 처리할 때
-이 경계가 중요하다.
+예를 들어 서로 관련된 table과 column을 차례대로 변경하다가 중간 작업이 실패했다고 생각해 보자.
+앞의 변경만 데이터베이스에 남으면 서로 맞지 않는 구조가 될 수 있다. 트랜잭션은 이런 일부 변경만
+남는 상황을 막는다.
+
+- `BEGIN`: 트랜잭션의 시작을 알린다.
+- `COMMIT`: 묶인 작업이 모두 성공했을 때 모든 변경을 최종 반영한다.
+- `ROLLBACK`: 문제가 생겼을 때 묶인 변경을 모두 취소하고 시작 전 상태로 되돌린다.
+
+```text
+모두 성공한 경우
+BEGIN → 작업 1 성공 → 작업 2 성공 → COMMIT → 모든 변경 반영
+
+중간에 실패한 경우
+BEGIN → 작업 1 성공 → 작업 2 실패 → ROLLBACK → 모든 변경 취소
+```
+
+이 프로젝트의 일부 마이그레이션도 `BEGIN`으로 시작하고 `COMMIT`으로 끝난다. `members` table 생성,
+`member_id` 추가, UNIQUE 변경, 권한 설정처럼 서로 의존하는 여러 변경을 하나의 트랜잭션으로 묶는다.
+따라서 모든 변경이 완료된 구조와 변경 전 구조 중 하나만 남고, 중간까지만 변경된 구조는 남지 않는다.
 
 ## 누가 데이터베이스에 접근하는가?
 
@@ -411,6 +466,9 @@ query를 측정해 판단해야 한다.
 ## 공식 참고 자료
 
 - [Supabase Database](https://supabase.com/docs/guides/database/overview)
+- [Supabase: Tables and Data](https://supabase.com/docs/guides/database/tables)
+- [Supabase Auth Architecture](https://supabase.com/docs/guides/auth/architecture)
+- [Supabase Storage Schema](https://supabase.com/docs/guides/storage/schema/design)
 - [Supabase Python: Upsert data](https://supabase.com/docs/reference/python/upsert)
 - [PostgreSQL: Constraints](https://www.postgresql.org/docs/current/ddl-constraints.html)
 - [PostgreSQL: Introduction to Indexes](https://www.postgresql.org/docs/current/indexes-intro.html)
