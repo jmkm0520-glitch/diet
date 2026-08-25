@@ -27,6 +27,18 @@ function formatRange(range: DietStats["range"]): string {
   return `${label(range.start)} ~ ${label(range.end)}`;
 }
 
+function StatsHeading({ range }: { range?: DietStats["range"] }) {
+  return (
+    <header className={styles.statsHeader}>
+      <div>
+        <p className={styles.statsEyebrow}>최근 7일 리포트</p>
+        <h1 id="stats-title">식단 통계</h1>
+      </div>
+      {range ? <p className={styles.statsRange}>{formatRange(range)}</p> : null}
+    </header>
+  );
+}
+
 export function StatsView() {
   const [state, setState] = useState<LoadState>({ status: "loading" });
 
@@ -48,8 +60,7 @@ export function StatsView() {
   if (state.status === "loading") {
     return (
       <section className={styles.statsSection} aria-busy="true" aria-labelledby="stats-title">
-        <p className={styles.statsEyebrow}>최근 7일</p>
-        <h1 id="stats-title">식단 통계</h1>
+        <StatsHeading />
         <p className={styles.statsMessage} role="status" aria-live="polite">
           통계를 불러오고 있습니다...
         </p>
@@ -60,8 +71,7 @@ export function StatsView() {
   if (state.status === "failed") {
     return (
       <section className={styles.statsSection} aria-labelledby="stats-title">
-        <p className={styles.statsEyebrow}>최근 7일</p>
-        <h1 id="stats-title">식단 통계</h1>
+        <StatsHeading />
         <p className={styles.statsError} role="alert">
           식단 기록을 불러오지 못했습니다.
           <br />
@@ -73,17 +83,10 @@ export function StatsView() {
 
   const { stats } = state;
   const weightLine = buildWeightLine(stats.daily);
-  const cards = [
-    { key: "total", label: "총 기록", value: `${stats.total}회`, hint: "저장한 끼니 수" },
-    { key: "clean", label: "클린식", value: `${stats.clean}회`, hint: "가볍게 먹은 끼니" },
-    { key: "free", label: "자유식", value: `${stats.free}회`, hint: "자유롭게 먹은 끼니" },
-  ];
 
   return (
     <section className={styles.statsSection} aria-labelledby="stats-title">
-      <p className={styles.statsEyebrow}>최근 7일</p>
-      <h1 id="stats-title">식단 통계</h1>
-      <p className={styles.statsRange}>{formatRange(stats.range)}</p>
+      <StatsHeading range={stats.range} />
 
       {stats.total === 0 ? (
         <p className={styles.statsMessage}>
@@ -93,18 +96,6 @@ export function StatsView() {
         </p>
       ) : (
         <>
-          <dl className={styles.statsGrid}>
-            {cards.map((card) => (
-              <div
-                className={`${styles.statCard} ${card.key === "free" ? styles.freeStatCard : ""}`}
-                key={card.key}
-              >
-                <dt>{card.label}</dt>
-                <dd>{card.value}</dd>
-                <p>{card.hint}</p>
-              </div>
-            ))}
-          </dl>
           <div className={styles.chartRow}>
             <figure className={styles.donutCard}>
               <figcaption>클린식 / 자유식 비율</figcaption>
@@ -179,17 +170,43 @@ export function StatsView() {
               </figcaption>
               <svg
                 className={styles.weightChart}
-                viewBox="0 0 100 40"
-                preserveAspectRatio="none"
+                viewBox="0 0 100 36"
+                preserveAspectRatio="xMidYMid meet"
                 role="img"
                 aria-label={`최근 ${stats.range.days}일 체중 ${weightLine.points
                   .map((point) => `${point.label}일 ${point.weight}킬로그램`)
                   .join(", ")}`}
               >
+                <defs>
+                  <linearGradient id="weight-area" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#78b98b" stopOpacity="0.32" />
+                    <stop offset="100%" stopColor="#78b98b" stopOpacity="0.02" />
+                  </linearGradient>
+                </defs>
+                {[8, 16, 24].map((y) => (
+                  <line
+                    className={styles.weightGridline}
+                    key={y}
+                    x1="0"
+                    x2="100"
+                    y1={y}
+                    y2={y}
+                  />
+                ))}
+                <polygon
+                  className={styles.weightArea}
+                  points={[
+                    `${weightLine.points[0].x * 100},24`,
+                    ...weightLine.points.map(
+                      (point) => `${point.x * 100},${24 - point.y * 14}`,
+                    ),
+                    `${weightLine.points.at(-1)!.x * 100},24`,
+                  ].join(" ")}
+                />
                 <polyline
                   className={styles.weightLine}
                   points={weightLine.points
-                    .map((point) => `${point.x * 100},${36 - point.y * 32}`)
+                    .map((point) => `${point.x * 100},${24 - point.y * 14}`)
                     .join(" ")}
                   vectorEffect="non-scaling-stroke"
                 />
@@ -197,10 +214,35 @@ export function StatsView() {
                   <circle
                     className={styles.weightDot}
                     cx={point.x * 100}
-                    cy={36 - point.y * 32}
+                    cy={24 - point.y * 14}
                     key={point.date}
-                    r="1.4"
+                    r="1.05"
                   />
+                ))}
+                {weightLine.points.map((point) => {
+                  const y = 24 - point.y * 14;
+                  return (
+                    <text
+                      className={styles.weightValueLabel}
+                      x={point.x * 100}
+                      y={Math.max(4.5, y - 4)}
+                      key={`${point.date}-weight`}
+                      textAnchor={point.x === 0 ? "start" : point.x === 1 ? "end" : "middle"}
+                    >
+                      {point.weight}kg
+                    </text>
+                  );
+                })}
+                {weightLine.points.map((point) => (
+                  <text
+                    className={styles.weightDateLabel}
+                    x={point.x * 100}
+                    y="33"
+                    key={`${point.date}-label`}
+                    textAnchor={point.x === 0 ? "start" : point.x === 1 ? "end" : "middle"}
+                  >
+                    {point.dateLabel}
+                  </text>
                 ))}
               </svg>
               <p className={styles.weightChartHint}>

@@ -3,7 +3,12 @@ import { useState } from "react";
 
 import styles from "../app/page.module.css";
 import type { Meal, MealRecord, MealType } from "../types/api";
-import { getMealCardState, getMealSaveInput } from "./mealCardState";
+import {
+  getMealCardState,
+  getMealSaveInput,
+  getMealTypeSuggestion,
+  toggleMealType,
+} from "./mealCardState";
 
 export type MealCardProps = {
   meal: Meal;
@@ -13,6 +18,7 @@ export type MealCardProps = {
   record: MealRecord | null;
   isLoading: boolean;
   onSave: (meal: Meal, food: string, type: MealType) => Promise<void>;
+  onDelete: (meal: Meal) => Promise<void>;
 };
 
 export function MealCard({
@@ -23,6 +29,7 @@ export function MealCard({
   record,
   isLoading,
   onSave,
+  onDelete,
 }: MealCardProps) {
   const food = record?.food ?? defaultFood;
   const initialType = record?.type ?? (food.trim() ? defaultType : null);
@@ -33,6 +40,7 @@ export function MealCard({
   const [isSaving, setIsSaving] = useState(false);
   const [isLocked, setIsLocked] = useState(() => Boolean(record));
   const { isFree, isSelected, label } = getMealCardState(type);
+  const suggestedType = getMealTypeSuggestion(foodInput);
   const editModeStatus = `${title} 식단 수정 모드입니다.`;
 
   async function saveMeal() {
@@ -60,6 +68,56 @@ export function MealCard({
     setError(null);
     setSaveStatus(editModeStatus);
   }
+
+  function selectMealType(nextType: MealType) {
+    setType((currentType) => toggleMealType(currentType, nextType));
+    startEditing();
+  }
+
+  async function deleteMeal() {
+    const confirmed = window.confirm(`${title} 식단 기록을 삭제할까요?`);
+    if (!confirmed) return;
+
+    setIsSaving(true);
+    setError(null);
+    setSaveStatus("");
+    try {
+      await onDelete(meal);
+      setFoodInput("");
+      setType(null);
+      setIsLocked(false);
+      setSaveStatus(`${title} 식단 기록을 삭제했습니다.`);
+    } catch {
+      setError("식단 기록을 삭제하지 못했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  const mealTypeChoices = (
+    <div className={styles.mealChoices} aria-label={`${title} 식단 종류 선택`}>
+      <button
+        aria-label={`${title} 클린식 선택`}
+        aria-pressed={type === "clean"}
+        className={type === "clean" ? styles.selectedChoice : ""}
+        disabled={isSaving}
+        type="button"
+        onClick={() => selectMealType("clean")}
+      >
+        클린식
+      </button>
+      <button
+        aria-label={`${title} 자유식 선택`}
+        aria-pressed={isFree}
+        className={isFree ? styles.selectedChoice : ""}
+        disabled={isSaving}
+        type="button"
+        onClick={() => selectMealType("free")}
+      >
+        자유식
+      </button>
+    </div>
+  );
 
   return (
     <article
@@ -114,43 +172,45 @@ export function MealCard({
           }}
         />
         <div className={styles.mealActions}>
-          <div className={styles.mealChoices} aria-label={`${title} 식단 종류`}>
+          {suggestedType ? (
+            <section className={styles.aiMealSuggestion} aria-live="polite" aria-label={`${title} 키워드 기반 기록 보조`}>
+              <p><strong>키워드 기반 제안</strong>{suggestedType === "clean" ? "클린식" : "자유식"}</p>
+              <span>아래에서 직접 선택해 확정해 주세요.</span>
+              {mealTypeChoices}
+            </section>
+          ) : mealTypeChoices}
+          {isLocked ? (
+            <div className={styles.savedMealActions}>
+              <button
+                aria-label={`${title} 식단 수정`}
+                className={`${styles.mealSaveButton} ${styles.mealSaveButtonEdit}`}
+                disabled={isSaving}
+                type="button"
+                onClick={startEditing}
+              >
+                수정
+              </button>
+              <button
+                aria-label={`${title} 식단 삭제`}
+                className={styles.mealDeleteButton}
+                disabled={isSaving}
+                type="button"
+                onClick={deleteMeal}
+              >
+                삭제
+              </button>
+            </div>
+          ) : (
             <button
-              aria-label={`${title} 클린식 선택`}
-              aria-pressed={type === "clean"}
-              className={type === "clean" ? styles.selectedChoice : ""}
+              aria-label={`${title} 식단 저장`}
+              className={styles.mealSaveButton}
               disabled={isSaving}
               type="button"
-              onClick={() => {
-                setType((current) => (current === "clean" ? null : "clean"));
-                startEditing();
-              }}
+              onClick={saveMeal}
             >
-              클린식
+              {isSaving ? "저장 중..." : "저장"}
             </button>
-            <button
-              aria-label={`${title} 자유식 선택`}
-              aria-pressed={isFree}
-              className={isFree ? styles.selectedChoice : ""}
-              disabled={isSaving}
-              type="button"
-              onClick={() => {
-                setType((current) => (current === "free" ? null : "free"));
-                startEditing();
-              }}
-            >
-              자유식
-            </button>
-          </div>
-          <button
-            aria-label={`${title} 식단 ${isLocked ? "수정" : "저장"}`}
-            className={`${styles.mealSaveButton} ${isLocked ? styles.mealSaveButtonEdit : ""}`}
-            disabled={isSaving}
-            type="button"
-            onClick={isLocked ? startEditing : saveMeal}
-          >
-            {isSaving ? "저장 중..." : isLocked ? "수정" : "저장"}
-          </button>
+          )}
         </div>
         {error && (
           <p className={styles.mealInputError} id={`food-error-${meal}`} role="alert">

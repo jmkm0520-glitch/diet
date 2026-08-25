@@ -88,6 +88,13 @@ describe("buildWeightLine", () => {
     assert.equal(line.points[1].x, 1);
   });
 
+  it("formats every plotted date for the horizontal axis", () => {
+    assert.deepEqual(
+      buildWeightLine(daily).points.map((point) => point.dateLabel),
+      ["8/18", "8/20"],
+    );
+  });
+
   it("scales to the recorded range so a small change stays visible", () => {
     const line = buildWeightLine(daily);
     assert.equal(line.min, 54.5);

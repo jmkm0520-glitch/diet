@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./page.module.css";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,9 +14,15 @@ import {
   readDateFromUrl,
   writeDateToUrl,
 } from "../services/date";
+import {
+  openTargetWeightMenu,
+  readTargetWeight,
+  TARGET_WEIGHT_UPDATED_EVENT,
+} from "../services/targetWeight";
 import { ApiClientError, fetchApi } from "../services/apiClient";
 import type { DayRecord, Meal, MealRecord, MealType } from "../types/api";
 import {
+  clearLocalMeal,
   clearLocalMeals,
   readLocalDay,
   saveLocalMeal,
@@ -25,16 +31,6 @@ import {
 
 function isApiNotFound(error: unknown): boolean {
   return error instanceof ApiClientError && error.status === 404;
-}
-
-function CalendarIcon() {
-  return (
-    <svg aria-hidden="true" className={styles.calendarIcon} viewBox="0 0 24 24">
-      <rect x="3.5" y="5" width="17" height="15.5" rx="3" />
-      <path d="M7.5 3.5v4M16.5 3.5v4M3.5 10h17" />
-      <path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01" />
-    </svg>
-  );
 }
 
 const meals: { meal: Meal; title: string; defaultFood: string; defaultType: MealType }[] = [
@@ -54,12 +50,14 @@ export default function Home() {
   const [weightSaveError, setWeightSaveError] = useState<string | null>(null);
   const [weightStatus, setWeightStatus] = useState("");
   const [isSavingWeight, setIsSavingWeight] = useState(false);
-  const [isWeightLocked, setIsWeightLocked] = useState(false);
+  const [isWeightEditorOpen, setIsWeightEditorOpen] = useState(false);
+  const [configuredTargetWeight, setConfiguredTargetWeight] = useState<number | null>(null);
   const [isResettingMeals, setIsResettingMeals] = useState(false);
   const [mealResetVersion, setMealResetVersion] = useState(0);
   const [mealResetError, setMealResetError] = useState<string | null>(null);
   const [dayLoadError, setDayLoadError] = useState<string | null>(null);
   const [mealResetStatus, setMealResetStatus] = useState("");
+  const weightInputRef = useRef<HTMLInputElement>(null);
 
   const selectDate = useCallback(
     (nextDate: string) => {
@@ -69,7 +67,7 @@ export default function Home() {
       writeDateToUrl(safeDate);
       setDayRecord(null);
       setIsLoadingDay(true);
-      setIsWeightLocked(false);
+      setIsWeightEditorOpen(false);
       setWeightSaveError(null);
       setWeightStatus("");
       setMealResetError(null);
@@ -84,6 +82,19 @@ export default function Home() {
     const timeoutId = window.setTimeout(() => selectDate(urlDate), 0);
     return () => window.clearTimeout(timeoutId);
   }, [selectDate]);
+
+  useEffect(() => {
+    const syncTargetWeight = () => setConfiguredTargetWeight(readTargetWeight());
+    syncTargetWeight();
+    window.addEventListener(TARGET_WEIGHT_UPDATED_EVENT, syncTargetWeight);
+    return () => window.removeEventListener(TARGET_WEIGHT_UPDATED_EVENT, syncTargetWeight);
+  }, []);
+
+  useEffect(() => {
+    if (!isWeightEditorOpen) return;
+    const timeoutId = window.setTimeout(() => weightInputRef.current?.focus(), 0);
+    return () => window.clearTimeout(timeoutId);
+  }, [isWeightEditorOpen]);
 
   function updateWeightInput(value: string) {
     setWeightInput(value);
@@ -115,8 +126,13 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ date: selectedDate, weight: Number(weightInput) }),
       });
-      setIsWeightLocked(true);
+      setDayRecord((current) => ({
+        ...(current ?? readLocalDay(selectedDate)),
+        date: selectedDate,
+        weight: { date: selectedDate, weight: Number(weightInput) },
+      }));
       setWeightStatus("체중이 저장되었습니다.");
+      setIsWeightEditorOpen(false);
     } catch (error) {
       if (isApiNotFound(error)) {
         const record = saveLocalWeight(selectedDate, Number(weightInput));
@@ -125,8 +141,8 @@ export default function Home() {
           date: selectedDate,
           weight: record,
         }));
-        setIsWeightLocked(true);
         setWeightStatus("체중이 저장되었습니다.");
+        setIsWeightEditorOpen(false);
       } else {
         setWeightSaveError("체중 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
       }
@@ -135,11 +151,19 @@ export default function Home() {
     }
   }
 
-  function unlockWeightInput() {
-    setIsWeightLocked(false);
+  function openWeightEditor() {
+    setWeightInput(currentWeight === null ? "" : String(currentWeight));
     setWeightError(null);
     setWeightSaveError(null);
-    setWeightStatus("체중 수정 모드입니다.");
+    setWeightStatus("");
+    setIsWeightEditorOpen(true);
+  }
+
+  function cancelWeightEditor() {
+    setWeightInput(currentWeight === null ? "" : String(currentWeight));
+    setWeightError(null);
+    setWeightSaveError(null);
+    setIsWeightEditorOpen(false);
   }
 
   async function saveMeal(meal: Meal, food: string, type: MealType) {
@@ -159,6 +183,24 @@ export default function Home() {
       ...(current ?? readLocalDay(selectedDate)),
       date: selectedDate,
       meals: { ...(current?.meals ?? readLocalDay(selectedDate).meals), [meal]: record },
+    }));
+  }
+
+  async function deleteMeal(meal: Meal) {
+    try {
+      await fetchApi<{ date: string; deleted: number }>(
+        `/api/meal?date=${selectedDate}&meal=${meal}`,
+        { method: "DELETE" },
+      );
+    } catch (error) {
+      if (!isApiNotFound(error)) throw error;
+    }
+
+    const clearedLocalDay = clearLocalMeal(selectedDate, meal);
+    setDayRecord((current) => ({
+      ...(current ?? clearedLocalDay),
+      date: selectedDate,
+      meals: { ...(current?.meals ?? clearedLocalDay.meals), [meal]: null },
     }));
   }
 
@@ -204,11 +246,7 @@ export default function Home() {
   function shiftMonth(months: number) {
     const current = new Date(`${selectedDate}T12:00:00`);
     const target = new Date(current.getFullYear(), current.getMonth() + months, 1);
-    const lastDayOfTargetMonth = new Date(
-      target.getFullYear(),
-      target.getMonth() + 1,
-      0,
-    ).getDate();
+    const lastDayOfTargetMonth = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
     target.setDate(Math.min(current.getDate(), lastDayOfTargetMonth));
     const nextDate = formatLocalDate(target);
     selectDate(isFutureLocalDate(nextDate) ? todayDate : nextDate);
@@ -219,6 +257,17 @@ export default function Home() {
     day: "numeric",
     weekday: "long",
   }).format(new Date(`${selectedDate}T12:00:00`));
+  const formatCompactDate = (value: string) => {
+    const [, month, day] = value.split("-");
+    return `${Number(month)}.${Number(day)}`;
+  };
+  const adjacentDate = (days: number) => {
+    const date = new Date(`${selectedDate}T12:00:00`);
+    date.setDate(date.getDate() + days);
+    return formatLocalDate(date);
+  };
+  const previousDate = adjacentDate(-1);
+  const nextDate = adjacentDate(1);
   const isViewingToday = selectedDate === todayDate;
   const hasSavedMeals = Boolean(
     dayRecord && Object.values(dayRecord.meals).some((meal) => meal !== null),
@@ -228,6 +277,11 @@ export default function Home() {
   );
   const cleanMealCount = savedMeals.filter((meal) => meal.type === "clean").length;
   const freeMealCount = savedMeals.filter((meal) => meal.type === "free").length;
+  const currentWeight = dayRecord?.weight?.weight ?? null;
+  const remainingWeight =
+    currentWeight !== null && configuredTargetWeight !== null
+      ? Math.round((Math.max(currentWeight - configuredTargetWeight, 0) + Number.EPSILON) * 10) / 10
+      : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -240,7 +294,7 @@ export default function Home() {
           setWeightError(null);
           setWeightSaveError(null);
           setWeightStatus("");
-          setIsWeightLocked(Boolean(record.weight));
+          setIsWeightEditorOpen(false);
           setIsLoadingDay(false);
         }
       })
@@ -253,7 +307,7 @@ export default function Home() {
           setWeightError(null);
           setWeightSaveError(null);
           setWeightStatus("");
-          setIsWeightLocked(Boolean(localDay?.weight));
+          setIsWeightEditorOpen(false);
           setIsLoadingDay(false);
         }
       });
@@ -283,17 +337,21 @@ export default function Home() {
         </div>
       </header>
       <div className={styles.dashboard}>
-      <section className={styles.header}>
-        <p>오늘의 기록</p>
-        <h1>{dateTitle}</h1>
-        <div className={styles.dateNavigationRow}>
-          <span>날짜를 선택하거나 이전 기록을 확인해 보세요.</span>
-          <div className={styles.dateControls} aria-label="날짜 이동">
-            <button type="button" aria-label="하루 전 기록" onClick={() => shiftDate(-1)}>
-              ‹
+        <section className={styles.header}>
+          <p>오늘의 기록</p>
+          <h1 className={styles.srOnly}>{dateTitle}</h1>
+          <div className={styles.dateNavigationRow} aria-label="날짜 이동">
+            <button
+              className={styles.dateNeighbor}
+              type="button"
+              aria-label={`${formatCompactDate(previousDate)} 기록 보기`}
+              onClick={() => shiftDate(-1)}
+            >
+              {formatCompactDate(previousDate)}
             </button>
-            <label className={styles.datePicker}>
-              <CalendarIcon />
+            <label className={`${styles.datePicker} ${styles.currentDate}`}>
+              <span>{formatCompactDate(selectedDate)}</span>
+              {isViewingToday ? <strong>오늘</strong> : null}
               <span className={styles.srOnly}>날짜 선택</span>
               <input
                 aria-label="기록 날짜 선택"
@@ -313,138 +371,201 @@ export default function Home() {
               />
             </label>
             <button
+              className={styles.dateNeighbor}
               type="button"
-              aria-label="다음 날 기록"
+              aria-label={`${formatCompactDate(nextDate)} 기록 보기`}
               disabled={isViewingToday}
               onClick={() => shiftDate(1)}
             >
-              ›
+              {formatCompactDate(nextDate)}
             </button>
           </div>
-        </div>
-      </section>
-      <section
-        className={styles.weightCard}
-        aria-busy={isLoadingDay || isSavingWeight}
-        aria-labelledby="weight-title"
-      >
-        <div>
-          <p className={styles.eyebrow}>오늘의 체중</p>
-          <h2 id="weight-title">몸무게를 기록해 보세요</h2>
-          <p className={styles.cardHint}>날짜별로 저장하고 언제든 수정할 수 있어요.</p>
-        </div>
-        <div className={styles.weightControl}>
-          <div className={styles.weightInputRow}>
-            <input
-              aria-describedby={
-                weightError || weightSaveError ? "weight-error weight-status" : "weight-status"
-              }
-              aria-invalid={Boolean(weightError || weightSaveError)}
-              aria-label="오늘의 체중"
-              inputMode="decimal"
-              min="0.01"
-              step="0.01"
-              type="text"
-              placeholder="60.5"
-              value={weightInput}
-              disabled={isWeightLocked}
-              onChange={(event) => updateWeightInput(event.target.value)}
-            />
-            <span>kg</span>
+        </section>
+        <section
+          className={styles.weightCard}
+          aria-busy={isLoadingDay || isSavingWeight}
+          aria-labelledby="weight-title"
+        >
+          <div>
+            <p className={styles.eyebrow}>오늘의 체중</p>
+            <h2 id="weight-title">
+              <span className={styles.desktopWeightTitle}>오늘의 몸무게를 저장해 보세요</span>
+              <span className={styles.mobileWeightTitle}>오늘의 몸무게</span>
+            </h2>
+            <p className={styles.cardHint}>목표 체중은 메뉴에서 설정할 수 있어요.</p>
+          </div>
+          <div className={styles.weightControl}>
             <button
-              aria-label={`오늘의 체중 ${isWeightLocked ? "수정" : "저장"}`}
+              aria-expanded={isWeightEditorOpen}
+              aria-haspopup="dialog"
+              aria-label={`오늘의 체중 ${currentWeight === null ? "입력" : `${currentWeight}kg 수정`}`}
+              className={`${styles.weightDisplay}${currentWeight === null ? ` ${styles.weightRecordButton}` : ""}`}
               type="button"
-              disabled={isSavingWeight}
-              onClick={isWeightLocked ? unlockWeightInput : saveWeight}
+              onClick={openWeightEditor}
             >
-              {isSavingWeight ? "저장 중..." : isWeightLocked ? "수정" : "저장"}
+              {currentWeight === null ? "기록하기" : <>{currentWeight}{" "}<span>kg</span></>}
             </button>
+            {isWeightEditorOpen ? (
+              <form
+                aria-labelledby="weight-editor-title"
+                className={styles.weightEditorToast}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") cancelWeightEditor();
+                }}
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void saveWeight();
+                }}
+                role="dialog"
+              >
+                <p id="weight-editor-title">오늘의 몸무게</p>
+                <label htmlFor="today-weight-input">몸무게 (kg)</label>
+                <div className={styles.weightEditorInputRow}>
+                  <input
+                    aria-describedby={weightError || weightSaveError ? "weight-error" : undefined}
+                    aria-invalid={Boolean(weightError || weightSaveError)}
+                    id="today-weight-input"
+                    inputMode="decimal"
+                    min="0.01"
+                    placeholder="60.5"
+                    ref={weightInputRef}
+                    step="0.01"
+                    type="text"
+                    value={weightInput}
+                    onChange={(event) => updateWeightInput(event.target.value)}
+                  />
+                  <span>kg</span>
+                </div>
+                {weightError || weightSaveError ? (
+                  <p className={styles.inputError} id="weight-error" role="alert">
+                    {weightError ?? weightSaveError}
+                  </p>
+                ) : null}
+                <div className={styles.weightEditorActions}>
+                  <button type="button" disabled={isSavingWeight} onClick={cancelWeightEditor}>
+                    취소
+                  </button>
+                  <button type="submit" disabled={isSavingWeight}>
+                    {isSavingWeight ? "저장 중..." : "확인"}
+                  </button>
+                </div>
+              </form>
+            ) : null}
+            <p className={styles.srOnly} id="weight-status" role="status" aria-live="polite">
+              {weightStatus}
+            </p>
           </div>
-          {weightError || weightSaveError ? (
-            <p className={styles.inputError} id="weight-error" role="alert">
-              {weightError ?? weightSaveError}
+          <dl className={styles.weightProgress}>
+            <div>
+              <dt>목표 체중</dt>
+              <dd>
+                <button
+                  aria-label="목표 몸무게 설정 열기"
+                  className={styles.targetWeightQuickLink}
+                  type="button"
+                  onClick={openTargetWeightMenu}
+                >
+                  {configuredTargetWeight === null ? "메뉴에서 설정" : `${configuredTargetWeight}kg`}
+                </button>
+              </dd>
+            </div>
+            <div>
+              <dt>남은 감량</dt>
+              <dd>
+                {currentWeight === null
+                  ? "-"
+                  : remainingWeight === null
+                    ? "목표 체중을 설정해 주세요"
+                    : `${remainingWeight}kg`}
+              </dd>
+            </div>
+          </dl>
+        </section>
+        {dayLoadError ? (
+          <p className={styles.dayLoadError} role="alert">
+            {dayLoadError}
+          </p>
+        ) : null}
+        <section
+          className={styles.mealGrid}
+          aria-busy={isLoadingDay || isResettingMeals}
+          aria-label="오늘의 식단"
+        >
+          {meals.map((meal) => (
+            <MealCard
+              key={`${selectedDate}-${meal.meal}-${isLoadingDay}-${mealResetVersion}`}
+              {...meal}
+              isLoading={isLoadingDay}
+              onDelete={deleteMeal}
+              onSave={saveMeal}
+              record={dayRecord?.meals[meal.meal] ?? null}
+            />
+          ))}
+        </section>
+        <section className={styles.summaryStrip} aria-label="오늘의 식단 요약">
+          <div className={styles.summaryMetric}>
+            <span aria-hidden="true" className={styles.summaryLeaf} />
+            <p>식단 기록</p>
+            <strong>
+              {savedMeals.length}
+              <small>/4</small>
+            </strong>
+          </div>
+          <div className={styles.summaryMetric}>
+            <span aria-hidden="true" className={styles.summaryGrain} />
+            <p>클린식</p>
+            <strong>
+              {cleanMealCount}
+              <small>회</small>
+            </strong>
+          </div>
+          <div className={styles.summaryMetric}>
+            <span aria-hidden="true" className={styles.summaryDrop} />
+            <p>자유식</p>
+            <strong>
+              {freeMealCount}
+              <small>회</small>
+            </strong>
+          </div>
+        </section>
+        {!isLoadingDay && !dayLoadError && !hasSavedMeals ? (
+          <p className={styles.mealEmptyState}>
+            {isViewingToday
+              ? "아직 오늘 기록한 식단이 없어요. 첫 식단을 기록해보세요."
+              : "이 날짜에는 기록된 식단이 없습니다."}
+          </p>
+        ) : null}
+        <div className={styles.mealResetRow}>
+          {mealResetError ? (
+            <p aria-live="polite" className={styles.mealResetError}>
+              {mealResetError}
             </p>
           ) : null}
-          <p className={styles.srOnly} id="weight-status" role="status" aria-live="polite">
-            {weightStatus}
-          </p>
-        </div>
-      </section>
-      {dayLoadError ? (
-        <p className={styles.dayLoadError} role="alert">
-          {dayLoadError}
-        </p>
-      ) : null}
-      <section
-        className={styles.mealGrid}
-        aria-busy={isLoadingDay || isResettingMeals}
-        aria-label="오늘의 식단"
-      >
-        {meals.map((meal) => (
-          <MealCard
-            key={`${selectedDate}-${meal.meal}-${isLoadingDay}-${mealResetVersion}`}
-            {...meal}
-            isLoading={isLoadingDay}
-            onSave={saveMeal}
-            record={dayRecord?.meals[meal.meal] ?? null}
-          />
-        ))}
-      </section>
-      <section className={styles.summaryStrip} aria-label="오늘의 식단 요약">
-        <div className={styles.summaryMetric}>
-          <span aria-hidden="true" className={styles.summaryLeaf} />
-          <p>식단 기록</p>
-          <strong>{savedMeals.length}<small>/4</small></strong>
-        </div>
-        <div className={styles.summaryMetric}>
-          <span aria-hidden="true" className={styles.summaryGrain} />
-          <p>클린식</p>
-          <strong>{cleanMealCount}<small>회</small></strong>
-        </div>
-        <div className={styles.summaryMetric}>
-          <span aria-hidden="true" className={styles.summaryDrop} />
-          <p>자유식</p>
-          <strong>{freeMealCount}<small>회</small></strong>
-        </div>
-      </section>
-      {!isLoadingDay && !dayLoadError && !hasSavedMeals ? (
-        <p className={styles.mealEmptyState}>
-          {isViewingToday
-            ? "아직 오늘 기록한 식단이 없어요. 첫 식단을 기록해보세요."
-            : "이 날짜에는 기록된 식단이 없습니다."}
-        </p>
-      ) : null}
-      {!isViewingToday ? (
-        <div className={styles.todayFooter}>
           <button
-            aria-label="오늘 날짜로 돌아가기"
+            aria-label={`${dateTitle} 식단 초기화`}
             type="button"
-            onClick={() => selectDate(todayDate)}
+            disabled={isLoadingDay || isResettingMeals || !hasSavedMeals}
+            onClick={resetMeals}
           >
-            오늘로 돌아가기 <span aria-hidden="true">›</span>
+            {isResettingMeals ? "초기화 중..." : "식단 초기화"}
           </button>
+          {mealResetStatus ? (
+            <p className={styles.srOnly} role="status" aria-live="polite">
+              {mealResetStatus}
+            </p>
+          ) : null}
         </div>
-      ) : null}
-      <div className={styles.mealResetRow}>
-        {mealResetError ? (
-          <p aria-live="polite" className={styles.mealResetError}>
-            {mealResetError}
-          </p>
+        {!isViewingToday ? (
+          <div className={styles.todayFooter}>
+            <button
+              aria-label="오늘 날짜로 돌아가기"
+              type="button"
+              onClick={() => selectDate(todayDate)}
+            >
+              오늘로 돌아가기 <span aria-hidden="true">›</span>
+            </button>
+          </div>
         ) : null}
-        <button
-          aria-label={`${dateTitle} 식단 초기화`}
-          type="button"
-          disabled={isLoadingDay || isResettingMeals || !hasSavedMeals}
-          onClick={resetMeals}
-        >
-          {isResettingMeals ? "초기화 중..." : "식단 초기화"}
-        </button>
-        {mealResetStatus ? (
-          <p className={styles.srOnly} role="status" aria-live="polite">
-            {mealResetStatus}
-          </p>
-        ) : null}
-      </div>
       </div>
     </main>
   );

@@ -52,6 +52,8 @@ export function donutLabel(clean: number, free: number, cleanRatio: number): str
 
 export type WeightPoint = {
   date: string;
+  /** Month and day, e.g. "8/20", for the chart's horizontal axis. */
+  dateLabel: string;
   label: string;
   weight: number;
   /** Position inside the plot box, 0–1, left to right and bottom to top. */
@@ -84,8 +86,10 @@ export function buildWeightLine(daily: { date: string; weight: number | null }[]
 
   const points = recorded.map((day) => {
     const index = daily.findIndex((entry) => entry.date === day.date);
+    const [, month, date] = day.date.split("-");
     return {
       date: day.date,
+      dateLabel: `${Number(month)}/${Number(date)}`,
       label: String(Number(day.date.split("-")[2])),
       weight: day.weight,
       x: lastIndex > 0 ? index / lastIndex : 0.5,

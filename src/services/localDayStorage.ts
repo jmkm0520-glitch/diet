@@ -71,6 +71,24 @@ export function clearLocalMeals(date: string): DayRecord {
   return clearedDay;
 }
 
+/** Remove one locally stored meal while preserving the other meal slots and weight. */
+export function clearLocalMeal(date: string, meal: Meal): DayRecord {
+  const day = readLocalDay(date);
+  const clearedDay: DayRecord = {
+    ...day,
+    date,
+    meals: { ...day.meals, [meal]: null },
+  };
+
+  if (clearedDay.weight || Object.values(clearedDay.meals).some((record) => record !== null)) {
+    window.localStorage.setItem(storageKey(date), JSON.stringify(clearedDay));
+  } else {
+    window.localStorage.removeItem(storageKey(date));
+  }
+
+  return clearedDay;
+}
+
 export function clearLocalDay(date: string): DayRecord {
   const clearedDay: DayRecord = {
     date,
